@@ -1,6 +1,8 @@
 package dev.caceresenzo.rotationcontrol;
 
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -11,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +44,14 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
-        checkPermissions(true);
+        if (checkPermissions(true)) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean shouldStart = sharedPreferences.getBoolean(getString(R.string.start_control_key), false);
+
+            if (shouldStart) {
+                RotationService.start(this);
+            }
+        }
     }
 
     public boolean checkPermissions(boolean request) {

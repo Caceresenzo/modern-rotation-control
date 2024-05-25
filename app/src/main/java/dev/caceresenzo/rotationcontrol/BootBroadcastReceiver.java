@@ -18,16 +18,16 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        Log.i(TAG, "Received Boot");
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        if (!sharedPreferences.getBoolean(context.getString(R.string.start_on_boot_key), false)) {
+        boolean startOnBoot = sharedPreferences.getBoolean(context.getString(R.string.start_on_boot_key), false);
+
+        Log.i(TAG, String.format("Received Boot, start on boot? %s", startOnBoot));
+
+        if (!startOnBoot) {
             return;
         }
 
-        Intent serviceIntent = new Intent(context.getApplicationContext(), RotationService.class);
-        serviceIntent.putExtra(RotationService.INTENT_ACTION, RotationService.ACTION_START);
-        context.startForegroundService(serviceIntent);
+        RotationService.start(context);
     }
 
 }
