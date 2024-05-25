@@ -52,9 +52,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
         Log.i(TAG, String.format("key changed - key=%s", key));
 
-        if (getString(R.string.start_control_key).equals(key)) {
-            Activity context = getActivity();
+        Activity context = getActivity();
+        if (context == null) {
+            return;
+        }
 
+        if (getString(R.string.start_control_key).equals(key)) {
             boolean value = sharedPreferences.getBoolean(key, false);
             boolean hasNotificationPermission = ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
 
@@ -66,6 +69,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 Toast.makeText(context, R.string.require_notification_permission, Toast.LENGTH_LONG).show();
                 notificationPermissionActivityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
+        } else if (getString(R.string.buttons_key).equals(key)) {
+            RotationService.notifyConfigurationChanged(context);
         }
     }
 

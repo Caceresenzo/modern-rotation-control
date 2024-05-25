@@ -1,5 +1,6 @@
 package dev.caceresenzo.rotationcontrol;
 
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -214,10 +215,33 @@ public class RotationService extends Service {
         context.startForegroundService(intent);
     }
 
+    public static void notifyConfigurationChanged(Context context) {
+        if (!isRunning(context)) {
+            return;
+        }
+
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_REFRESH_NOTIFICATION);
+
+        context.startService(intent);
+    }
+
     public static void stop(Context context) {
         Intent intent = new Intent(context, RotationService.class);
 
         context.stopService(intent);
+    }
+
+    public static boolean isRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (RotationService.class.getName().equals(serviceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static class LocalBinder extends Binder {
