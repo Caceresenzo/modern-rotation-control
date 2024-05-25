@@ -1,7 +1,6 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="buttons_entries">
-        <item>Guard</item>
         <item>Auto</item>
         <item>Portrait</item>
         <item>Portrait (Reverse)</item>
@@ -12,7 +11,6 @@
     </string-array>
 
     <string-array name="buttons_values">
-        <item>GUARD</item>
         <item>AUTO</item>
         <item>PORTRAIT</item>
         <item>PORTRAIT_REVERSE</item>
