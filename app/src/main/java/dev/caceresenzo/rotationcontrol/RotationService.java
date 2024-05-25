@@ -6,14 +6,20 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
+
+import java.util.Collections;
+import java.util.Set;
 
 public class RotationService extends Service {
 
@@ -93,7 +99,7 @@ public class RotationService extends Service {
 
         switch (action) {
             case ACTION_START: {
-                applyColorFilters(layout);
+                updateViews(layout);
                 startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
 
                 return START_STICKY;
@@ -124,16 +130,29 @@ public class RotationService extends Service {
             }
         }
 
-        applyColorFilters(layout);
+        updateViews(layout);
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
 
         return START_STICKY;
     }
 
-    private void applyColorFilters(RemoteViews layout) {
+    private void updateViews(RemoteViews layout) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         int guardColor = guard ? R.color.aqua : R.color.red;
         layout.setColor(R.id.guard, TINT_METHOD, guardColor);
         layout.setColor(mode.viewId(), TINT_METHOD, R.color.aqua);
+
+        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
+        if (enabledButtons != null) {
+            for (RotationMode mode : RotationMode.values()) {
+                if (enabledButtons.contains(mode.name())) {
+                    continue;
+                }
+
+                layout.setViewVisibility(mode.viewId(), View.GONE);
+            }
+        }
     }
 
     private void createNotificationChannel() {
