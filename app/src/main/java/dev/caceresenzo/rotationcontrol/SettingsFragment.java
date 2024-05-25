@@ -14,6 +14,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
+        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+        if (sharedPreferences != null) {
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        }
     }
 
     @Override
@@ -21,13 +26,4 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Log.i(TAG, String.format("key=%s", key));
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        if (sharedPreferences != null) {
-            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        }
-    }
 }

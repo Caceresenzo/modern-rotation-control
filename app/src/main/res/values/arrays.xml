@@ -1,12 +1,24 @@
 <resources>
     <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
+    <string-array name="buttons_entries">
+        <item>Guard</item>
+        <item>Auto</item>
+        <item>Portrait</item>
+        <item>Portrait (Reverse)</item>
+        <item>Portrait (Sensor)</item>
+        <item>Landscape</item>
+        <item>Landscape (Reverse)</item>
+        <item>Landscape (Sensor)</item>
     </string-array>
 
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <string-array name="buttons_values">
+        <item>GUARD</item>
+        <item>AUTO</item>
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>PORTRAIT_SENSOR</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+        <item>LANDSCAPE_SENSOR</item>
     </string-array>
 </resources>
