@@ -16,4 +16,9 @@
     <string name="buttons_key">buttons</string>
     <string name="buttons_title">Notification Buttons</string>
     <string name="buttons_description">Chose which button are displayed in the notification..</string>
+
+    <string name="notification_channel_name">Controls</string>
+
+    <string name="require_settings_write_permission">Allow the application to write settings.</string>
+    <string name="require_overlay_permission">Allow the application to overlay over other apps.</string>
 </resources>
