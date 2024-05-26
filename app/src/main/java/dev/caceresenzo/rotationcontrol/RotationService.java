@@ -14,14 +14,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
-import java.util.Collections;
 import java.util.Set;
 
 public class RotationService extends Service {
@@ -50,6 +51,7 @@ public class RotationService extends Service {
     private NotificationCompat.Builder notificationBuilder;
     private boolean guard = true;
     private RotationMode mode = RotationMode.AUTO;
+    private View view;
 
     @Nullable
     @Override
@@ -68,6 +70,11 @@ public class RotationService extends Service {
 
     @Override
     public void onDestroy() {
+        if (view != null) {
+            getWindowManager().removeView(view);
+            view = null;
+        }
+
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
@@ -133,17 +140,21 @@ public class RotationService extends Service {
             }
         }
 
-        updateViews(layout);
         applyMode();
+        updateViews(layout);
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
 
         return START_STICKY;
     }
 
+    public boolean isGuardEnabledOrForced() {
+        return guard || mode.doesRequireGuard();
+    }
+
     private void updateViews(RemoteViews layout) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int guardColor = guard ? R.color.aqua : R.color.red;
+        int guardColor = isGuardEnabledOrForced() ? R.color.aqua : R.color.red;
         layout.setColor(R.id.guard, TINT_METHOD, guardColor);
         layout.setColor(mode.viewId(), TINT_METHOD, R.color.aqua);
 
@@ -162,13 +173,37 @@ public class RotationService extends Service {
     private void applyMode() {
         ContentResolver contentResolver = getContentResolver();
 
-        if (mode.shouldUseAccelerometerRotation()) {
-            Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
-        } else {
-            Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0);
+        if (isGuardEnabledOrForced()) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
+                    0,
+                    0,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    Gravity.TOP
+            );
 
-            if (mode.rotationValue() != -1) {
-                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
+            layoutParams.screenOrientation = mode.orientationValue();
+
+            if (view == null) {
+                view = new View(getApplicationContext());
+                getWindowManager().addView(view, layoutParams);
+            } else {
+                getWindowManager().updateViewLayout(view, layoutParams);
+            }
+
+            Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
+        } else if (view != null) {
+            getWindowManager().removeView(view);
+            view = null;
+
+            if (mode.shouldUseAccelerometerRotation()) {
+                Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
+            } else {
+                Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0);
+
+                if (mode.rotationValue() != -1) {
+                    Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
+                }
             }
         }
     }
@@ -223,6 +258,10 @@ public class RotationService extends Service {
 
     private NotificationManager getNotificationManager() {
         return (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    private WindowManager getWindowManager() {
+        return (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
     }
 
     public static void start(Context context) {
