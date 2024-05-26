@@ -7,7 +7,7 @@
       </SelectionState>
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-05-25T16:39:00.993539100Z">
+        <DropdownSelection timestamp="2024-05-26T16:00:45.693040200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\cacer\.android\avd\Pixel_3a_API_34.avd" />
