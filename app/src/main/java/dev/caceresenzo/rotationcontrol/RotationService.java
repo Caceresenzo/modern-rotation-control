@@ -181,7 +181,6 @@ public class RotationService extends Service {
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     Gravity.TOP
             );
-
             layoutParams.screenOrientation = mode.orientationValue();
 
             if (view == null) {
@@ -200,10 +199,7 @@ public class RotationService extends Service {
                 Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
             } else {
                 Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0);
-
-                if (mode.rotationValue() != -1) {
-                    Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
-                }
+                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
             }
         }
     }
