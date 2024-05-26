@@ -7,49 +7,41 @@
     <ImageView
         android:id="@+id/guard"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
         android:src="@drawable/guard" />
 
     <ImageView
         android:id="@+id/mode_auto"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
         android:src="@drawable/mode_auto" />
 
     <ImageView
         android:id="@+id/mode_portrait"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_portrait" />
 
     <ImageView
         android:id="@+id/mode_portrait_reverse"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_portrait_reverse" />
 
     <ImageView
         android:id="@+id/mode_portrait_sensor"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_portrait_sensor" />
 
     <ImageView
         android:id="@+id/mode_landscape"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_landscape" />
 
     <ImageView
         android:id="@+id/mode_landscape_reverse"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_landscape_reverse" />
 
     <ImageView
         android:id="@+id/mode_landscape_sensor"
         style="@style/AppTheme.NotificationButton"
-        android:contentDescription="Mode Auto"
-        android:src="@drawable/mode_auto" />
+        android:src="@drawable/mode_landscape_sensor" />
 
 </LinearLayout>
