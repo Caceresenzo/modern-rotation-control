@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
@@ -50,8 +51,10 @@ public class RotationService extends Service {
     private final IBinder binder = new LocalBinder();
 
     private NotificationCompat.Builder notificationBuilder;
+
     private boolean guard = true;
     private RotationMode mode = RotationMode.AUTO;
+
     private View view;
 
     @Nullable
@@ -72,6 +75,8 @@ public class RotationService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy");
+
         if (view != null) {
             getWindowManager().removeView(view);
             view = null;
@@ -83,8 +88,13 @@ public class RotationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            Log.i(TAG, String.format("onStartCommand - intent=null flags=%d startId=%d", flags, startId));
+            return START_NOT_STICKY;
+        }
+
         String action = intent.getAction();
-        Log.i(TAG, String.format("OnStartCommand - action=%s extras=%s flags=%d startId=%d", action, intent.getExtras(), flags, startId));
+        Log.i(TAG, String.format("onStartCommand - action=%s extras=%s flags=%d startId=%d", action, intent.getExtras(), flags, startId));
 
         if (action == null) {
             return START_NOT_STICKY;
@@ -111,8 +121,7 @@ public class RotationService extends Service {
             case ACTION_START: {
                 updateViews(layout);
                 startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-
-                return START_STICKY;
+                break;
             }
 
             case ACTION_CONFIGURATION_CHANGED: {
@@ -145,8 +154,11 @@ public class RotationService extends Service {
             }
         }
 
+        if (!ACTION_START.equals(action)) {
+            updateViews(layout);
+        }
+
         applyMode();
-        updateViews(layout);
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
 
         return START_STICKY;
@@ -166,9 +178,11 @@ public class RotationService extends Service {
     private void updateViews(RemoteViews layout) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int guardColor = isGuardEnabledOrForced() ? R.color.aqua : R.color.red;
-        layout.setColor(R.id.guard, TINT_METHOD, guardColor);
-        layout.setColor(mode.viewId(), TINT_METHOD, R.color.aqua);
+        if (isGuardEnabledOrForced()) {
+            layout.setColor(R.id.guard, TINT_METHOD, R.color.active);
+        }
+
+        layout.setColor(mode.viewId(), TINT_METHOD, R.color.active);
 
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
         if (enabledButtons != null) {
@@ -203,9 +217,11 @@ public class RotationService extends Service {
             }
 
             Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
-        } else if (view != null) {
-            getWindowManager().removeView(view);
-            view = null;
+        } else {
+            if (view != null) {
+                getWindowManager().removeView(view);
+                view = null;
+            }
 
             if (mode.shouldUseAccelerometerRotation()) {
                 Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);

@@ -2,13 +2,13 @@
 <resources>
     <style name="AppTheme">
     </style>
-    <style name="AppTheme.Application" parent="@style/Theme.AppCompat.Light" />
+    <style name="AppTheme.Application" parent="@style/Theme.AppCompat.DayNight" />
     <style name="AppTheme.NotificationButton">
         <item name="android:padding">2dp</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:scaleType">centerInside</item>
-        <item name="android:tint">#ff0000</item>
+        <item name="android:tint">#000</item>
         <item name="android:layout_weight">1</item>
     </style>
 </resources>
