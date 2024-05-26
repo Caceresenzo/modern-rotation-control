@@ -12,3 +12,7 @@ The only major difference is that I do not include the app's icon at the very le
     </tr>
   </tbody>
 </table>
+
+## Reason
+
+I mostly did it for myself as a fun challenge, but I will mostly be the only one using it.
