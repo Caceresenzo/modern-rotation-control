@@ -84,7 +84,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 Toast.makeText(context, R.string.require_notification_permission, Toast.LENGTH_LONG).show();
                 notificationPermissionActivityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
-        } else if (getString(R.string.buttons_key).equals(key)) {
+        } else if (getString(R.string.buttons_key).equals(key) || getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key)) {
             RotationService.notifyConfigurationChanged(context);
         }
     }

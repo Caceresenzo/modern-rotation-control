@@ -33,6 +33,7 @@ public class RotationService extends Service {
     public static final int NOTIFICATION_ID = 1;
 
     public static final String ACTION_START = "START";
+    public static final String ACTION_CONFIGURATION_CHANGED = "CONFIGURATION_CHANGED";
 
     public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH";
     public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
@@ -64,6 +65,7 @@ public class RotationService extends Service {
         Log.i(TAG, "onCreate");
 
         createNotificationChannel();
+        loadFromPreferences();
 
         notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
     }
@@ -81,10 +83,8 @@ public class RotationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, String.format("OnStartCommand flags=%d startId=%d", flags, startId));
-
         String action = intent.getAction();
-        Log.i(TAG, String.format("handle action - action=%s extras=%s", action, intent.getExtras()));
+        Log.i(TAG, String.format("OnStartCommand - action=%s extras=%s flags=%d startId=%d", action, intent.getExtras(), flags, startId));
 
         if (action == null) {
             return START_NOT_STICKY;
@@ -113,6 +113,11 @@ public class RotationService extends Service {
                 startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
 
                 return START_STICKY;
+            }
+
+            case ACTION_CONFIGURATION_CHANGED: {
+                loadFromPreferences();
+                break;
             }
 
             case ACTION_REFRESH_NOTIFICATION: {
@@ -145,6 +150,13 @@ public class RotationService extends Service {
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
 
         return START_STICKY;
+    }
+
+    private void loadFromPreferences() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        guard = preferences.getBoolean(getString(R.string.guard_key), true);
+        mode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
     }
 
     public boolean isGuardEnabledOrForced() {
@@ -273,7 +285,7 @@ public class RotationService extends Service {
         }
 
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
-        intent.setAction(ACTION_REFRESH_NOTIFICATION);
+        intent.setAction(ACTION_CONFIGURATION_CHANGED);
 
         context.startService(intent);
     }

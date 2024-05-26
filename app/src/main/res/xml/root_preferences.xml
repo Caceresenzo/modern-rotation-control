@@ -10,6 +10,21 @@
             app:summary="@string/start_control_description"
             app:title="@string/start_control_title" />
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="@string/guard_key"
+            app:summary="@string/guard_description"
+            app:title="@string/guard_title" />
+
+        <ListPreference
+            app:defaultValue="AUTO"
+            app:entries="@array/buttons_entries"
+            app:entryValues="@array/buttons_values"
+            app:iconSpaceReserved="false"
+            app:key="@string/mode_key"
+            app:summary="@string/mode_description"
+            app:title="@string/mode_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
