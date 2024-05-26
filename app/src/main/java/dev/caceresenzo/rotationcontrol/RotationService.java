@@ -5,12 +5,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -132,6 +134,7 @@ public class RotationService extends Service {
         }
 
         updateViews(layout);
+        applyMode();
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
 
         return START_STICKY;
@@ -152,6 +155,20 @@ public class RotationService extends Service {
                 }
 
                 layout.setViewVisibility(mode.viewId(), View.GONE);
+            }
+        }
+    }
+
+    private void applyMode() {
+        ContentResolver contentResolver = getContentResolver();
+
+        if (mode.shouldUseAccelerometerRotation()) {
+            Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
+        } else {
+            Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0);
+
+            if (mode.rotationValue() != -1) {
+                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
             }
         }
     }
