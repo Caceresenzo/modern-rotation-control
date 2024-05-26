@@ -23,7 +23,7 @@
 
     <string name="buttons_key">buttons</string>
     <string name="buttons_title">Notification Buttons</string>
-    <string name="buttons_description">Chose which button are displayed in the notification..</string>
+    <string name="buttons_description">Chose which button are displayed in the notification.</string>
 
     <string name="notification_channel_name">Controls</string>
 
