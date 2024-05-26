@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -85,7 +86,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 notificationPermissionActivityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         } else if (getString(R.string.buttons_key).equals(key) || getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key)) {
+            // TODO should not be called if edit comes from service itself
             RotationService.notifyConfigurationChanged(context);
+
+            refreshGuardAndMode(sharedPreferences);
+        }
+    }
+
+    private void refreshGuardAndMode(SharedPreferences sharedPreferences) {
+        {
+            String key = getString(R.string.guard_key);
+            boolean value = sharedPreferences.getBoolean(key, false);
+            ((SwitchPreferenceCompat) findPreference(key)).setChecked(value);
+        }
+
+        {
+            String key = getString(R.string.mode_key);
+            String value = sharedPreferences.getString(key, RotationMode.AUTO.name());
+            ((ListPreference) findPreference(key)).setValue(value);
         }
     }
 

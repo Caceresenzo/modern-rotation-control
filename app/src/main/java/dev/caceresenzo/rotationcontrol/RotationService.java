@@ -137,6 +137,11 @@ public class RotationService extends Service {
                 guard = !guard;
                 Log.i(TAG, String.format("new guard=%s", guard));
 
+                PreferenceManager.getDefaultSharedPreferences(this)
+                        .edit()
+                        .putBoolean(getString(R.string.guard_key), guard)
+                        .apply();
+
                 break;
             }
 
@@ -145,6 +150,12 @@ public class RotationService extends Service {
                 Log.i(TAG, String.format("new mode=%s", newMode));
 
                 mode = newMode;
+
+                PreferenceManager.getDefaultSharedPreferences(this)
+                        .edit()
+                        .putString(getString(R.string.mode_key), mode.name())
+                        .apply();
+
                 break;
             }
 
