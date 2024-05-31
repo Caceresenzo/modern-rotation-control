@@ -44,12 +44,10 @@
 
         <service
             android:name=".RotationService"
+            android:configChanges="uiMode"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse">
-            <intent-filter>
-                <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
-            </intent-filter>
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="persistent notification" />

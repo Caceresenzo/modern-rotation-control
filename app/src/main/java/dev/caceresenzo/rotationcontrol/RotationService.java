@@ -10,14 +10,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.content.res.Configuration;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
@@ -71,6 +72,15 @@ public class RotationService extends Service {
         loadFromPreferences();
 
         notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Log.i(TAG, String.format("onConfigurationChanged - newConfig=%s", newConfig));
+
+        notifyConfigurationChanged(this);
     }
 
     @Override
