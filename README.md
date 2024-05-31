@@ -1,6 +1,6 @@
 # Modern Rotation Control
 
-This is a clone of [Crape's Myrtle Rotation Control](https://play.google.com/store/apps/details?id=org.crape.rotationcontrol&hl=en) rewrote from scratch, but heavily inspired (from design to features).
+This is a clone of [Crape Myrtle's Rotation Control](https://play.google.com/store/apps/details?id=org.crape.rotationcontrol&hl=en) rewrote from scratch, but heavily inspired (from design to features).
 
 The only major difference is that I do not include the app's icon at the very left of the notification as starting Android 14, custom notification layouts are heavily restricted.
 
