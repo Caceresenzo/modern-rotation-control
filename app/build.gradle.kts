@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.caceresenzo.rotationcontrol"
-        minSdk = 34
+        minSdk = 29
         targetSdk = 34
         versionCode = 2
         versionName = "1.0.1"

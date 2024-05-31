@@ -8,7 +8,7 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:scaleType">centerInside</item>
-        <item name="android:tint">#000</item>
+        <item name="android:tint">@color/inactive</item>
         <item name="android:layout_weight">1</item>
     </style>
 </resources>

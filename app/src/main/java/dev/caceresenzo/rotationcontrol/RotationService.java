@@ -54,7 +54,7 @@ public class RotationService extends Service {
     private NotificationCompat.Builder notificationBuilder;
 
     private boolean guard = true;
-    private RotationMode mode = RotationMode.AUTO;
+    private RotationMode activeMode = RotationMode.AUTO;
 
     private View view;
 
@@ -130,7 +130,13 @@ public class RotationService extends Service {
         switch (action) {
             case ACTION_START: {
                 updateViews(layout);
-                startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                } else {
+                    startForeground(NOTIFICATION_ID, notificationBuilder.build());
+                }
+
                 break;
             }
 
@@ -159,11 +165,11 @@ public class RotationService extends Service {
                 RotationMode newMode = RotationMode.valueOf(intent.getStringExtra(INTENT_NEW_MODE));
                 Log.i(TAG, String.format("new mode=%s", newMode));
 
-                mode = newMode;
+                activeMode = newMode;
 
                 PreferenceManager.getDefaultSharedPreferences(this)
                         .edit()
-                        .putString(getString(R.string.mode_key), mode.name())
+                        .putString(getString(R.string.mode_key), activeMode.name())
                         .apply();
 
                 break;
@@ -189,31 +195,31 @@ public class RotationService extends Service {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
-        mode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+        activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
     }
 
     public boolean isGuardEnabledOrForced() {
-        return guard || mode.doesRequireGuard();
+        return guard || activeMode.doesRequireGuard();
     }
 
     private void updateViews(RemoteViews layout) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (isGuardEnabledOrForced()) {
-            layout.setColor(R.id.guard, TINT_METHOD, R.color.active);
-        }
-
-        layout.setColor(mode.viewId(), TINT_METHOD, R.color.active);
-
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
-        if (enabledButtons != null) {
-            for (RotationMode mode : RotationMode.values()) {
-                if (enabledButtons.contains(mode.name())) {
-                    continue;
-                }
-
+        for (RotationMode mode : RotationMode.values()) {
+            if (enabledButtons != null && !enabledButtons.contains(mode.name())) {
                 layout.setViewVisibility(mode.viewId(), View.GONE);
             }
+
+            layout.setInt(mode.viewId(), TINT_METHOD, getColor(R.color.inactive));
+        }
+
+        layout.setInt(activeMode.viewId(), TINT_METHOD, getColor(R.color.active));
+
+        if (isGuardEnabledOrForced()) {
+            layout.setInt(R.id.guard, TINT_METHOD, getColor(R.color.active));
+        } else {
+            layout.setInt(R.id.guard, TINT_METHOD, getColor(R.color.inactive));
         }
     }
 
@@ -228,7 +234,7 @@ public class RotationService extends Service {
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     Gravity.TOP
             );
-            layoutParams.screenOrientation = mode.orientationValue();
+            layoutParams.screenOrientation = activeMode.orientationValue();
 
             if (view == null) {
                 view = new View(getApplicationContext());
@@ -244,11 +250,11 @@ public class RotationService extends Service {
                 view = null;
             }
 
-            if (mode.shouldUseAccelerometerRotation()) {
+            if (activeMode.shouldUseAccelerometerRotation()) {
                 Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
             } else {
                 Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0);
-                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, mode.rotationValue());
+                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, activeMode.rotationValue());
             }
         }
     }
