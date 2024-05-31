@@ -125,6 +125,7 @@ public class RotationService extends Service {
                 .setShowWhen(false)
                 .setCustomContentView(layout)
                 .setCustomBigContentView(layout)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .setDeleteIntent(newRefreshPendingIntent());
 
         switch (action) {
