@@ -4,11 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 public class RotationTileService extends TileService {
 
@@ -66,8 +69,16 @@ public class RotationTileService extends TileService {
 
         if (running) {
             tile.setState(Tile.STATE_ACTIVE);
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+            Icon icon = Icon.createWithResource(this, activeMode.drawableId());
+            tile.setIcon(icon);
         } else {
             tile.setState(Tile.STATE_INACTIVE);
+
+            Icon icon = Icon.createWithResource(this, R.drawable.mode_auto);
+            tile.setIcon(icon);
         }
 
         tile.updateTile();
