@@ -2,6 +2,8 @@
     <string name="app_name">Modern Rotation Control</string>
     <string name="title_activity_main">Modern Rotation Control</string>
 
+    <string name="tile_title">Rotation Control</string>
+
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>
 

@@ -28,6 +28,8 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
+import lombok.Getter;
+
 public class RotationService extends Service {
 
     public static final String TAG = RotationService.class.getSimpleName();
@@ -50,12 +52,15 @@ public class RotationService extends Service {
 
     public static final String TINT_METHOD = "setColorFilter";
 
+    public static final String ACTION_NOTIFY_CREATED = "dev.caceresenzo.rotationcontrol.SERVICE_CREATED";
+    public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
+
     private final IBinder binder = new LocalBinder();
 
     private NotificationCompat.Builder notificationBuilder;
 
-    private boolean guard = true;
-    private RotationMode activeMode = RotationMode.AUTO;
+    private @Getter boolean guard = true;
+    private @Getter RotationMode activeMode = RotationMode.AUTO;
 
     private View view;
 
@@ -78,6 +83,8 @@ public class RotationService extends Service {
 
         unlockBroadcastReceiver = new UnlockBroadcastReceiver();
         registerReceiver(unlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+
+        sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
     }
 
     @Override
@@ -102,6 +109,8 @@ public class RotationService extends Service {
             unregisterReceiver(unlockBroadcastReceiver);
             unlockBroadcastReceiver = null;
         }
+
+        sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -363,7 +372,12 @@ public class RotationService extends Service {
         return false;
     }
 
-    static class LocalBinder extends Binder {
+    public class LocalBinder extends Binder {
+
+        public RotationService getService() {
+            return RotationService.this;
+        }
+
     }
 
 }
