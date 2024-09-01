@@ -77,8 +77,6 @@ public class RotationTileService extends TileService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "onReceive" + intent);
-
             if (intent == null) {
                 return;
             }
@@ -100,7 +98,6 @@ public class RotationTileService extends TileService {
                 }
             }
         }
-
     }
 
 }

@@ -3,6 +3,8 @@ package dev.caceresenzo.rotationcontrol;
 import android.content.pm.ActivityInfo;
 import android.view.Surface;
 
+import androidx.annotation.Nullable;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -30,6 +32,17 @@ public enum RotationMode {
 
     public boolean doesRequireGuard() {
         return this != AUTO && rotationValue == -1;
+    }
+
+    @Nullable
+    public static RotationMode fromViewId(int viewId) {
+        for (RotationMode mode : values()) {
+            if (mode.viewId == viewId) {
+                return mode;
+            }
+        }
+
+        return null;
     }
 
 }

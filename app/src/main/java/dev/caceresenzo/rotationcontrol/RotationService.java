@@ -54,6 +54,7 @@ public class RotationService extends Service {
 
     public static final String ACTION_NOTIFY_CREATED = "dev.caceresenzo.rotationcontrol.SERVICE_CREATED";
     public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
+    public static final String ACTION_NOTIFY_UPDATED = "dev.caceresenzo.rotationcontrol.SERVICE_UPDATED";
 
     private final IBinder binder = new LocalBinder();
 
@@ -208,6 +209,8 @@ public class RotationService extends Service {
 
         applyMode();
         getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
+
+        sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
 
         return START_STICKY;
     }
