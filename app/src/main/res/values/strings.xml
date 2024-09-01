@@ -18,8 +18,12 @@
     <string name="mode_description">Currently set to: %s</string>
 
     <string name="start_on_boot_key">start_on_boot</string>
-    <string name="start_on_boot_title">Start on boot</string>
-    <string name="start_on_boot_description">This application automatically starts on system boot.</string>
+    <string name="start_on_boot_title">Start on Boot</string>
+    <string name="start_on_boot_description">Automatically start the service when the device is restarted.</string>
+
+    <string name="refresh_on_unlock_key">refresh_on_unlock</string>
+    <string name="refresh_on_unlock_title">Refresh on Unlock</string>
+    <string name="refresh_on_unlock_description">Re-apply the current rotation mode when the device is unlocked.</string>
 
     <string name="buttons_key">buttons</string>
     <string name="buttons_title">Notification Buttons</string>

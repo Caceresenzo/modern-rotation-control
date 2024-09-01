@@ -38,6 +38,13 @@
             app:summary="@string/start_on_boot_description"
             app:title="@string/start_on_boot_title" />
 
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="@string/refresh_on_unlock_key"
+            app:summary="@string/refresh_on_unlock_description"
+            app:title="@string/refresh_on_unlock_title" />
+
         <MultiSelectListPreference
             app:defaultValue="@array/buttons_values"
             app:entries="@array/buttons_entries"

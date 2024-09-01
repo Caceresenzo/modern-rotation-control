@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
@@ -58,6 +59,8 @@ public class RotationService extends Service {
 
     private View view;
 
+    private UnlockBroadcastReceiver unlockBroadcastReceiver;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -72,6 +75,9 @@ public class RotationService extends Service {
         loadFromPreferences();
 
         notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
+
+        unlockBroadcastReceiver = new UnlockBroadcastReceiver();
+        registerReceiver(unlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
     }
 
     @Override
@@ -90,6 +96,11 @@ public class RotationService extends Service {
         if (view != null) {
             getWindowManager().removeView(view);
             view = null;
+        }
+
+        if (unlockBroadcastReceiver != null) {
+            unregisterReceiver(unlockBroadcastReceiver);
+            unlockBroadcastReceiver = null;
         }
 
         stopForeground(STOP_FOREGROUND_REMOVE);
