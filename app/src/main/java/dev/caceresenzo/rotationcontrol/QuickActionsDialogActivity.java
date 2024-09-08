@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -42,23 +43,38 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
         ImageView guardView = findViewById(R.id.guard);
         guardView.setOnClickListener(this);
 
+        TextView infoView = findViewById(R.id.info);
+        if (RotationService.isRunning(this)) {
+            infoView.setVisibility(View.GONE);
+        }
+
         updateViews(false, null);
     }
 
     @Override
     public void onClick(View view) {
+        Intent intent = null;
+
         int viewId = view.getId();
         if (viewId == R.id.guard) {
-            startService(RotationService.newToggleGuardIntent(this));
-            finishAndRemoveTask();
+            intent = RotationService.newToggleGuardIntent(this);
+        } else {
+            RotationMode newMode = RotationMode.fromViewId(viewId);
+            if (newMode != null) {
+                intent = RotationService.newChangeModeIntent(this, newMode);
+            }
+        }
+
+        if (intent == null) {
             return;
         }
 
-        RotationMode newMode = RotationMode.fromViewId(viewId);
-        if (newMode != null) {
-            startService(RotationService.newChangeModeIntent(this, newMode));
-            finishAndRemoveTask();
+        if (!RotationService.isRunning(this)) {
+            RotationService.start(this);
         }
+
+        startService(intent);
+        finishAndRemoveTask();
     }
 
     @Override
