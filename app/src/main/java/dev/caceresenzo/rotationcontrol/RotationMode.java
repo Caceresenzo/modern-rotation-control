@@ -3,6 +3,7 @@ package dev.caceresenzo.rotationcontrol;
 import android.content.pm.ActivityInfo;
 import android.view.Surface;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
 import lombok.Getter;
@@ -64,7 +65,7 @@ public enum RotationMode {
     );
 
     private final int viewId;
-    private final int drawableId;
+    private final @DrawableRes int drawableId;
     private final int rotationValue;
     private final int orientationValue;
 

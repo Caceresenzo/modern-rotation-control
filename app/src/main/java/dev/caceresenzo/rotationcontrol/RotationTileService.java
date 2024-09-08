@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BlendMode;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
@@ -71,14 +76,18 @@ public class RotationTileService extends TileService {
             tile.setState(Tile.STATE_ACTIVE);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
             RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
-            Icon icon = Icon.createWithResource(this, activeMode.drawableId());
-            tile.setIcon(icon);
+            boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
+
+            if (guard) {
+                tile.setIcon(getIconWithGuard(activeMode));
+            } else {
+                tile.setIcon(Icon.createWithResource(this, activeMode.drawableId()));
+            }
         } else {
             tile.setState(Tile.STATE_INACTIVE);
-
-            Icon icon = Icon.createWithResource(this, R.drawable.mode_auto);
-            tile.setIcon(icon);
+            tile.setIcon(Icon.createWithResource(this, R.drawable.mode_auto));
         }
 
         tile.updateTile();
@@ -109,6 +118,49 @@ public class RotationTileService extends TileService {
                 }
             }
         }
+    }
+
+    public Icon getIconWithGuard(RotationMode mode) {
+        Bitmap mainBitmap = getBitmapFromDrawable(getDrawable(mode.drawableId()));
+        Canvas canvas = new Canvas(mainBitmap);
+
+        Bitmap guardBitmap = getBitmapFromDrawable(getDrawable(R.drawable.guard));
+        Bitmap scaledGuardBitmap = scaledBitmap(guardBitmap, 0.4f);
+
+        int left = mainBitmap.getWidth() - scaledGuardBitmap.getWidth();
+        int top = mainBitmap.getHeight() - scaledGuardBitmap.getHeight();
+
+        {
+            float centerX = left + (scaledGuardBitmap.getWidth() / 2f);
+            float centerY = top + (scaledGuardBitmap.getHeight() / 2f);
+            float radius = (scaledGuardBitmap.getWidth() / 2f) * 1.05f;
+
+            Paint paint = new Paint();
+            paint.setBlendMode(BlendMode.CLEAR);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(centerX, centerY, radius, paint);
+        }
+
+        canvas.drawBitmap(scaledGuardBitmap, left, top, null);
+
+        return Icon.createWithBitmap(mainBitmap);
+    }
+
+    private static Bitmap scaledBitmap(Bitmap original, float scale) {
+        int width = (int) (original.getWidth() * scale);
+        int height = (int) (original.getHeight() * scale);
+
+        return Bitmap.createScaledBitmap(original, width, height, true);
+    }
+
+    private static Bitmap getBitmapFromDrawable(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
 }
