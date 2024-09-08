@@ -27,9 +27,14 @@
     <string name="refresh_on_unlock_title">Refresh on Unlock</string>
     <string name="refresh_on_unlock_description">Re-apply the current rotation mode when the device is unlocked.</string>
 
+    <string name="show_notification_key">show_notification</string>
+    <string name="show_notification_title">Show Notification</string>
+    <string name="show_notification_description">Users of the Quick Settings tile probably don\'t have a need for it.</string>
+    <string name="notification_discard_me_title">Service is running.</string>
+
     <string name="buttons_key">buttons</string>
-    <string name="buttons_title">Notification Buttons</string>
-    <string name="buttons_description">Chose which button are displayed in the notification.</string>
+    <string name="buttons_title">Mode Buttons</string>
+    <string name="buttons_description">Select which buttons to display.</string>
 
     <string name="notification_channel_name">Controls</string>
 

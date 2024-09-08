@@ -131,27 +131,11 @@ public class RotationService extends Service {
             return START_NOT_STICKY;
         }
 
-        RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
-        layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
-
-        for (RotationMode mode : RotationMode.values()) {
-            // Log.i(TAG, String.format("attach intent - mode=%s viewId=%d", mode, mode.viewId()));
-            layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
-        }
-
-        notificationBuilder
-                .setSmallIcon(R.drawable.mode_auto)
-                .setOngoing(true)
-                .setSilent(true)
-                .setShowWhen(false)
-                .setCustomContentView(layout)
-                .setCustomBigContentView(layout)
-                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-                .setDeleteIntent(newRefreshPendingIntent());
+        boolean showNotification = isNotificationShown();
 
         switch (action) {
             case ACTION_START: {
-                updateViews(layout);
+                prepareNotification(showNotification);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
@@ -204,15 +188,64 @@ public class RotationService extends Service {
         }
 
         if (!ACTION_START.equals(action)) {
-            updateViews(layout);
+            prepareNotification(showNotification);
         }
 
         applyMode();
-        getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
+
+        if (showNotification) {
+            getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
+        } else {
+            getNotificationManager().cancel(NOTIFICATION_ID);
+        }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
 
         return START_STICKY;
+    }
+
+    private void prepareNotification(boolean showNotification) {
+        notificationBuilder
+                .setSmallIcon(R.drawable.mode_auto)
+                .setOngoing(true)
+                .setSilent(true)
+                .setShowWhen(false)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET);
+
+        if (showNotification) {
+            RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
+            layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
+
+            for (RotationMode mode : RotationMode.values()) {
+                // Log.i(TAG, String.format("attach intent - mode=%s viewId=%d", mode, mode.viewId()));
+                layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
+            }
+
+            notificationBuilder
+                    .setCustomContentView(layout)
+                    .setCustomBigContentView(layout)
+                    .setDeleteIntent(newRefreshPendingIntent());
+
+            notificationBuilder
+                    .setSubText(null);
+
+            updateViews(layout);
+        } else {
+            notificationBuilder
+                    .setSubText(getString(R.string.notification_discard_me_title));
+
+            notificationBuilder
+                    .setCustomContentView(null)
+                    .setCustomBigContentView(null)
+                    .setDeleteIntent(null);
+        }
+
+        Log.i(TAG, String.format("prepared notification - showNotification=%s", showNotification));
+    }
+
+    private boolean isNotificationShown() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(getString(R.string.show_notification_key), true);
     }
 
     private void loadFromPreferences() {

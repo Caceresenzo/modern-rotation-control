@@ -45,6 +45,13 @@
             app:summary="@string/refresh_on_unlock_description"
             app:title="@string/refresh_on_unlock_title" />
 
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="@string/show_notification_key"
+            app:summary="@string/show_notification_description"
+            app:title="@string/show_notification_title" />
+
         <MultiSelectListPreference
             app:defaultValue="@array/buttons_values"
             app:entries="@array/buttons_entries"
