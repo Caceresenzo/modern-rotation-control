@@ -340,8 +340,7 @@ public class RotationService extends Service {
     }
 
     private PendingIntent newGuardPendingIntent() {
-        Intent intent = new Intent(getApplicationContext(), RotationService.class);
-        intent.setAction(ACTION_CHANGE_GUARD);
+        Intent intent = newToggleGuardIntent(this);
 
         return PendingIntent.getService(
                 this,
@@ -352,9 +351,7 @@ public class RotationService extends Service {
     }
 
     private PendingIntent newModePendingIntent(RotationMode mode) {
-        Intent intent = new Intent(getApplicationContext(), RotationService.class);
-        intent.setAction(ACTION_CHANGE_MODE);
-        intent.putExtra(INTENT_NEW_MODE, mode.name());
+        Intent intent = newChangeModeIntent(this, mode);
 
         return PendingIntent.getService(
                 this,
@@ -372,6 +369,21 @@ public class RotationService extends Service {
         return (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
     }
 
+    public static Intent newToggleGuardIntent(Context context) {
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_CHANGE_GUARD);
+
+        return intent;
+    }
+
+    public static Intent newChangeModeIntent(Context context, RotationMode mode) {
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_CHANGE_MODE);
+        intent.putExtra(INTENT_NEW_MODE, mode.name());
+
+        return intent;
+    }
+
     public static void start(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_START);
@@ -380,7 +392,11 @@ public class RotationService extends Service {
     }
 
     public static void notifyConfigurationChanged(Context context) {
-        if (!isRunning(context)) {
+        notifyConfigurationChanged(context, false);
+    }
+
+    public static void notifyConfigurationChanged(Context context, boolean forceStart) {
+        if (!forceStart && !isRunning(context)) {
             return;
         }
 

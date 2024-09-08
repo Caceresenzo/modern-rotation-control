@@ -47,29 +47,16 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View view) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         int viewId = view.getId();
         if (viewId == R.id.guard) {
-            boolean guard = preferences.getBoolean(getString(R.string.guard_key), false);
-
-            preferences.edit()
-                    .putBoolean(getString(R.string.guard_key), !guard)
-                    .apply();
-
-            RotationService.notifyConfigurationChanged(QuickActionsDialogActivity.this);
+            startService(RotationService.newToggleGuardIntent(this));
             finishAndRemoveTask();
-
             return;
         }
 
         RotationMode newMode = RotationMode.fromViewId(viewId);
         if (newMode != null) {
-            preferences.edit()
-                    .putString(getString(R.string.mode_key), newMode.name())
-                    .apply();
-
-            RotationService.notifyConfigurationChanged(QuickActionsDialogActivity.this);
+            startService(RotationService.newChangeModeIntent(this, newMode));
             finishAndRemoveTask();
         }
     }
