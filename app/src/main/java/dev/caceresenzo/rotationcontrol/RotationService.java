@@ -113,6 +113,11 @@ public class RotationService extends Service {
 
         sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
 
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putBoolean(getString(R.string.start_control_key), false)
+                .apply();
+
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
@@ -200,6 +205,11 @@ public class RotationService extends Service {
         }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putBoolean(getString(R.string.start_control_key), true)
+                .apply();
 
         return START_STICKY;
     }
