@@ -62,13 +62,13 @@ public class RotationTileService extends TileService {
 
         Log.i(TAG, "onClick");
 
-        Tile tile = getQsTile();
-        tile.setState(Tile.STATE_UNAVAILABLE);
-        tile.updateTile();
-
         if (RotationService.isRunning(this)) {
-            RotationService.stop(this);
+            showDialog(new QuickActionsDialog(this));
         } else {
+            Tile tile = getQsTile();
+            tile.setState(Tile.STATE_UNAVAILABLE);
+            tile.updateTile();
+
             RotationService.start(this);
         }
     }

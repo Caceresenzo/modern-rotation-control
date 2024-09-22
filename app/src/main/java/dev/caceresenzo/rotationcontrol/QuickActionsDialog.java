@@ -1,5 +1,6 @@
 package dev.caceresenzo.rotationcontrol;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,29 +10,30 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
-public class QuickActionsDialogActivity extends AppCompatActivity implements View.OnClickListener, ServiceConnection {
+public class QuickActionsDialog extends Dialog implements View.OnClickListener, ServiceConnection {
 
     private final Listener mListener = new Listener();
 
     private RotationService mService;
 
+    public QuickActionsDialog(@NonNull Context context) {
+        super(new ContextThemeWrapper(context, R.style.AppTheme_QuickActionsDialog));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setFinishOnTouchOutside(true);
-        getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
 
         setContentView(R.layout.quick_actions_dialog);
 
@@ -44,7 +46,7 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
         guardView.setOnClickListener(this);
 
         TextView infoView = findViewById(R.id.info);
-        if (RotationService.isRunning(this)) {
+        if (RotationService.isRunning(getContext())) {
             infoView.setVisibility(View.GONE);
         }
 
@@ -53,15 +55,17 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View view) {
+        final Context context = getContext();
+
         Intent intent = null;
 
         int viewId = view.getId();
         if (viewId == R.id.guard) {
-            intent = RotationService.newToggleGuardIntent(this);
+            intent = RotationService.newToggleGuardIntent(context);
         } else {
             RotationMode newMode = RotationMode.fromViewId(viewId);
             if (newMode != null) {
-                intent = RotationService.newChangeModeIntent(this, newMode);
+                intent = RotationService.newChangeModeIntent(context, newMode);
             }
         }
 
@@ -69,31 +73,35 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
             return;
         }
 
-        if (!RotationService.isRunning(this)) {
-            RotationService.start(this);
+        if (!RotationService.isRunning(context)) {
+            RotationService.start(context);
         }
 
-        startService(intent);
-        finishAndRemoveTask();
+        context.startService(intent);
+        cancel();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        Intent intent = new Intent(this, RotationService.class);
-        bindService(intent, this, Context.BIND_AUTO_CREATE);
+        final Context context = getContext();
+
+        Intent intent = new Intent(context, RotationService.class);
+        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
 
         IntentFilter filter = new IntentFilter(RotationService.ACTION_NOTIFY_UPDATED);
-        ContextCompat.registerReceiver(this, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(context, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        unbindService(this);
-        unregisterReceiver(mListener);
+        final Context context = getContext();
+
+        context.unbindService(this);
+        context.unregisterReceiver(mListener);
     }
 
     @Override
@@ -113,9 +121,11 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
     }
 
     public void updateViews(boolean guard, RotationMode activeMode) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final Context context = getContext();
 
-        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        Set<String> enabledButtons = preferences.getStringSet(context.getString(R.string.buttons_key), null);
         for (RotationMode mode : RotationMode.values()) {
             ImageView view = findViewById(mode.viewId());
 
@@ -125,18 +135,18 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
                 view.setVisibility(View.VISIBLE);
             }
 
-            setActiveColor(view, mode == activeMode);
+            setActiveColor(context, view, mode == activeMode);
         }
 
         ImageView guardView = findViewById(R.id.guard);
-        setActiveColor(guardView, guard);
+        setActiveColor(context, guardView, guard);
     }
 
-    public void setActiveColor(ImageView view, boolean active) {
+    private void setActiveColor(Context context, ImageView view, boolean active) {
         if (active) {
-            view.setColorFilter(getColor(R.color.active));
+            view.setColorFilter(context.getColor(R.color.active));
         } else {
-            view.setColorFilter(getColor(R.color.inactive));
+            view.setColorFilter(context.getColor(R.color.inactive));
         }
     }
 
@@ -153,9 +163,9 @@ public class QuickActionsDialogActivity extends AppCompatActivity implements Vie
                 return;
             }
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(QuickActionsDialogActivity.this);
-            boolean guard = preferences.getBoolean(getString(R.string.guard_key), false);
-            RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean guard = preferences.getBoolean(context.getString(R.string.guard_key), false);
+            RotationMode activeMode = RotationMode.valueOf(preferences.getString(context.getString(R.string.mode_key), RotationMode.AUTO.name()));
 
             updateViews(guard, activeMode);
         }
