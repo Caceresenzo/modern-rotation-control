@@ -16,7 +16,6 @@
     <string name="mode_landscape_sensor">Landscape (Sensor)</string>
 
     <string name="control_header">Control</string>
-    <string name="quicksettings_header">Quick Settings</string>
     <string name="settings_header">Settings</string>
 
     <string name="start_control_key">start_control</string>
@@ -33,9 +32,9 @@
 
     <string name="tile_click_behavior_key">tile_click_behavior</string>
     <string name="tile_click_behavior_title">Tile Click Behavior</string>
-    <string name="tile_click_behavior_description">Currently set to: %s</string>
+    <string name="tile_click_behavior_description">Change the behavior of the Quick Settings tile when pressed. Currently set to: %s</string>
 
-    <string name="close_dialog_on_click_key">quickactions_close_on_click</string>
+    <string name="close_dialog_on_click_key">close_dialog_on_click</string>
     <string name="close_dialog_on_click_title">Close Dialog on Click</string>
     <string name="close_dialog_on_click_description">Close the Modes dialog after selecting one.</string>
 
