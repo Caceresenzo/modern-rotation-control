@@ -3,6 +3,17 @@
     <string name="title_activity_main">Modern Rotation Control</string>
 
     <string name="tile_title">Rotation Control</string>
+    <string name="tile_active">%s</string>
+    <string name="tile_active_with_guard">%s (with Guard)</string>
+    <string name="tile_inactive">Inactive</string>
+
+    <string name="mode_auto">Auto</string>
+    <string name="mode_portrait">Portrait</string>
+    <string name="mode_portrait_reverse">Portrait (Reverse)</string>
+    <string name="mode_portrait_sensor">Portrait (Sensor)</string>
+    <string name="mode_landscape">Landscape</string>
+    <string name="mode_landscape_reverse">Landscape (Reverse)</string>
+    <string name="mode_landscape_sensor">Landscape (Sensor)</string>
 
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>

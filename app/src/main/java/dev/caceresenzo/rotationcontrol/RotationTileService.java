@@ -62,6 +62,10 @@ public class RotationTileService extends TileService {
 
         Log.i(TAG, "onClick");
 
+        Tile tile = getQsTile();
+        tile.setState(Tile.STATE_UNAVAILABLE);
+        tile.updateTile();
+
         if (RotationService.isRunning(this)) {
             RotationService.stop(this);
         } else {
@@ -81,13 +85,19 @@ public class RotationTileService extends TileService {
             boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
 
             if (guard) {
+                Log.i(TAG, String.format("set icon with guard - activeMode=%s", activeMode));
                 tile.setIcon(getIconWithGuard(activeMode));
+                tile.setSubtitle(getString(R.string.tile_active_with_guard, getString(activeMode.nameId())));
             } else {
+                Log.i(TAG, String.format("set icon - activeMode=%s", activeMode));
                 tile.setIcon(Icon.createWithResource(this, activeMode.drawableId()));
+                tile.setSubtitle(getString(R.string.tile_active, getString(activeMode.nameId())));
             }
         } else {
+            Log.i(TAG, "set inactive");
             tile.setState(Tile.STATE_INACTIVE);
             tile.setIcon(Icon.createWithResource(this, R.drawable.mode_auto));
+            tile.setSubtitle(getString(R.string.tile_inactive));
         }
 
         tile.updateTile();
