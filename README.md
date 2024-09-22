@@ -16,3 +16,15 @@ The only major difference is that I do not include the app's icon at the very le
 ## Reason
 
 I mostly did it for myself as a fun challenge, but I will mostly be the only one using it.
+
+## Key Differences
+
+### Features
+
+- The notification is optional and a Quick Settings tile is available.
+- The mode/guard is editable in the configuration page.
+- The mode is reapplied each time the screen is unlocked (for more consistent use).
+
+### Changes
+
+- The application icon to the left of the notification has been removed.
