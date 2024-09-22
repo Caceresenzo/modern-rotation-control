@@ -3,9 +3,9 @@
     <string name="title_activity_main">Modern Rotation Control</string>
 
     <string name="tile_title">Rotation Control</string>
-    <string name="tile_active">%s</string>
-    <string name="tile_active_with_guard">%s (with Guard)</string>
+    <string name="tile_active">Active</string>
     <string name="tile_inactive">Inactive</string>
+    <string name="tile_with_guard">(with Guard)</string>
 
     <string name="mode_auto">Auto</string>
     <string name="mode_portrait">Portrait</string>

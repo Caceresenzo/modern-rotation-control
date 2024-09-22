@@ -73,7 +73,7 @@ public enum RotationMode {
     );
 
     private final int viewId;
-    private final @StringRes int nameId;
+    private final @StringRes int stringId;
     private final @DrawableRes int drawableId;
     private final int rotationValue;
     private final int orientationValue;

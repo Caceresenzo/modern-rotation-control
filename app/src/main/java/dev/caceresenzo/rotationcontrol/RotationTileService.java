@@ -76,30 +76,30 @@ public class RotationTileService extends TileService {
     public void updateTile(boolean running) {
         Tile tile = getQsTile();
 
-        if (running) {
-            tile.setState(Tile.STATE_ACTIVE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+        boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
 
-            RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
-            boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
-
-            if (guard) {
-                Log.i(TAG, String.format("set icon with guard - activeMode=%s", activeMode));
-                tile.setIcon(getIconWithGuard(activeMode));
-                tile.setSubtitle(getString(R.string.tile_active_with_guard, getString(activeMode.nameId())));
-            } else {
-                Log.i(TAG, String.format("set icon - activeMode=%s", activeMode));
-                tile.setIcon(Icon.createWithResource(this, activeMode.drawableId()));
-                tile.setSubtitle(getString(R.string.tile_active, getString(activeMode.nameId())));
-            }
+        String suffix;
+        if (guard) {
+            tile.setIcon(getIconWithGuard(activeMode));
+            suffix = " " + getString(R.string.tile_with_guard);
         } else {
-            Log.i(TAG, "set inactive");
-            tile.setState(Tile.STATE_INACTIVE);
-            tile.setIcon(Icon.createWithResource(this, R.drawable.mode_auto));
-            tile.setSubtitle(getString(R.string.tile_inactive));
+            tile.setIcon(Icon.createWithResource(this, activeMode.drawableId()));
+            suffix = "";
         }
 
+        String prefix;
+        if (running) {
+            tile.setState(Tile.STATE_ACTIVE);
+            prefix = getString(R.string.tile_active);
+        } else {
+            tile.setState(Tile.STATE_INACTIVE);
+            prefix = getString(R.string.tile_inactive);
+        }
+
+        tile.setSubtitle(String.format("%s: %s%s", prefix, getString(activeMode.stringId()), suffix));
         tile.updateTile();
     }
 
