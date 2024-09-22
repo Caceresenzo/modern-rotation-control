@@ -174,8 +174,9 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
             }
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
             boolean guard = preferences.getBoolean(context.getString(R.string.guard_key), false);
-            RotationMode activeMode = RotationMode.valueOf(preferences.getString(context.getString(R.string.mode_key), RotationMode.AUTO.name()));
+            RotationMode activeMode = RotationMode.fromPreferences(context);
 
             updateViews(guard, activeMode);
         }

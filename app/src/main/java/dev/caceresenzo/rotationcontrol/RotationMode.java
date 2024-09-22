@@ -1,11 +1,14 @@
 package dev.caceresenzo.rotationcontrol;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.view.Surface;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.preference.PreferenceManager;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -95,6 +98,25 @@ public enum RotationMode {
         }
 
         return null;
+    }
+
+    public static RotationMode fromPreferences(Context context) {
+        return fromPreferences(context, AUTO);
+    }
+
+    public static RotationMode fromPreferences(Context context, RotationMode defaultValue) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String name = preferences.getString(context.getString(R.string.mode_key), null);
+
+        if (name == null) {
+            return defaultValue;
+        }
+
+        try {
+            return valueOf(name);
+        } catch (IllegalArgumentException __) {
+            return defaultValue;
+        }
     }
 
 }

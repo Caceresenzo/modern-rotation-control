@@ -24,7 +24,7 @@ public enum TileClickBehavior {
         }
 
         try {
-            return TileClickBehavior.valueOf(name);
+            return valueOf(name);
         } catch (IllegalArgumentException __) {
             return defaultValue;
         }

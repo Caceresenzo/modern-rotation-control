@@ -107,7 +107,7 @@ public class RotationTileService extends TileService {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        RotationMode activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+        RotationMode activeMode = RotationMode.fromPreferences(this);
         boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
 
         String suffix;

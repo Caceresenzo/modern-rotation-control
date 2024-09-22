@@ -262,7 +262,7 @@ public class RotationService extends Service {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
-        activeMode = RotationMode.valueOf(preferences.getString(getString(R.string.mode_key), RotationMode.AUTO.name()));
+        activeMode = RotationMode.fromPreferences(this);
     }
 
     public boolean isGuardEnabledOrForced() {
