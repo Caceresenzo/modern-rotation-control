@@ -29,6 +29,21 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:title="@string/quicksettings_header">
+
+        <ListPreference
+            app:defaultValue="SHOW_MODES_IF_CONTROLLING"
+            app:summary="@string/tile_click_behavior_description"
+            app:entries="@array/tile_click_behavior_entries"
+            app:entryValues="@array/tile_click_behavior"
+            app:iconSpaceReserved="false"
+            app:key="@string/tile_click_behavior_key"
+            app:title="@string/tile_click_behavior_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:title="@string/settings_header">
 
         <SwitchPreferenceCompat

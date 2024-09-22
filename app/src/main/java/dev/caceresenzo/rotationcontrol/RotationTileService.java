@@ -62,15 +62,44 @@ public class RotationTileService extends TileService {
 
         Log.i(TAG, "onClick");
 
-        if (RotationService.isRunning(this)) {
-            showDialog(new QuickActionsDialog(this));
-        } else {
-            Tile tile = getQsTile();
-            tile.setState(Tile.STATE_UNAVAILABLE);
-            tile.updateTile();
+        TileClickBehavior tileClickBehavior = TileClickBehavior.fromPreferences(this);
 
-            RotationService.start(this);
+        switch (tileClickBehavior) {
+            case TOGGLE_CONTROL: {
+                setTileUnavailable();
+
+                if (RotationService.isRunning(this)) {
+                    RotationService.stop(this);
+                } else {
+                    RotationService.start(this);
+                }
+
+                break;
+            }
+
+            case SHOW_MODES_IF_CONTROLLING: {
+                if (RotationService.isRunning(this)) {
+                    showDialog(new QuickActionsDialog(this));
+                } else {
+                    setTileUnavailable();
+                    RotationService.start(this);
+                }
+
+                break;
+            }
+
+            case ALWAYS_SHOW_MODES: {
+                showDialog(new QuickActionsDialog(this));
+
+                break;
+            }
         }
+    }
+
+    public void setTileUnavailable() {
+        Tile tile = getQsTile();
+        tile.setState(Tile.STATE_UNAVAILABLE);
+        tile.updateTile();
     }
 
     public void updateTile(boolean running) {

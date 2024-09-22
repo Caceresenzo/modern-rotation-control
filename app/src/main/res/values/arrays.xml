@@ -1,5 +1,4 @@
 <resources>
-    <!-- Reply Preference -->
     <string-array name="buttons_entries">
         <item>@string/mode_auto</item>
         <item>@string/mode_portrait</item>
@@ -18,5 +17,17 @@
         <item>LANDSCAPE</item>
         <item>LANDSCAPE_REVERSE</item>
         <item>LANDSCAPE_SENSOR</item>
+    </string-array>
+
+    <string-array name="tile_click_behavior_entries">
+        <item>Toggle Control</item>
+        <item>Show Modes if Controlling</item>
+        <item>Always Show Modes</item>
+    </string-array>
+
+    <string-array name="tile_click_behavior">
+        <item>TOGGLE_CONTROL</item>
+        <item>SHOW_MODES_IF_CONTROLLING</item>
+        <item>ALWAYS_SHOW_MODES</item>
     </string-array>
 </resources>
