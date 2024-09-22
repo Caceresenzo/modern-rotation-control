@@ -35,6 +35,10 @@
     <string name="tile_click_behavior_title">Tile Click Behavior</string>
     <string name="tile_click_behavior_description">Currently set to: %s</string>
 
+    <string name="close_dialog_on_click_key">quickactions_close_on_click</string>
+    <string name="close_dialog_on_click_title">Close Dialog on Click</string>
+    <string name="close_dialog_on_click_description">Close the Modes dialog after selecting one.</string>
+
     <string name="start_on_boot_key">start_on_boot</string>
     <string name="start_on_boot_title">Start on Boot</string>
     <string name="start_on_boot_description">Automatically start the service when the device is restarted.</string>

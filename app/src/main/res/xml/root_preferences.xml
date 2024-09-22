@@ -11,6 +11,7 @@
             app:title="@string/start_control_title" />
 
         <SwitchPreferenceCompat
+            app:defaultValue="true"
             app:iconSpaceReserved="false"
             app:key="@string/guard_key"
             app:summary="@string/guard_description"
@@ -33,12 +34,19 @@
 
         <ListPreference
             app:defaultValue="SHOW_MODES_IF_CONTROLLING"
-            app:summary="@string/tile_click_behavior_description"
             app:entries="@array/tile_click_behavior_entries"
             app:entryValues="@array/tile_click_behavior"
             app:iconSpaceReserved="false"
             app:key="@string/tile_click_behavior_key"
+            app:summary="@string/tile_click_behavior_description"
             app:title="@string/tile_click_behavior_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="@string/close_dialog_on_click_key"
+            app:summary="@string/close_dialog_on_click_description"
+            app:title="@string/close_dialog_on_click_title" />
 
     </PreferenceCategory>
 

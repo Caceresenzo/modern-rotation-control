@@ -78,7 +78,10 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         }
 
         context.startService(intent);
-        cancel();
+
+        if (shouldCloseOnClick()) {
+            cancel();
+        }
     }
 
     @Override
@@ -148,6 +151,13 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         } else {
             view.setColorFilter(context.getColor(R.color.inactive));
         }
+    }
+
+    public boolean shouldCloseOnClick() {
+        final Context context = getContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        return preferences.getBoolean(context.getString(R.string.close_dialog_on_click_key), true);
     }
 
     public class Listener extends BroadcastReceiver {
