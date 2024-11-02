@@ -1,6 +1,7 @@
 package dev.caceresenzo.rotationcontrol;
 
 import android.app.ActivityManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -34,7 +36,8 @@ public class RotationService extends Service {
 
     public static final String TAG = RotationService.class.getSimpleName();
 
-    public static final String CHANNEL_ID = "Controls";
+    public static final String CONTROLS_CHANNEL_ID = "Controls";
+    public static final String SERVICE_CHANNEL_ID = "Service";
     public static final int NOTIFICATION_ID = 1;
 
     public static final String ACTION_START = "START";
@@ -58,8 +61,6 @@ public class RotationService extends Service {
 
     private final IBinder binder = new LocalBinder();
 
-    private NotificationCompat.Builder notificationBuilder;
-
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
 
@@ -77,10 +78,9 @@ public class RotationService extends Service {
     public void onCreate() {
         Log.i(TAG, "onCreate");
 
-        createNotificationChannel();
+        createNotificationChannel(CONTROLS_CHANNEL_ID, R.string.controls_notification_channel_name);
+        createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
         loadFromPreferences();
-
-        notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
 
         unlockBroadcastReceiver = new UnlockBroadcastReceiver();
         registerReceiver(unlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
@@ -140,12 +140,12 @@ public class RotationService extends Service {
 
         switch (action) {
             case ACTION_START: {
-                prepareNotification(showNotification);
+                Notification notification = createNotification(showNotification);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                    startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
                 } else {
-                    startForeground(NOTIFICATION_ID, notificationBuilder.build());
+                    startForeground(NOTIFICATION_ID, notification);
                 }
 
                 break;
@@ -192,14 +192,10 @@ public class RotationService extends Service {
             }
         }
 
-        if (!ACTION_START.equals(action)) {
-            prepareNotification(showNotification);
-        }
-
         applyMode();
 
         if (showNotification) {
-            getNotificationManager().notify(NOTIFICATION_ID, notificationBuilder.build());
+            getNotificationManager().notify(NOTIFICATION_ID, createNotification(true));
         } else {
             getNotificationManager().cancel(NOTIFICATION_ID);
         }
@@ -214,8 +210,12 @@ public class RotationService extends Service {
         return START_STICKY;
     }
 
-    private void prepareNotification(boolean showNotification) {
-        notificationBuilder
+    private Notification createNotification(boolean showNotification) {
+        String channelId = showNotification
+                ? CONTROLS_CHANNEL_ID
+                : SERVICE_CHANNEL_ID;
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setSmallIcon(R.drawable.mode_auto)
                 .setOngoing(true)
                 .setSilent(true)
@@ -251,6 +251,8 @@ public class RotationService extends Service {
         }
 
         Log.i(TAG, String.format("prepared notification - showNotification=%s", showNotification));
+
+        return notificationBuilder.build();
     }
 
     private boolean isNotificationShown() {
@@ -326,8 +328,8 @@ public class RotationService extends Service {
         }
     }
 
-    private void createNotificationChannel() {
-        NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
+    private void createNotificationChannel(String id, @StringRes int name) {
+        NotificationChannel notificationChannel = new NotificationChannel(id, getString(name), NotificationManager.IMPORTANCE_DEFAULT);
         notificationChannel.setSound(null, null);
         notificationChannel.setShowBadge(false);
         notificationChannel.enableVibration(false);

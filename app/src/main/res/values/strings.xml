@@ -58,7 +58,8 @@
     <string name="buttons_title">Mode Buttons</string>
     <string name="buttons_description">Select which buttons to display.</string>
 
-    <string name="notification_channel_name">Controls</string>
+    <string name="controls_notification_channel_name">Controls</string>
+    <string name="service_notification_channel_name">Background Service</string>
     <string name="notification_discard_me_title">Service is running.</string>
 
     <string name="quick_settings_service_will_be_started">The service will be started after selection.</string>
