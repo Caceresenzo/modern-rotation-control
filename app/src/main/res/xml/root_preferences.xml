@@ -26,6 +26,12 @@
             app:summary="@string/mode_description"
             app:title="@string/mode_title" />
 
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/install_tile_key"
+            app:summary="@string/install_tile_description"
+            app:title="@string/install_tile_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -1,9 +1,13 @@
 package dev.caceresenzo.rotationcontrol;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.StatusBarManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +23,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
     public static final String TAG = SettingsFragment.class.getSimpleName();
 
@@ -52,6 +59,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         findPreference(getString(R.string.start_control_key)).setOnPreferenceChangeListener(this);
+
+        {
+            Preference preference = findPreference(getString(R.string.install_tile_key));
+            preference.setOnPreferenceClickListener(this);
+
+            boolean isAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+            boolean isInstalled = getPreferenceScreen().getSharedPreferences().getBoolean(getString(R.string.install_tile_key), false);
+            preference.setVisible(isAvailable && !isInstalled);
+        }
     }
 
     @Override
@@ -105,6 +121,66 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
 
         return true;
+    }
+
+    @Override
+    public boolean onPreferenceClick(@NonNull Preference preference) {
+        String key = preference.getKey();
+
+        Context context = getContext();
+        if (context == null) {
+            return false;
+        }
+
+        if (getString(R.string.install_tile_key).equals(key)) {
+            requestAddTile(context, preference);
+        }
+
+        return true;
+    }
+
+    @SuppressLint("NewApi")
+    private void requestAddTile(Context context, Preference preference) {
+        StatusBarManager statusBarManager = context.getSystemService(StatusBarManager.class);
+
+        statusBarManager.requestAddTileService(
+                new ComponentName(context, RotationTileService.class),
+                getString(R.string.tile_title),
+                Icon.createWithResource(context, R.drawable.guard),
+                new Executor() {
+                    @Override
+                    public void execute(Runnable command) {
+                        getActivity().runOnUiThread(command);
+                    }
+                },
+                new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer status) {
+                        switch (status) {
+                            case StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_NOT_ADDED: {
+                                getPreferenceManager().getSharedPreferences()
+                                        .edit()
+                                        .putBoolean(getString(R.string.install_tile_key), false)
+                                        .apply();
+
+                                break;
+                            }
+
+                            case StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED:
+                            case StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED: {
+                                preference.setVisible(false);
+
+                                getPreferenceManager().getSharedPreferences()
+                                        .edit()
+                                        .putBoolean(getString(R.string.install_tile_key), true)
+                                        .apply();
+
+                                break;
+                            }
+                        }
+                    }
+                }
+        );
     }
 
     @Override
