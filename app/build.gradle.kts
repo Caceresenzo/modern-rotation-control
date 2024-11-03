@@ -11,8 +11,8 @@ android {
         applicationId = "dev.caceresenzo.rotationcontrol"
         minSdk = 29
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.5.0"
+        versionCode = 8
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
