@@ -15,7 +15,9 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -53,20 +55,34 @@ public class RotationService extends Service {
     public static final int ACTION_CHANGE_MODE_REQUEST_CODE_BASE = 30;
     public static final String INTENT_NEW_MODE = "NEW_MODE";
 
+    public static final String ACTION_REFRESH_MODE = "REFRESH_MODE";
+    public static final int ACTION_REFRESH_MODE_REQUEST_CODE = 40;
+
     public static final String TINT_METHOD = "setColorFilter";
 
     public static final String ACTION_NOTIFY_CREATED = "dev.caceresenzo.rotationcontrol.SERVICE_CREATED";
     public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
     public static final String ACTION_NOTIFY_UPDATED = "dev.caceresenzo.rotationcontrol.SERVICE_UPDATED";
 
+    private Runnable mBroadcastToggleGuardIntent = new Runnable() {
+        @Override
+        public void run() {
+            currentlyRefreshing = false;
+            Log.i(TAG, String.format("new new guard=%s", guard));
+            afterStartCommand();
+        }
+    };
+
     private final IBinder binder = new LocalBinder();
 
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
+    private @Getter boolean currentlyRefreshing = false;
 
-    private View view;
+    private View mView;
 
-    private UnlockBroadcastReceiver unlockBroadcastReceiver;
+    private Handler mHandler;
+    private UnlockBroadcastReceiver mUnlockBroadcastReceiver;
 
     @Nullable
     @Override
@@ -82,8 +98,10 @@ public class RotationService extends Service {
         createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
         loadFromPreferences();
 
-        unlockBroadcastReceiver = new UnlockBroadcastReceiver();
-        registerReceiver(unlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+        mHandler = new Handler(Looper.getMainLooper());
+
+        mUnlockBroadcastReceiver = new UnlockBroadcastReceiver();
+        registerReceiver(mUnlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
 
         sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
     }
@@ -101,14 +119,14 @@ public class RotationService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
 
-        if (view != null) {
-            getWindowManager().removeView(view);
-            view = null;
+        if (mView != null) {
+            getWindowManager().removeView(mView);
+            mView = null;
         }
 
-        if (unlockBroadcastReceiver != null) {
-            unregisterReceiver(unlockBroadcastReceiver);
-            unlockBroadcastReceiver = null;
+        if (mUnlockBroadcastReceiver != null) {
+            unregisterReceiver(mUnlockBroadcastReceiver);
+            mUnlockBroadcastReceiver = null;
         }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
@@ -119,6 +137,8 @@ public class RotationService extends Service {
                 .apply();
 
         getNotificationManager().cancel(NOTIFICATION_ID);
+
+        mHandler.removeCallbacks(mBroadcastToggleGuardIntent);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -138,11 +158,9 @@ public class RotationService extends Service {
             return START_NOT_STICKY;
         }
 
-        boolean showNotification = isNotificationShown();
-
         switch (action) {
             case ACTION_START: {
-                Notification notification = createNotification(showNotification);
+                Notification notification = createNotification(isNotificationShown());
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
@@ -188,15 +206,31 @@ public class RotationService extends Service {
                 break;
             }
 
+            case ACTION_REFRESH_MODE: {
+                currentlyRefreshing = true;
+                Log.i(TAG, String.format("new guard=%s", guard));
+
+                mHandler.postDelayed(mBroadcastToggleGuardIntent, 1000);
+
+                break;
+            }
+
             default: {
                 Log.i(TAG, String.format("unknown action - action=%s", action));
                 return START_NOT_STICKY;
             }
         }
 
+        afterStartCommand();
+
+        return START_STICKY;
+    }
+
+    private void afterStartCommand() {
+        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
         applyMode();
 
-        if (showNotification) {
+        if (isNotificationShown()) {
             getNotificationManager().notify(NOTIFICATION_ID, createNotification(true));
         } else {
             getNotificationManager().cancel(NOTIFICATION_ID);
@@ -208,8 +242,6 @@ public class RotationService extends Service {
                 .edit()
                 .putBoolean(getString(R.string.start_control_key), true)
                 .apply();
-
-        return START_STICKY;
     }
 
     private Notification createNotification(boolean showNotification) {
@@ -227,6 +259,7 @@ public class RotationService extends Service {
         if (showNotification) {
             RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
             layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
+            layout.setOnClickPendingIntent(R.id.refresh, newRefreshModePendingIntent());
 
             for (RotationMode mode : RotationMode.values()) {
                 // Log.i(TAG, String.format("attach intent - mode=%s viewId=%d", mode, mode.viewId()));
@@ -270,7 +303,7 @@ public class RotationService extends Service {
     }
 
     public boolean isGuardEnabledOrForced() {
-        return guard || activeMode.doesRequireGuard();
+        return (guard || activeMode.doesRequireGuard()) && !currentlyRefreshing;
     }
 
     private void updateViews(RemoteViews layout) {
@@ -307,18 +340,18 @@ public class RotationService extends Service {
             );
             layoutParams.screenOrientation = activeMode.orientationValue();
 
-            if (view == null) {
-                view = new View(getApplicationContext());
-                getWindowManager().addView(view, layoutParams);
+            if (mView == null) {
+                mView = new View(getApplicationContext());
+                getWindowManager().addView(mView, layoutParams);
             } else {
-                getWindowManager().updateViewLayout(view, layoutParams);
+                getWindowManager().updateViewLayout(mView, layoutParams);
             }
 
             Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
         } else {
-            if (view != null) {
-                getWindowManager().removeView(view);
-                view = null;
+            if (mView != null) {
+                getWindowManager().removeView(mView);
+                mView = null;
             }
 
             if (activeMode.shouldUseAccelerometerRotation()) {
@@ -353,6 +386,17 @@ public class RotationService extends Service {
         );
     }
 
+    private PendingIntent newRefreshModePendingIntent() {
+        Intent intent = newRefreshModeIntent(this);
+
+        return PendingIntent.getService(
+                this,
+                ACTION_REFRESH_NOTIFICATION_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
     private PendingIntent newGuardPendingIntent() {
         Intent intent = newToggleGuardIntent(this);
 
@@ -375,14 +419,6 @@ public class RotationService extends Service {
         );
     }
 
-    private NotificationManager getNotificationManager() {
-        return (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-    }
-
-    private WindowManager getWindowManager() {
-        return (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
-    }
-
     public static Intent newToggleGuardIntent(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_CHANGE_GUARD);
@@ -396,6 +432,21 @@ public class RotationService extends Service {
         intent.putExtra(INTENT_NEW_MODE, mode.name());
 
         return intent;
+    }
+
+    public static Intent newRefreshModeIntent(Context context) {
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_REFRESH_MODE);
+
+        return intent;
+    }
+
+    private NotificationManager getNotificationManager() {
+        return (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    private WindowManager getWindowManager() {
+        return (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
     }
 
     public static void start(Context context) {

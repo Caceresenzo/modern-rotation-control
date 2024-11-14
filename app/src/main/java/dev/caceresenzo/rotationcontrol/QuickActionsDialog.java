@@ -45,6 +45,9 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         ImageView guardView = findViewById(R.id.guard);
         guardView.setOnClickListener(this);
 
+        ImageView refreshButton = findViewById(R.id.refresh);
+        refreshButton.setOnClickListener(this);
+
         TextView infoView = findViewById(R.id.info);
         if (RotationService.isRunning(getContext())) {
             infoView.setVisibility(View.GONE);
@@ -62,6 +65,8 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         int viewId = view.getId();
         if (viewId == R.id.guard) {
             intent = RotationService.newToggleGuardIntent(context);
+        } else if (viewId == R.id.refresh) {
+            intent = RotationService.newRefreshModeIntent(context);
         } else {
             RotationMode newMode = RotationMode.fromViewId(viewId);
             if (newMode != null) {
@@ -103,7 +108,10 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
 
         final Context context = getContext();
 
-        context.unbindService(this);
+        if (mService != null) {
+            context.unbindService(this);
+        }
+
         context.unregisterReceiver(mListener);
     }
 

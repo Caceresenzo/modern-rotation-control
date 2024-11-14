@@ -45,4 +45,9 @@
         style="@style/AppTheme.NotificationButton"
         android:src="@drawable/mode_landscape_sensor" />
 
+    <ImageView
+        android:id="@+id/refresh"
+        style="@style/AppTheme.NotificationButton"
+        android:src="@drawable/refresh" />
+
 </LinearLayout>

@@ -14,6 +14,7 @@
     <string name="mode_landscape">Landscape</string>
     <string name="mode_landscape_reverse">Landscape (Reverse)</string>
     <string name="mode_landscape_sensor">Landscape (Sensor)</string>
+    <string name="mode_refresh">Refresh</string>
 
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>
