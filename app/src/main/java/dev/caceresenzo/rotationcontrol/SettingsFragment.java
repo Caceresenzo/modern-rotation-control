@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,7 +31,9 @@ import java.util.function.Consumer;
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
     public static final String TAG = SettingsFragment.class.getSimpleName();
+    public static final int RESTART_SERVICE_DELAY_MILLISECOND = 200;
 
+    private Handler mHandler;
     private ActivityResultLauncher<String> mNotificationPermissionActivityResultLauncher;
 
     @Override
@@ -42,6 +46,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         }
 
+        mHandler = new Handler(Looper.getMainLooper());
         mNotificationPermissionActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 (accepted) -> {
@@ -59,6 +64,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         findPreference(getString(R.string.start_control_key)).setOnPreferenceChangeListener(this);
+        findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
 
         {
             Preference preference = findPreference(getString(R.string.install_tile_key));
@@ -118,6 +124,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             Toast.makeText(context, R.string.require_notification_permission, Toast.LENGTH_LONG).show();
             mNotificationPermissionActivityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             return false;
+        }
+
+        if (getString(R.string.show_notification_key).equals(key)
+                && RotationService.isRunning(context)
+                && hasNotificationPermission(context)
+        ) {
+            restartService();
+            return true;
         }
 
         return true;
@@ -218,6 +232,25 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             String value = sharedPreferences.getString(key, RotationMode.AUTO.name());
             ((ListPreference) findPreference(key)).setValue(value);
         }
+    }
+
+    private void setStartControlEnabled(boolean enabled) {
+        findPreference(getString(R.string.start_control_key)).setEnabled(enabled);
+    }
+
+    private void restartService() {
+        Context context = getContext();
+
+        RotationService.stop(context);
+        setStartControlEnabled(false);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                RotationService.start(context);
+                setStartControlEnabled(true);
+            }
+        }, RESTART_SERVICE_DELAY_MILLISECOND);
     }
 
     private static boolean hasNotificationPermission(Context context) {

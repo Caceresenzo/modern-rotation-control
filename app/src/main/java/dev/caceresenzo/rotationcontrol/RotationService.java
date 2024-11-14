@@ -118,6 +118,8 @@ public class RotationService extends Service {
                 .putBoolean(getString(R.string.start_control_key), false)
                 .apply();
 
+        getNotificationManager().cancel(NOTIFICATION_ID);
+
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
