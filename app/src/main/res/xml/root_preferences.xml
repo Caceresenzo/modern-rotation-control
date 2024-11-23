@@ -32,6 +32,12 @@
             app:summary="@string/install_tile_description"
             app:title="@string/install_tile_title" />
 
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/battery_optimization_key"
+            app:summary="@string/battery_optimization_description"
+            app:title="@string/battery_optimization_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

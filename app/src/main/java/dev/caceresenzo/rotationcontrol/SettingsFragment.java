@@ -5,13 +5,17 @@ import android.annotation.SuppressLint;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -67,12 +71,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
 
         {
-            Preference preference = findPreference(getString(R.string.install_tile_key));
+            String key = getString(R.string.install_tile_key);
+
+            Preference preference = findPreference(key);
             preference.setOnPreferenceClickListener(this);
 
             boolean isAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
-            boolean isInstalled = getPreferenceScreen().getSharedPreferences().getBoolean(getString(R.string.install_tile_key), false);
+            boolean isInstalled = getPreferenceScreen().getSharedPreferences().getBoolean(key, false);
             preference.setVisible(isAvailable && !isInstalled);
+        }
+
+        {
+            String key = getString(R.string.battery_optimization_key);
+
+            Preference preference = findPreference(key);
+            preference.setOnPreferenceClickListener(this);
+
+            boolean isAlready = isIgnoringBatteryOptimizations(getContext());
+            preference.setVisible(!isAlready);
         }
     }
 
@@ -148,6 +164,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         if (getString(R.string.install_tile_key).equals(key)) {
             requestAddTile(context, preference);
+        } else if (getString(R.string.battery_optimization_key).equals(key)) {
+            requestBatteryOptimization(context);
+            preference.setVisible(false);
         }
 
         return true;
@@ -195,6 +214,27 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     }
                 }
         );
+    }
+
+    private boolean isIgnoringBatteryOptimizations(Context context) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+
+        return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
+
+    /**
+     * @author <a href="https://stackoverflow.com/a/77118142/7292958">HSMKU from StackOverflow</a>
+     */
+    @SuppressLint("BatteryLife")
+    private void requestBatteryOptimization(Context context) {
+        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                .setData(Uri.fromParts("package", context.getPackageName(), null))
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+
+        context.startActivity(intent);
     }
 
     @Override
