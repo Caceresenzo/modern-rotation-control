@@ -210,7 +210,9 @@ public class RotationService extends Service {
                 currentlyRefreshing = true;
                 Log.i(TAG, String.format("new guard=%s", guard));
 
-                mHandler.postDelayed(mBroadcastToggleGuardIntent, 1000);
+                String rawDelay = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.refresh_mode_delay_key), "600");
+                long delay = Long.parseLong(rawDelay);
+                mHandler.postDelayed(mBroadcastToggleGuardIntent, delay);
 
                 break;
             }

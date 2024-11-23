@@ -59,6 +59,13 @@
     <string name="buttons_title">Mode Buttons</string>
     <string name="buttons_description">Select which buttons to display.</string>
 
+    <string name="refresh_mode_delay_key">refresh_mode_delay</string>
+    <string name="refresh_mode_delay_title">Refresh Mode Delay</string>
+    <string name="refresh_mode_delay_description">Wait a %s amount of time before restoring the original rotation mode.</string>
+    <string name="delay_fast">Fast (0.2s)</string>
+    <string name="delay_normal">Normal (0.6s)</string>
+    <string name="delay_slow">Slow (1s)</string>
+
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>
     <string name="notification_discard_me_title">Service is running.</string>

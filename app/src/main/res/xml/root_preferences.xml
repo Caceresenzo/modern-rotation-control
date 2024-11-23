@@ -84,6 +84,15 @@
             app:summary="@string/buttons_description"
             app:title="@string/buttons_title" />
 
+        <ListPreference
+            app:defaultValue="600"
+            app:entries="@array/refresh_mode_delay_entries"
+            app:entryValues="@array/refresh_mode_delay_values"
+            app:iconSpaceReserved="false"
+            app:key="@string/refresh_mode_delay_key"
+            app:summary="@string/refresh_mode_delay_description"
+            app:title="@string/refresh_mode_delay_title" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
