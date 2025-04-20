@@ -99,6 +99,12 @@
             app:summary="@string/refresh_mode_delay_description"
             app:title="@string/refresh_mode_delay_title" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/settings_auto_lock_header">
+
         <ListPreference
             app:defaultValue="0"
             app:entries="@array/auto_lock_entries"
@@ -107,6 +113,15 @@
             app:key="@string/auto_lock_key"
             app:summary="@string/auto_lock_description"
             app:title="@string/auto_lock_title" />
+
+        <ListPreference
+            app:defaultValue="AUTO"
+            app:entries="@array/auto_lock_mode_entries"
+            app:entryValues="@array/auto_lock_mode_values"
+            app:iconSpaceReserved="false"
+            app:key="@string/auto_lock_mode_key"
+            app:summary="@string/auto_lock_mode_description"
+            app:title="@string/auto_lock_mode_title" />
 
     </PreferenceCategory>
 

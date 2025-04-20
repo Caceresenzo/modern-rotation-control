@@ -105,8 +105,12 @@ public enum RotationMode {
     }
 
     public static RotationMode fromPreferences(Context context, RotationMode defaultValue) {
+        return fromPreferences(context, R.string.mode_key, defaultValue);
+    }
+
+    public static RotationMode fromPreferences(Context context, @StringRes int preferenceKeyId, RotationMode defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String name = preferences.getString(context.getString(R.string.mode_key), null);
+        String name = preferences.getString(context.getString(preferenceKeyId), null);
 
         if (name == null) {
             return defaultValue;

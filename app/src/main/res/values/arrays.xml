@@ -58,4 +58,24 @@
         <item>60</item>
         <item>120</item>
     </string-array>
+
+    <string-array name="auto_lock_mode_entries">
+        <item>@string/mode_deduce</item>
+        <item>@string/mode_portrait</item>
+        <item>@string/mode_portrait_reverse</item>
+        <item>@string/mode_portrait_sensor</item>
+        <item>@string/mode_landscape</item>
+        <item>@string/mode_landscape_reverse</item>
+        <item>@string/mode_landscape_sensor</item>
+    </string-array>
+
+    <string-array name="auto_lock_mode_values">
+        <item>AUTO</item>
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>PORTRAIT_SENSOR</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+        <item>LANDSCAPE_SENSOR</item>
+    </string-array>
 </resources>

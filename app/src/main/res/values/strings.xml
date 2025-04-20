@@ -7,6 +7,7 @@
     <string name="tile_inactive">Inactive</string>
     <string name="tile_with_guard">(with Guard)</string>
 
+    <string name="mode_deduce">Deduce from current orientation</string>
     <string name="mode_auto">Auto</string>
     <string name="mode_portrait">Portrait</string>
     <string name="mode_portrait_reverse">Portrait (Reverse)</string>
@@ -18,6 +19,7 @@
 
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>
+    <string name="settings_auto_lock_header">Settings — Auto Lock</string>
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
@@ -81,6 +83,10 @@
     <string name="wait_60">after 1 minute</string>
     <string name="wait_120">after 2 minutes</string>
     <string name="auto_lock_trigger">Locked rotation mode to %s</string>
+
+    <string name="auto_lock_mode_key">auto_lock_mode</string>
+    <string name="auto_lock_mode_title">Auto Lock to Mode</string>
+    <string name="auto_lock_mode_description">Set to the mode: %s</string>
 
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>

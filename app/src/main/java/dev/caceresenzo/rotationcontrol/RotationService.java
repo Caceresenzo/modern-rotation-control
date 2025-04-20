@@ -296,7 +296,10 @@ public class RotationService extends Service {
             lastDisplayRotationValue = getCurrentDisplayRotation();
         }
 
-        RotationMode newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
+        RotationMode newMode = RotationMode.fromPreferences(this, R.string.auto_lock_mode_key, RotationMode.AUTO);
+        if (newMode == RotationMode.AUTO) {
+            newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
+        }
 
         Toast.makeText(this, getString(R.string.auto_lock_trigger, getString(newMode.stringId())), Toast.LENGTH_SHORT).show();
 

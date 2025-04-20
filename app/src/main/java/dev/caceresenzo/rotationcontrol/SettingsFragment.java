@@ -69,6 +69,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         findPreference(getString(R.string.start_control_key)).setOnPreferenceChangeListener(this);
         findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
+        findPreference(getString(R.string.auto_lock_key)).setOnPreferenceChangeListener(this);
+
+        updateAutoLockModeEnabledState(null);
 
         {
             String key = getString(R.string.install_tile_key);
@@ -90,6 +93,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             boolean isAlready = isIgnoringBatteryOptimizations(getContext());
             preference.setVisible(!isAlready);
         }
+    }
+
+    private void updateAutoLockModeEnabledState(Object newValue) {
+        if (newValue == null) {
+            newValue = getPreferenceScreen().getSharedPreferences()
+                    .getString(getString(R.string.auto_lock_key), "0");
+        }
+
+        boolean isDisabled = "0".equals(newValue);
+
+        findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(!isDisabled);
     }
 
     @Override
@@ -147,6 +161,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 && hasNotificationPermission(context)
         ) {
             restartService();
+            return true;
+        }
+
+        if (getString(R.string.auto_lock_key).equals(key)) {
+            updateAutoLockModeEnabledState(newValue);
             return true;
         }
 
