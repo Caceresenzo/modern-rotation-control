@@ -42,4 +42,20 @@
         <item>600</item>
         <item>1000</item>
     </string-array>
+
+    <string-array name="auto_lock_entries">
+        <item>@string/wait_disabled</item>
+        <item>@string/wait_15</item>
+        <item>@string/wait_30</item>
+        <item>@string/wait_60</item>
+        <item>@string/wait_120</item>
+    </string-array>
+
+    <string-array name="auto_lock_values">
+        <item>0</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+    </string-array>
 </resources>

@@ -119,4 +119,14 @@ public enum RotationMode {
         }
     }
 
+    public static RotationMode fromRotationValue(int rotationValue) {
+        for (RotationMode mode : values()) {
+            if (mode.rotationValue == rotationValue) {
+                return mode;
+            }
+        }
+
+        return PORTRAIT;
+    }
+
 }

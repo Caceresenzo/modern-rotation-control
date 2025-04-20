@@ -246,7 +246,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             return;
         }
 
-        if (getString(R.string.buttons_key).equals(key) || getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key) || getString(R.string.show_notification_key).equals(key)) {
+        if (getString(R.string.buttons_key).equals(key) || getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key) || getString(R.string.show_notification_key).equals(key) || getString(R.string.auto_lock_key).equals(key)) {
             // TODO should not be called if edit comes from service itself
             RotationService.notifyConfigurationChanged(context);
         }

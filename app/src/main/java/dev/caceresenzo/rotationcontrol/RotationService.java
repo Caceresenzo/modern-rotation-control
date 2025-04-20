@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
-import android.content.res.Configuration;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -24,6 +23,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -44,6 +44,7 @@ public class RotationService extends Service {
 
     public static final String ACTION_START = "START";
     public static final String ACTION_CONFIGURATION_CHANGED = "CONFIGURATION_CHANGED";
+    public static final String ACTION_ORIENTATION_CHANGED = "ORIENTATION_CHANGED";
 
     public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH";
     public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
@@ -64,12 +65,20 @@ public class RotationService extends Service {
     public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
     public static final String ACTION_NOTIFY_UPDATED = "dev.caceresenzo.rotationcontrol.SERVICE_UPDATED";
 
-    private Runnable mBroadcastToggleGuardIntent = new Runnable() {
+    private final Runnable mBroadcastToggleGuardIntent = new Runnable() {
         @Override
         public void run() {
             currentlyRefreshing = false;
             Log.i(TAG, String.format("new new guard=%s", guard));
             afterStartCommand();
+        }
+    };
+
+    private final Runnable mTriggerAutoLock = new Runnable() {
+        @Override
+        public void run() {
+            Log.i(TAG, "triggering auto lock");
+            triggerAutoLock();
         }
     };
 
@@ -79,10 +88,14 @@ public class RotationService extends Service {
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter boolean currentlyRefreshing = false;
 
+    private @Getter int autoLockWait = 0;
+    private @Getter int lastDisplayRotationValue = -1;
+
     private View mView;
 
     private Handler mHandler;
     private UnlockBroadcastReceiver mUnlockBroadcastReceiver;
+    private OrientationBroadcastReceiver mOrientationReceiver;
 
     @Nullable
     @Override
@@ -103,16 +116,12 @@ public class RotationService extends Service {
         mUnlockBroadcastReceiver = new UnlockBroadcastReceiver();
         registerReceiver(mUnlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
 
+        mOrientationReceiver = new OrientationBroadcastReceiver();
+        registerReceiver(mOrientationReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+
+        setupAutoLock();
+
         sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        Log.i(TAG, String.format("onConfigurationChanged - newConfig=%s", newConfig));
-
-        notifyConfigurationChanged(this);
     }
 
     @Override
@@ -129,6 +138,11 @@ public class RotationService extends Service {
             mUnlockBroadcastReceiver = null;
         }
 
+        if (mOrientationReceiver != null) {
+            unregisterReceiver(mOrientationReceiver);
+            mOrientationReceiver = null;
+        }
+
         sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
 
         PreferenceManager.getDefaultSharedPreferences(this)
@@ -139,6 +153,7 @@ public class RotationService extends Service {
         getNotificationManager().cancel(NOTIFICATION_ID);
 
         mHandler.removeCallbacks(mBroadcastToggleGuardIntent);
+        mHandler.removeCallbacks(mTriggerAutoLock);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -173,6 +188,16 @@ public class RotationService extends Service {
 
             case ACTION_CONFIGURATION_CHANGED: {
                 loadFromPreferences();
+                setupAutoLock();
+
+                break;
+            }
+
+            case ACTION_ORIENTATION_CHANGED: {
+                if (hasRotationValueChanged()) {
+                    setupAutoLock();
+                }
+
                 break;
             }
 
@@ -229,7 +254,7 @@ public class RotationService extends Service {
     }
 
     private void afterStartCommand() {
-        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
+        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s autoLockWait=%s", guard, activeMode, autoLockWait));
         applyMode();
 
         if (isNotificationShown()) {
@@ -244,6 +269,43 @@ public class RotationService extends Service {
                 .edit()
                 .putBoolean(getString(R.string.start_control_key), true)
                 .apply();
+    }
+
+    private void setupAutoLock() {
+        mHandler.removeCallbacks(mTriggerAutoLock);
+
+        boolean isEnabled = autoLockWait != 0 && !currentlyRefreshing;
+        if (!isEnabled) {
+            Log.d(TAG, String.format("setupAutoLock not enabled - autoLockWait=%s currentlyRefreshing=%s", autoLockWait, currentlyRefreshing));
+            return;
+        }
+
+        if (!RotationMode.AUTO.equals(activeMode)) {
+            Log.d(TAG, String.format("setupAutoLock cancelled - activeMode=%s", activeMode));
+            return;
+        }
+
+        lastDisplayRotationValue = getCurrentDisplayRotation();
+        Log.d(TAG, String.format("setupAutoLock - lastDisplayRotationValue=%s", lastDisplayRotationValue));
+
+        mHandler.postDelayed(mTriggerAutoLock, autoLockWait * 1000L);
+    }
+
+    private void triggerAutoLock() {
+        if (lastDisplayRotationValue == -1) {
+            lastDisplayRotationValue = getCurrentDisplayRotation();
+        }
+
+        RotationMode newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
+
+        Toast.makeText(this, getString(R.string.auto_lock_trigger, getString(newMode.stringId())), Toast.LENGTH_SHORT).show();
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putString(getString(R.string.mode_key), newMode.name())
+                .apply();
+
+        notifyConfigurationChanged(this);
     }
 
     private Notification createNotification(boolean showNotification) {
@@ -302,6 +364,8 @@ public class RotationService extends Service {
 
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
         activeMode = RotationMode.fromPreferences(this);
+
+        autoLockWait = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
     }
 
     public boolean isGuardEnabledOrForced() {
@@ -421,6 +485,16 @@ public class RotationService extends Service {
         );
     }
 
+    private int getCurrentDisplayRotation() {
+        return getWindowManager().getDefaultDisplay().getRotation();
+    }
+
+    public boolean hasRotationValueChanged() {
+        int rotationValue = getCurrentDisplayRotation();
+
+        return lastDisplayRotationValue != rotationValue;
+    }
+
     public static Intent newToggleGuardIntent(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_CHANGE_GUARD);
@@ -469,6 +543,17 @@ public class RotationService extends Service {
 
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_CONFIGURATION_CHANGED);
+
+        context.startService(intent);
+    }
+
+    public static void notifyOrientationChanged(Context context) {
+        if (!isRunning(context)) {
+            return;
+        }
+
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_ORIENTATION_CHANGED);
 
         context.startService(intent);
     }

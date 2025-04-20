@@ -99,6 +99,15 @@
             app:summary="@string/refresh_mode_delay_description"
             app:title="@string/refresh_mode_delay_title" />
 
+        <ListPreference
+            app:defaultValue="0"
+            app:entries="@array/auto_lock_entries"
+            app:entryValues="@array/auto_lock_values"
+            app:iconSpaceReserved="false"
+            app:key="@string/auto_lock_key"
+            app:summary="@string/auto_lock_description"
+            app:title="@string/auto_lock_title" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

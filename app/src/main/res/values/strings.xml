@@ -21,11 +21,13 @@
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
-    <string name="install_tile_description">Click here to add the tile to the Quick Settings.</string>">
+    <string name="install_tile_description">Click here to add the tile to the Quick Settings.</string>
+    ">
 
     <string name="battery_optimization_key">battery_optimization</string>
     <string name="battery_optimization_title">Exclude from Battery Optimization</string>
-    <string name="battery_optimization_description">Click here to ensure that the application is never stopped.</string>">
+    <string name="battery_optimization_description">Click here to ensure that the application is never stopped.</string>
+    ">
 
     <string name="start_control_key">start_control</string>
     <string name="start_control_title">Start controlling rotation</string>
@@ -69,6 +71,16 @@
     <string name="delay_fast">Fast (0.2s)</string>
     <string name="delay_normal">Normal (0.6s)</string>
     <string name="delay_slow">Slow (1s)</string>
+
+    <string name="auto_lock_key">auto_lock</string>
+    <string name="auto_lock_title">Auto Lock after some time</string>
+    <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s</string>
+    <string name="wait_disabled">Disabled</string>
+    <string name="wait_15">after 15 seconds</string>
+    <string name="wait_30">after 30 seconds</string>
+    <string name="wait_60">after 1 minute</string>
+    <string name="wait_120">after 2 minutes</string>
+    <string name="auto_lock_trigger">Locked rotation mode to %s</string>
 
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>
