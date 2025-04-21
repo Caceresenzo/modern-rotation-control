@@ -305,11 +305,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     private void updateAutoLockModeEnabledState() {
-        boolean isDisabled = "0".equals(getPreferenceScreen().getSharedPreferences().getString(getString(R.string.auto_lock_key), "0"));
-        findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(!isDisabled);
+        boolean isEnabled = !"0".equals(getPreferenceScreen().getSharedPreferences().getString(getString(R.string.auto_lock_key), "0"));
+        findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(isEnabled);
 
         boolean isModeAuto = RotationMode.AUTO.equals(RotationMode.fromPreferences(getContext(), R.string.auto_lock_mode_key, RotationMode.AUTO));
-        findPreference(getString(R.string.auto_lock_force_key)).setEnabled(!isModeAuto);
+        findPreference(getString(R.string.auto_lock_force_key)).setEnabled(isEnabled && !isModeAuto);
     }
 
     private static boolean hasNotificationPermission(Context context) {
