@@ -290,7 +290,7 @@ public class RotationService extends Service {
         lastDisplayRotationValue = getCurrentDisplayRotation();
         Log.d(TAG, String.format("setupAutoLock - lastDisplayRotationValue=%s", lastDisplayRotationValue));
 
-        mHandler.postDelayed(mTriggerAutoLock, autoLock.getWait().toMillis());
+        mHandler.postDelayed(mTriggerAutoLock, autoLock.getWaitSeconds() * 1000L);
     }
 
     private void triggerAutoLock() {
@@ -615,21 +615,13 @@ public class RotationService extends Service {
     public class AutoLockSettings {
 
         private boolean enabled;
-        private Duration wait;
+        private int waitSeconds;
         private boolean force;
 
         public void load(SharedPreferences preferences) {
-            int waitSeconds = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
-
-            if (waitSeconds == 0) {
-                enabled = false;
-                wait = Duration.ZERO;
-            } else {
-                enabled = true;
-                wait = Duration.ofSeconds(waitSeconds);
-            }
-
-            force = preferences.getBoolean(getString(R.string.auto_lock_force_key), false);
+            this.waitSeconds = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
+            this.enabled = this.waitSeconds != 0;
+            this.force = preferences.getBoolean(getString(R.string.auto_lock_force_key), false);
         }
 
     }
