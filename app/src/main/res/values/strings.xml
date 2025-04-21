@@ -20,6 +20,7 @@
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>
     <string name="settings_auto_lock_header">Settings — Auto Lock</string>
+    <string name="settings_auto_lock_header_description">Timer is reset when the device is rotated.</string>
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
@@ -87,6 +88,11 @@
     <string name="auto_lock_mode_key">auto_lock_mode</string>
     <string name="auto_lock_mode_title">Auto Lock to Mode</string>
     <string name="auto_lock_mode_description">Set to the mode: %s</string>
+
+    <string name="auto_lock_force_key">auto_lock_force</string>
+    <string name="auto_lock_force_title">Force Auto Lock</string>
+    <string name="auto_lock_force_description_on">Forcibly apply the rotation, ignoring the current rotation.</string>
+    <string name="auto_lock_force_description_off">Wait until the current rotation matches the setting to lock it.</string>
 
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>

@@ -53,7 +53,7 @@
 
     <string-array name="auto_lock_values">
         <item>0</item>
-        <item>15</item>
+        <item>5</item>
         <item>30</item>
         <item>60</item>
         <item>120</item>

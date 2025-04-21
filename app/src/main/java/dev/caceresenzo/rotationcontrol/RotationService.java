@@ -30,8 +30,10 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
+import java.time.Duration;
 import java.util.Set;
 
+import lombok.Data;
 import lombok.Getter;
 
 public class RotationService extends Service {
@@ -88,7 +90,7 @@ public class RotationService extends Service {
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter boolean currentlyRefreshing = false;
 
-    private @Getter int autoLockWait = 0;
+    private @Getter AutoLockSettings autoLock = new AutoLockSettings();
     private @Getter int lastDisplayRotationValue = -1;
 
     private View mView;
@@ -254,7 +256,7 @@ public class RotationService extends Service {
     }
 
     private void afterStartCommand() {
-        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s autoLockWait=%s", guard, activeMode, autoLockWait));
+        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s autoLock=%s", guard, activeMode, autoLock));
         applyMode();
 
         if (isNotificationShown()) {
@@ -274,9 +276,9 @@ public class RotationService extends Service {
     private void setupAutoLock() {
         mHandler.removeCallbacks(mTriggerAutoLock);
 
-        boolean isEnabled = autoLockWait != 0 && !currentlyRefreshing;
+        boolean isEnabled = autoLock.isEnabled() && !currentlyRefreshing;
         if (!isEnabled) {
-            Log.d(TAG, String.format("setupAutoLock not enabled - autoLockWait=%s currentlyRefreshing=%s", autoLockWait, currentlyRefreshing));
+            Log.d(TAG, String.format("setupAutoLock not enabled - autoLockWait=%s currentlyRefreshing=%s", autoLock.isEnabled(), currentlyRefreshing));
             return;
         }
 
@@ -288,7 +290,7 @@ public class RotationService extends Service {
         lastDisplayRotationValue = getCurrentDisplayRotation();
         Log.d(TAG, String.format("setupAutoLock - lastDisplayRotationValue=%s", lastDisplayRotationValue));
 
-        mHandler.postDelayed(mTriggerAutoLock, autoLockWait * 1000L);
+        mHandler.postDelayed(mTriggerAutoLock, autoLock.getWait().toMillis());
     }
 
     private void triggerAutoLock() {
@@ -299,6 +301,12 @@ public class RotationService extends Service {
         RotationMode newMode = RotationMode.fromPreferences(this, R.string.auto_lock_mode_key, RotationMode.AUTO);
         if (newMode == RotationMode.AUTO) {
             newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
+        } else if (!autoLock.isForce()) {
+            RotationMode currentMode = RotationMode.fromRotationValue(getCurrentDisplayRotation());
+
+            if (!isCompatible(newMode, currentMode)) {
+                return;
+            }
         }
 
         Toast.makeText(this, getString(R.string.auto_lock_trigger, getString(newMode.stringId())), Toast.LENGTH_SHORT).show();
@@ -309,6 +317,22 @@ public class RotationService extends Service {
                 .apply();
 
         notifyConfigurationChanged(this);
+    }
+
+    private boolean isCompatible(RotationMode toMode, RotationMode currentMode) {
+        if (toMode.equals(currentMode)) {
+            return true;
+        }
+
+        if (RotationMode.LANDSCAPE_SENSOR.equals(toMode)) {
+            return RotationMode.LANDSCAPE.equals(currentMode) || RotationMode.LANDSCAPE_REVERSE.equals(currentMode);
+        }
+
+        if (RotationMode.PORTRAIT_SENSOR.equals(toMode)) {
+            return RotationMode.PORTRAIT.equals(currentMode) || RotationMode.PORTRAIT_REVERSE.equals(currentMode);
+        }
+
+        return false;
     }
 
     private Notification createNotification(boolean showNotification) {
@@ -368,7 +392,7 @@ public class RotationService extends Service {
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
         activeMode = RotationMode.fromPreferences(this);
 
-        autoLockWait = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
+        autoLock.load(preferences);
     }
 
     public boolean isGuardEnabledOrForced() {
@@ -583,6 +607,29 @@ public class RotationService extends Service {
 
         public RotationService getService() {
             return RotationService.this;
+        }
+
+    }
+
+    @Data
+    public class AutoLockSettings {
+
+        private boolean enabled;
+        private Duration wait;
+        private boolean force;
+
+        public void load(SharedPreferences preferences) {
+            int waitSeconds = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
+
+            if (waitSeconds == 0) {
+                enabled = false;
+                wait = Duration.ZERO;
+            } else {
+                enabled = true;
+                wait = Duration.ofSeconds(waitSeconds);
+            }
+
+            force = preferences.getBoolean(getString(R.string.auto_lock_force_key), false);
         }
 
     }

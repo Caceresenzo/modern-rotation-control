@@ -103,6 +103,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:summary="@string/settings_auto_lock_header_description"
         app:title="@string/settings_auto_lock_header">
 
         <ListPreference
@@ -122,6 +123,14 @@
             app:key="@string/auto_lock_mode_key"
             app:summary="@string/auto_lock_mode_description"
             app:title="@string/auto_lock_mode_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="@string/auto_lock_force_key"
+            app:summaryOff="@string/auto_lock_force_description_off"
+            app:summaryOn="@string/auto_lock_force_description_on"
+            app:title="@string/auto_lock_force_title" />
 
     </PreferenceCategory>
 

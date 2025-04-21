@@ -71,7 +71,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
         findPreference(getString(R.string.auto_lock_key)).setOnPreferenceChangeListener(this);
 
-        updateAutoLockModeEnabledState(null);
+        updateAutoLockModeEnabledState();
 
         {
             String key = getString(R.string.install_tile_key);
@@ -93,17 +93,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             boolean isAlready = isIgnoringBatteryOptimizations(getContext());
             preference.setVisible(!isAlready);
         }
-    }
-
-    private void updateAutoLockModeEnabledState(Object newValue) {
-        if (newValue == null) {
-            newValue = getPreferenceScreen().getSharedPreferences()
-                    .getString(getString(R.string.auto_lock_key), "0");
-        }
-
-        boolean isDisabled = "0".equals(newValue);
-
-        findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(!isDisabled);
     }
 
     @Override
@@ -161,11 +150,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 && hasNotificationPermission(context)
         ) {
             restartService();
-            return true;
-        }
-
-        if (getString(R.string.auto_lock_key).equals(key)) {
-            updateAutoLockModeEnabledState(newValue);
             return true;
         }
 
@@ -265,7 +249,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             return;
         }
 
-        if (getString(R.string.buttons_key).equals(key) || getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key) || getString(R.string.show_notification_key).equals(key) || getString(R.string.auto_lock_key).equals(key)) {
+        updateAutoLockModeEnabledState();
+
+        if (getString(R.string.buttons_key).equals(key)
+                || getString(R.string.guard_key).equals(key)
+                || getString(R.string.mode_key).equals(key)
+                || getString(R.string.show_notification_key).equals(key)
+                || getString(R.string.auto_lock_key).equals(key)
+                || getString(R.string.auto_lock_mode_key).equals(key)
+                || getString(R.string.auto_lock_force_key).equals(key)) {
             // TODO should not be called if edit comes from service itself
             RotationService.notifyConfigurationChanged(context);
         }
@@ -310,6 +302,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 setStartControlEnabled(true);
             }
         }, RESTART_SERVICE_DELAY_MILLISECOND);
+    }
+
+    private void updateAutoLockModeEnabledState() {
+        boolean isDisabled = "0".equals(getPreferenceScreen().getSharedPreferences().getString(getString(R.string.auto_lock_key), "0"));
+        findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(!isDisabled);
+
+        boolean isModeAuto = RotationMode.AUTO.equals(RotationMode.fromPreferences(getContext(), R.string.auto_lock_mode_key, RotationMode.AUTO));
+        findPreference(getString(R.string.auto_lock_force_key)).setEnabled(!isModeAuto);
     }
 
     private static boolean hasNotificationPermission(Context context) {
