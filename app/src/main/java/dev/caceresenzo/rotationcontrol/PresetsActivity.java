@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +43,7 @@ public class PresetsActivity extends AppCompatActivity {
             "com.android.systemui"
     );
 
+    private ProgressBar progressBar;
     private ApplicationListAdapter adapter;
     private List<ApplicationInfo> allApplications;
     private List<ApplicationInfo> filteredApplications;
@@ -56,12 +59,15 @@ public class PresetsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        RecyclerView recyclerView = findViewById(R.id.list);
+        progressBar = findViewById(R.id.progress_bar);
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        loadInstalledApplications();
+        allApplications = new ArrayList<>();
+        filteredApplications = new ArrayList<>();
 
-        RecyclerView recyclerView = findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        loadInstalledApplications();
 
         adapter = new ApplicationListAdapter(filteredApplications, new ApplicationListAdapter.OnItemClickListener() {
             @Override
@@ -70,6 +76,7 @@ public class PresetsActivity extends AppCompatActivity {
             }
         });
         recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -109,26 +116,38 @@ public class PresetsActivity extends AppCompatActivity {
     }
 
     private void loadInstalledApplications() {
-        allApplications = new ArrayList<>();
-        PackageManager packageManager = getPackageManager();
-        
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> resolveInfoList = packageManager.queryIntentActivities(mainIntent, 0);
-        
-        for (ResolveInfo resolveInfo : resolveInfoList) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            String displayName = resolveInfo.loadLabel(packageManager).toString();
-            Drawable icon = resolveInfo.loadIcon(packageManager);
-            RotationMode currentMode = getCurrentMode(packageName);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-            ApplicationInfo application = new ApplicationInfo(packageName, displayName, icon, currentMode);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                PackageManager packageManager = getPackageManager();
 
-            allApplications.add(application);
-        }
+                Intent mainIntent = new Intent();
+                List<android.content.pm.ApplicationInfo> resolveInfoList = packageManager.getInstalledApplications(0);
 
-        Collections.sort(allApplications);
-        filteredApplications = new ArrayList<>(allApplications);
+                for (android.content.pm.ApplicationInfo resolveInfo : resolveInfoList) {
+                    String packageName = resolveInfo.packageName;
+                    String displayName = resolveInfo.loadLabel(packageManager).toString();
+                    Drawable icon = resolveInfo.loadIcon(packageManager);
+                    RotationMode currentMode = getCurrentMode(packageName);
+
+                    ApplicationInfo application = new ApplicationInfo(packageName, displayName, icon, currentMode);
+
+                    allApplications.add(application);
+                }
+
+                Collections.sort(allApplications);
+
+                runOnUiThread(() -> {
+                    filteredApplications.addAll(allApplications);
+                    progressBar.setVisibility(View.GONE);
+                    adapter.notifyDataSetChanged();
+                });
+
+                executor.shutdown();
+            }
+        });
     }
 
     private RotationMode getCurrentMode(String packageName) {
@@ -307,7 +326,7 @@ class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter
                 currentModeIcon.setImageResource(application.getCurrentMode().drawableId());
                 currentModeIcon.setVisibility(View.VISIBLE);
             }
-            
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
