@@ -183,7 +183,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             boolean isAlready = isAccessibilityServiceEnabled(getContext());
 
             if (isAlready) {
-                // TODO
+                Intent intent = new Intent(getContext(), PresetsActivity.class);
+                getContext().startActivity(intent);
             } else {
                 requestAccessibilityService(context);
             }

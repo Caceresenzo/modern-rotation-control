@@ -2,12 +2,17 @@
     <string name="app_name">Modern Rotation Control</string>
     <string name="title_activity_main">Modern Rotation Control</string>
 
+    <string name="service_rotation_title">Rotation Control Service</string>
+    <string name="service_tile_title">Rotation Control Tile Service</string>
+    <string name="service_accessibility_title">Rotation Control Application Monitoring Service</string>
+
     <string name="tile_title">Rotation Control</string>
     <string name="tile_active">Active</string>
     <string name="tile_inactive">Inactive</string>
     <string name="tile_with_guard">(with Guard)</string>
 
     <string name="mode_deduce">Deduce from current orientation</string>
+    <string name="mode_default">Default (don\'t change anything)</string>
     <string name="mode_auto">Auto</string>
     <string name="mode_portrait">Portrait</string>
     <string name="mode_portrait_reverse">Portrait (Reverse)</string>
@@ -115,4 +120,8 @@
     <string name="accessibility_permission_required_positive">Open Settings</string>
     <string name="accessibility_permission_required_negative">Cancel</string>
     <string name="accessibility_service_description">Permission is required to properly detect when you change application.</string>
+
+    <string name="presets_title">Presets</string>
+    <string name="presets_mode">Mode: %s</string>
+    <string name="presets_mode_default">Default mode</string>
 </resources>

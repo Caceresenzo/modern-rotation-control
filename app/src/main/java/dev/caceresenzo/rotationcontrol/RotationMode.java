@@ -112,15 +112,7 @@ public enum RotationMode {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String name = preferences.getString(context.getString(preferenceKeyId), null);
 
-        if (name == null) {
-            return defaultValue;
-        }
-
-        try {
-            return valueOf(name);
-        } catch (IllegalArgumentException __) {
-            return defaultValue;
-        }
+        return valueOf(name, defaultValue);
     }
 
     public static RotationMode fromRotationValue(int rotationValue) {
@@ -131,6 +123,18 @@ public enum RotationMode {
         }
 
         return PORTRAIT;
+    }
+
+    public static RotationMode valueOf(String name, RotationMode defaultValue) {
+        if (name == null) {
+            return defaultValue;
+        }
+
+        try {
+            return valueOf(name);
+        } catch (IllegalArgumentException __) {
+            return defaultValue;
+        }
     }
 
 }
