@@ -21,6 +21,8 @@
     <string name="settings_header">Settings</string>
     <string name="settings_auto_lock_header">Settings — Auto Lock</string>
     <string name="settings_auto_lock_header_description">Timer is reset when the device is rotated.</string>
+    <string name="settings_presets_header">Settings — Presets</string>
+    <string name="settings_presets_header_description">Change behavior depending on the current application.</string>
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
@@ -31,6 +33,10 @@
     <string name="battery_optimization_title">Exclude from Battery Optimization</string>
     <string name="battery_optimization_description">Click here to ensure that the application is never stopped.</string>
     ">
+
+    <string name="configure_presets_key">configure_presets</string>
+    <string name="configure_presets_title">Configure per Application</string>
+    <string name="configure_presets_description">Set the mode depending on the application (when switching to it). Accessibility permission is required, and must be re-allowed after each update.</string>
 
     <string name="start_control_key">start_control</string>
     <string name="start_control_title">Start controlling rotation</string>
@@ -103,4 +109,10 @@
     <string name="require_settings_write_permission">Allow the application to write settings.</string>
     <string name="require_overlay_permission">Allow the application to overlay over other apps.</string>
     <string name="require_notification_permission">Allow notifications and retry.</string>
+
+    <string name="accessibility_permission_required_title">Accessibility Permission Required</string>
+    <string name="accessibility_permission_required_description">To monitor app changes, please enable accessibility service for this application.</string>
+    <string name="accessibility_permission_required_positive">Open Settings</string>
+    <string name="accessibility_permission_required_negative">Cancel</string>
+    <string name="accessibility_service_description">Permission is required to properly detect when you change application.</string>
 </resources>

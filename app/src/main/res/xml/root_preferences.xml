@@ -38,6 +38,12 @@
             app:summary="@string/battery_optimization_description"
             app:title="@string/battery_optimization_title" />
 
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/configure_presets_key"
+            app:summary="@string/configure_presets_description"
+            app:title="@string/configure_presets_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

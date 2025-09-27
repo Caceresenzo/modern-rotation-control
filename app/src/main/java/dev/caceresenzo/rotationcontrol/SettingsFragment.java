@@ -2,9 +2,11 @@ package dev.caceresenzo.rotationcontrol;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -93,6 +95,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             boolean isAlready = isIgnoringBatteryOptimizations(getContext());
             preference.setVisible(!isAlready);
         }
+
+        {
+            String key = getString(R.string.configure_presets_key);
+
+            Preference preference = findPreference(key);
+            preference.setOnPreferenceClickListener(this);
+        }
     }
 
     @Override
@@ -170,6 +179,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         } else if (getString(R.string.battery_optimization_key).equals(key)) {
             requestBatteryOptimization(context);
             preference.setVisible(false);
+        } else if (getString(R.string.configure_presets_key).equals(key)) {
+            boolean isAlready = isAccessibilityServiceEnabled(getContext());
+
+            if (isAlready) {
+                // TODO
+            } else {
+                requestAccessibilityService(context);
+            }
         }
 
         return true;
@@ -229,7 +246,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
      * @author <a href="https://stackoverflow.com/a/77118142/7292958">HSMKU from StackOverflow</a>
      */
     @SuppressLint("BatteryLife")
-    private void requestBatteryOptimization(Context context) {
+    private static void requestBatteryOptimization(Context context) {
         Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
                 .setData(Uri.fromParts("package", context.getPackageName(), null))
                 .addCategory(Intent.CATEGORY_DEFAULT)
@@ -238,6 +255,35 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 
         context.startActivity(intent);
+    }
+
+    public static boolean isAccessibilityServiceEnabled(Context context) {
+        String enabledServicesSetting = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        );
+
+        if (enabledServicesSetting == null) {
+            return false;
+        }
+
+        String expectedServiceName = context.getPackageName() + "/" + RotationAccessibilityService.class.getName();
+        return enabledServicesSetting.contains(expectedServiceName);
+    }
+
+    private static void requestAccessibilityService(Context context) {
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.accessibility_permission_required_title)
+                .setMessage(R.string.accessibility_permission_required_description)
+                .setPositiveButton(R.string.accessibility_permission_required_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.accessibility_permission_required_negative, null)
+                .show();
     }
 
     @Override
