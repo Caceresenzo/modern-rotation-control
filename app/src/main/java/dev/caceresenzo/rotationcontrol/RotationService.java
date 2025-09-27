@@ -38,6 +38,7 @@ import lombok.Getter;
 
 public class RotationService extends Service {
 
+    public static final String PACKAGE = "dev.caceresenzo.rotationcontrol";
     public static final String TAG = RotationService.class.getSimpleName();
 
     public static final String CONTROLS_CHANNEL_ID = "Controls";
@@ -47,6 +48,8 @@ public class RotationService extends Service {
     public static final String ACTION_START = "START";
     public static final String ACTION_CONFIGURATION_CHANGED = "CONFIGURATION_CHANGED";
     public static final String ACTION_ORIENTATION_CHANGED = "ORIENTATION_CHANGED";
+    public static final String ACTION_PRESETS_UPDATE = "PRESETS_UPDATE";
+    public static final String ACTION_PRESETS_RESTORE = "PRESETS_RESTORE";
 
     public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH";
     public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
@@ -88,6 +91,7 @@ public class RotationService extends Service {
 
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
+    private @Getter RotationMode previousActiveMode = null;
     private @Getter boolean currentlyRefreshing = false;
 
     private @Getter AutoLockSettings autoLock = new AutoLockSettings();
@@ -203,6 +207,34 @@ public class RotationService extends Service {
                 break;
             }
 
+            case ACTION_PRESETS_UPDATE: {
+                RotationMode newMode = RotationMode.valueOf(intent.getStringExtra(INTENT_NEW_MODE));
+
+                previousActiveMode = activeMode;
+                activeMode = newMode;
+
+                PreferenceManager.getDefaultSharedPreferences(this)
+                        .edit()
+                        .putString(getString(R.string.mode_key), newMode.toString())
+                        .apply();
+
+                break;
+            }
+
+            case ACTION_PRESETS_RESTORE: {
+                if (previousActiveMode != null) {
+                    activeMode = previousActiveMode;
+                    previousActiveMode = null;
+
+                    PreferenceManager.getDefaultSharedPreferences(this)
+                            .edit()
+                            .putString(getString(R.string.mode_key), activeMode.name())
+                            .apply();
+                }
+
+                break;
+            }
+
             case ACTION_REFRESH_NOTIFICATION: {
                 break;
             }
@@ -224,6 +256,7 @@ public class RotationService extends Service {
                 Log.i(TAG, String.format("new mode=%s", newMode));
 
                 activeMode = newMode;
+                previousActiveMode = null;
 
                 PreferenceManager.getDefaultSharedPreferences(this)
                         .edit()
@@ -397,6 +430,10 @@ public class RotationService extends Service {
 
     public boolean isGuardEnabledOrForced() {
         return (guard || activeMode.doesRequireGuard()) && !currentlyRefreshing;
+    }
+
+    public boolean isUsingPresets() {
+        return previousActiveMode != null;
     }
 
     private void updateViews(RemoteViews layout) {
@@ -581,6 +618,29 @@ public class RotationService extends Service {
 
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_ORIENTATION_CHANGED);
+
+        context.startService(intent);
+    }
+
+    public static void notifyPresetsUpdate(Context context, RotationMode newMode) {
+        if (!isRunning(context)) {
+            return;
+        }
+
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_PRESETS_UPDATE);
+        intent.putExtra(INTENT_NEW_MODE, newMode.name());
+
+        context.startService(intent);
+    }
+
+    public static void notifyPresetsRestore(Context context) {
+        if (!isRunning(context)) {
+            return;
+        }
+
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_PRESETS_RESTORE);
 
         context.startService(intent);
     }

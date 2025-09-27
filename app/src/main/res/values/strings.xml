@@ -10,6 +10,7 @@
     <string name="tile_active">Active</string>
     <string name="tile_inactive">Inactive</string>
     <string name="tile_with_guard">(with Guard)</string>
+    <string name="tile_with_presets">(with Presets)</string>
 
     <string name="mode_deduce">Deduce from current orientation</string>
     <string name="mode_default">Default (don\'t change anything)</string>

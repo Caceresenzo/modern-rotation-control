@@ -1,9 +1,11 @@
 package dev.caceresenzo.rotationcontrol;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BlendMode;
@@ -11,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.IBinder;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.util.Log;
@@ -18,11 +21,12 @@ import android.util.Log;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-public class RotationTileService extends TileService {
+public class RotationTileService extends TileService implements ServiceConnection {
 
     public static final String TAG = RotationTileService.class.getSimpleName();
 
     private Listener mListener;
+    private RotationService mService;
 
     @Override
     public void onStartListening() {
@@ -35,9 +39,15 @@ public class RotationTileService extends TileService {
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(RotationService.ACTION_NOTIFY_CREATED);
+            filter.addAction(RotationService.ACTION_NOTIFY_UPDATED);
             filter.addAction(RotationService.ACTION_NOTIFY_DESTROYED);
 
             ContextCompat.registerReceiver(this, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
+        }
+
+        if (mService == null) {
+            Intent intent = new Intent(this, RotationService.class);
+            bindService(intent, this, Context.BIND_AUTO_CREATE);
         }
 
         updateTile(RotationService.isRunning(this));
@@ -51,9 +61,26 @@ public class RotationTileService extends TileService {
 
         if (mListener != null) {
             unregisterReceiver(mListener);
-
             mListener = null;
         }
+
+        if (mService != null) {
+            unbindService(this);
+            mService = null;
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+        RotationService.LocalBinder binder = (RotationService.LocalBinder) service;
+        mService = binder.getService();
+
+        updateTileUsingService();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName className) {
+        mService = null;
     }
 
     @Override
@@ -103,21 +130,37 @@ public class RotationTileService extends TileService {
     }
 
     public void updateTile(boolean running) {
-        Tile tile = getQsTile();
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         RotationMode activeMode = RotationMode.fromPreferences(this);
         boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
+        boolean presets = false;
 
-        String suffix;
+        updateTile(running, activeMode, guard, presets);
+    }
+
+    public void updateTileUsingService() {
+        RotationMode activeMode = mService.getActiveMode();
+        boolean guard = mService.isGuardEnabledOrForced();
+        boolean presets = mService.isUsingPresets();
+
+        updateTile(true, activeMode, guard, presets);
+    }
+
+    public void updateTile(boolean running, RotationMode activeMode, boolean guard, boolean presets) {
+        Tile tile = getQsTile();
+
+        String suffix = "";
+
         if (guard) {
-            tile.setIcon(getIconWithGuard(activeMode));
             suffix = " " + getString(R.string.tile_with_guard);
-        } else {
-            tile.setIcon(Icon.createWithResource(this, activeMode.drawableId()));
-            suffix = "";
         }
+
+        if (presets) {
+            suffix = " " + getString(R.string.tile_with_presets);
+        }
+
+        tile.setIcon(getIconWith(activeMode, guard, presets));
 
         String prefix;
         if (running) {
@@ -130,6 +173,8 @@ public class RotationTileService extends TileService {
 
         tile.setSubtitle(String.format("%s: %s%s", prefix, getString(activeMode.stringId()), suffix));
         tile.updateTile();
+
+        Log.d(TAG, String.format("updated tile - running=%s activeMode=%s guard=%s presets=%s", running, activeMode, guard, presets));
     }
 
     public class Listener extends BroadcastReceiver {
@@ -145,9 +190,19 @@ public class RotationTileService extends TileService {
                 return;
             }
 
+            Log.d(TAG, String.format("received intent - action=%s", action));
+
             switch (action) {
                 case RotationService.ACTION_NOTIFY_CREATED: {
                     updateTile(true);
+                    break;
+                }
+
+                case RotationService.ACTION_NOTIFY_UPDATED: {
+                    if (mService != null) {
+                        updateTileUsingService();
+                    }
+
                     break;
                 }
 
@@ -159,28 +214,55 @@ public class RotationTileService extends TileService {
         }
     }
 
-    public Icon getIconWithGuard(RotationMode mode) {
+    public Icon getIconWith(RotationMode mode, boolean guard, boolean presets) {
+        if (!guard && !presets) {
+            return Icon.createWithResource(this, mode.drawableId());
+        }
+
         Bitmap mainBitmap = getBitmapFromDrawable(getDrawable(mode.drawableId()));
         Canvas canvas = new Canvas(mainBitmap);
 
-        Bitmap guardBitmap = getBitmapFromDrawable(getDrawable(R.drawable.guard));
-        Bitmap scaledGuardBitmap = scaledBitmap(guardBitmap, 0.4f);
+        if (guard) {
+            Bitmap bitmap = getBitmapFromDrawable(getDrawable(R.drawable.guard));
+            Bitmap scaledBitmap = scaledBitmap(bitmap, 0.4f);
 
-        int left = mainBitmap.getWidth() - scaledGuardBitmap.getWidth();
-        int top = mainBitmap.getHeight() - scaledGuardBitmap.getHeight();
+            int left = mainBitmap.getWidth() - scaledBitmap.getWidth();
+            int top = mainBitmap.getHeight() - scaledBitmap.getHeight();
 
-        {
-            float centerX = left + (scaledGuardBitmap.getWidth() / 2f);
-            float centerY = top + (scaledGuardBitmap.getHeight() / 2f);
-            float radius = (scaledGuardBitmap.getWidth() / 2f) * 1.05f;
+            {
+                float centerX = left + (scaledBitmap.getWidth() / 2f);
+                float centerY = top + (scaledBitmap.getHeight() / 2f);
+                float radius = (scaledBitmap.getWidth() / 2f) * 1.05f;
 
-            Paint paint = new Paint();
-            paint.setBlendMode(BlendMode.CLEAR);
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(centerX, centerY, radius, paint);
+                Paint paint = new Paint();
+                paint.setBlendMode(BlendMode.CLEAR);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawCircle(centerX, centerY, radius, paint);
+            }
+
+            canvas.drawBitmap(scaledBitmap, left, top, null);
         }
 
-        canvas.drawBitmap(scaledGuardBitmap, left, top, null);
+        if (presets) {
+            Bitmap bitmap = getBitmapFromDrawable(getDrawable(R.drawable.icon_smart_toy));
+            Bitmap scaledBitmap = scaledBitmap(bitmap, 0.4f);
+
+            int left = 0;
+            int top = 0;
+
+            {
+                float centerX = left + (scaledBitmap.getWidth() / 2f);
+                float centerY = top + (scaledBitmap.getHeight() / 2f);
+                float radius = (scaledBitmap.getWidth() / 2f) * 1.05f;
+
+                Paint paint = new Paint();
+                paint.setBlendMode(BlendMode.CLEAR);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawCircle(centerX, centerY, radius, paint);
+            }
+
+            canvas.drawBitmap(scaledBitmap, left, top, null);
+        }
 
         return Icon.createWithBitmap(mainBitmap);
     }

@@ -110,6 +110,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
 
         if (mService != null) {
             context.unbindService(this);
+            mService = null;
         }
 
         context.unregisterReceiver(mListener);

@@ -9,12 +9,17 @@ import androidx.preference.PreferenceManager;
 
 public class RotationAccessibilityService extends AccessibilityService {
 
+    public static final String APPLICATION_PACKAGE = RotationAccessibilityService.class.getPackage().getName();
+    public static final String QUICK_ACTIONS_DIALOG = QuickActionsDialog.class.getName();
+
     private static final String TAG = RotationAccessibilityService.class.getSimpleName();
 
     private String previousPackageName;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        // Log.d(TAG, String.format("event received - event=%s", event));
+
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             return;
         }
@@ -26,6 +31,21 @@ public class RotationAccessibilityService extends AccessibilityService {
 
         String currentPackageName = packageName.toString();
         if (currentPackageName.equals(previousPackageName)) {
+            return;
+        }
+
+        if (currentPackageName.equals(APPLICATION_PACKAGE) && QUICK_ACTIONS_DIALOG.contentEquals(event.getClassName())) {
+            return;
+        }
+
+        for (String prefix : PresetsActivity.IGNORED_PREFIXES) {
+            if (currentPackageName.startsWith(prefix)) {
+                return;
+            }
+        }
+
+        /* ignore overlays */
+        if (event.getText().isEmpty()) {
             return;
         }
 
@@ -41,11 +61,9 @@ public class RotationAccessibilityService extends AccessibilityService {
         RotationMode mode = RotationMode.valueOf(preferences.getString(key, null), null);
 
         if (mode != null) {
-            preferences.edit()
-                    .putString(getString(R.string.mode_key), mode.name())
-                    .apply();
-
-            RotationService.notifyConfigurationChanged(this);
+            RotationService.notifyPresetsUpdate(this, mode);
+        } else {
+            RotationService.notifyPresetsRestore(this);
         }
     }
 
