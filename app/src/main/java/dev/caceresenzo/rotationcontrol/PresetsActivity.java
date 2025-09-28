@@ -131,6 +131,10 @@ public class PresetsActivity extends AppCompatActivity {
                     Drawable icon = resolveInfo.loadIcon(packageManager);
                     RotationMode currentMode = preferences.getApplicationMode(packageName);
 
+                    if (displayName.equals(packageName)) {
+                        displayName = null;
+                    }
+
                     ApplicationInfo application = new ApplicationInfo(packageName, displayName, icon, currentMode);
 
                     allApplications.add(application);
@@ -159,7 +163,12 @@ public class PresetsActivity extends AppCompatActivity {
             query = query.toLowerCase();
 
             for (ApplicationInfo application : allApplications) {
-                if (application.getDisplayName().toLowerCase().contains(query)) {
+                String displayName = application.getDisplayName();
+
+                boolean matchDisplayName = displayName != null && displayName.toLowerCase().contains(query);
+                boolean matchPackageName = application.getPackageName().contains(query);
+
+                if (matchDisplayName || matchPackageName) {
                     filteredApplications.add(application);
                 }
             }
@@ -235,13 +244,29 @@ public class PresetsActivity extends AppCompatActivity {
 class ApplicationInfo implements Comparable<ApplicationInfo> {
 
     private String packageName;
-    private String displayName;
+    private @Nullable String displayName;
     private Drawable icon;
     private @Nullable RotationMode currentMode;
 
+    public boolean hasName() {
+        return displayName != null;
+    }
+
     @Override
     public int compareTo(ApplicationInfo other) {
-        return displayName.compareToIgnoreCase(other.displayName);
+        if (displayName != null && other.displayName == null) {
+            return -1;
+        }
+
+        if (displayName == null && other.displayName != null) {
+            return 1;
+        }
+
+        if (displayName != null) {
+            return displayName.compareToIgnoreCase(other.displayName);
+        }
+
+        return packageName.compareTo(other.packageName);
     }
 
 }
@@ -279,6 +304,7 @@ class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter
         private final TextView displayName;
         private final TextView currentModeText;
         private final ImageView currentModeIcon;
+        private final TextView packageName;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -287,11 +313,19 @@ class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter
             displayName = itemView.findViewById(R.id.display_name);
             currentModeText = itemView.findViewById(R.id.current_mode_text);
             currentModeIcon = itemView.findViewById(R.id.current_mode_icon);
+            packageName = itemView.findViewById(R.id.package_name);
         }
 
         public void bind(ApplicationInfo application, OnItemClickListener listener) {
             icon.setImageDrawable(application.getIcon());
-            displayName.setText(application.getDisplayName());
+
+            if (application.hasName()) {
+                displayName.setText(application.getDisplayName());
+                packageName.setText(application.getPackageName());
+            } else {
+                displayName.setText(R.string.presets_application_no_name);
+                packageName.setText(application.getPackageName());
+            }
 
             RotationMode currentMode = application.getCurrentMode();
             if (currentMode == null) {

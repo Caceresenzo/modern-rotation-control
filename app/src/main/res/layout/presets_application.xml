@@ -29,6 +29,13 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/package_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp" />
+
+        <TextView
             android:id="@+id/current_mode_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -126,6 +126,7 @@
     <string name="accessibility_service_description">Permission is required to properly detect when you change application.</string>
 
     <string name="presets_title">Presets</string>
+    <string name="presets_application_no_name">(no name)</string>
     <string name="presets_mode">Mode: %s</string>
     <string name="presets_mode_default">Default mode</string>
     <string name="presets_search_hint">Search applications...</string>
