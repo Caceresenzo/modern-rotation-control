@@ -86,7 +86,7 @@ public class PresetsActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
 
-        searchView.setQueryHint("Search applications...");
+        searchView.setQueryHint(getString(R.string.presets_search_hint));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
             @Override
