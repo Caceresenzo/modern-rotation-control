@@ -129,6 +129,9 @@
     <string name="presets_mode">Mode: %s</string>
     <string name="presets_mode_default">Default mode</string>
     <string name="presets_search_hint">Search applications...</string>
+    <string name="presets_change_title">Select Rotation Mode for %s</string>
+    <string name="presets_change_positive">Change</string>
+    <string name="presets_change_negative">Cancel</string>
 
     <string name="presets_used_key">presets_used</string>
     <string name="presets_notified_accessibility_key">presets_notified_accessibility</string>

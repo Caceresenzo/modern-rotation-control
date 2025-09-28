@@ -201,21 +201,19 @@ public class PresetsActivity extends AppCompatActivity {
             }
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Mode for " + application.getDisplayName());
-        builder.setSingleChoiceItems(items, selectedIndex, null);
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            int selected = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-            if (selected >= 0) {
-                RotationMode selectedMode = values[selected];
-                updateAppMode(application, selectedMode);
-            }
-        });
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.presets_change_title, application.getDisplayName()))
+                .setSingleChoiceItems(items, selectedIndex, null)
+                .setPositiveButton(R.string.presets_change_positive, (dialog, which) -> {
+                    int selected = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                    RotationMode selectedMode = values[selected];
+                    updateApplicationMode(application, selectedMode);
+                })
+                .setNegativeButton(R.string.presets_change_negative, null)
+                .show();
     }
 
-    private void updateAppMode(ApplicationInfo application, RotationMode newMode) {
+    private void updateApplicationMode(ApplicationInfo application, RotationMode newMode) {
         String packageName = application.getPackageName();
 
         preferences.setApplicationMode(packageName, newMode);
