@@ -272,6 +272,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         return enabledServicesSetting.contains(expectedServiceName);
     }
 
+    public static Intent newOpenAccessibilityServiceSettingsIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+    }
+
     private static void requestAccessibilityService(Context context) {
         new AlertDialog.Builder(context)
                 .setTitle(R.string.accessibility_permission_required_title)
@@ -279,8 +283,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .setPositiveButton(R.string.accessibility_permission_required_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                        context.startActivity(intent);
+                        context.startActivity(newOpenAccessibilityServiceSettingsIntent());
                     }
                 })
                 .setNegativeButton(R.string.accessibility_permission_required_negative, null)

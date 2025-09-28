@@ -108,7 +108,10 @@
 
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>
+    <string name="warning_notification_channel_name">Warnings and Alerts</string>
     <string name="notification_discard_me_title">Service is running.</string>
+    <string name="notification_accessibility_not_enabled_title">Accessibility Service not enabled.</string>
+    <string name="notification_accessibility_not_enabled_subtitle">Configuration per Application will not work. Click here to enable.</string>
 
     <string name="quick_settings_service_will_be_started">The service will be started after selection.</string>
 
@@ -126,4 +129,7 @@
     <string name="presets_mode">Mode: %s</string>
     <string name="presets_mode_default">Default mode</string>
     <string name="presets_search_hint">Search applications...</string>
+
+    <string name="presets_used_key">presets_used</string>
+    <string name="presets_notified_accessibility_key">presets_notified_accessibility</string>
 </resources>

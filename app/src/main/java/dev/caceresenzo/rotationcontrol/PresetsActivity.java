@@ -3,7 +3,6 @@ package dev.caceresenzo.rotationcontrol;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,7 +45,7 @@ public class PresetsActivity extends AppCompatActivity {
     private ApplicationListAdapter adapter;
     private List<ApplicationInfo> allApplications;
     private List<ApplicationInfo> filteredApplications;
-    private SharedPreferences sharedPreferences;
+    private RotationSharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +60,8 @@ public class PresetsActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.list);
         progressBar = findViewById(R.id.progress_bar);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences = RotationSharedPreferences.from(this);
+        preferences.markPresetsAsUsed();
 
         allApplications = new ArrayList<>();
         filteredApplications = new ArrayList<>();
@@ -130,7 +129,7 @@ public class PresetsActivity extends AppCompatActivity {
                     String packageName = resolveInfo.packageName;
                     String displayName = resolveInfo.loadLabel(packageManager).toString();
                     Drawable icon = resolveInfo.loadIcon(packageManager);
-                    RotationMode currentMode = getCurrentMode(packageName);
+                    RotationMode currentMode = preferences.getApplicationMode(packageName);
 
                     ApplicationInfo application = new ApplicationInfo(packageName, displayName, icon, currentMode);
 
@@ -148,13 +147,6 @@ public class PresetsActivity extends AppCompatActivity {
                 executor.shutdown();
             }
         });
-    }
-
-    private RotationMode getCurrentMode(String packageName) {
-        String key = getApplicationKey(packageName);
-        String value = sharedPreferences.getString(key, null);
-
-        return RotationMode.valueOf(value, null);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -226,12 +218,7 @@ public class PresetsActivity extends AppCompatActivity {
     private void updateAppMode(ApplicationInfo application, RotationMode newMode) {
         String packageName = application.getPackageName();
 
-        String key = getApplicationKey(packageName);
-        if (newMode != null) {
-            sharedPreferences.edit().putString(key, newMode.toString()).apply();
-        } else {
-            sharedPreferences.edit().remove(key).apply();
-        }
+        preferences.setApplicationMode(packageName, newMode);
 
         application.setCurrentMode(newMode);
 
@@ -241,11 +228,6 @@ public class PresetsActivity extends AppCompatActivity {
                 break;
             }
         }
-    }
-
-    @NonNull
-    public static String getApplicationKey(String packageName) {
-        return "presets/" + packageName + "/mode";
     }
 
 }

@@ -30,7 +30,6 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
-import java.time.Duration;
 import java.util.Set;
 
 import lombok.Data;
@@ -43,7 +42,9 @@ public class RotationService extends Service {
 
     public static final String CONTROLS_CHANNEL_ID = "Controls";
     public static final String SERVICE_CHANNEL_ID = "Service";
+    public static final String WARNING_CHANNEL_ID = "Warning";
     public static final int NOTIFICATION_ID = 1;
+    public static final int PRESETS_NOTIFICATION_ID = 2;
 
     public static final String ACTION_START = "START";
     public static final String ACTION_CONFIGURATION_CHANGED = "CONFIGURATION_CHANGED";
@@ -115,6 +116,7 @@ public class RotationService extends Service {
 
         createNotificationChannel(CONTROLS_CHANNEL_ID, R.string.controls_notification_channel_name);
         createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
+        createNotificationChannel(WARNING_CHANNEL_ID, R.string.warning_notification_channel_name);
         loadFromPreferences();
 
         mHandler = new Handler(Looper.getMainLooper());
@@ -292,18 +294,24 @@ public class RotationService extends Service {
         Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s autoLock=%s", guard, activeMode, autoLock));
         applyMode();
 
+        NotificationManager notificationManager = getNotificationManager();
         if (isNotificationShown()) {
-            getNotificationManager().notify(NOTIFICATION_ID, createNotification(true));
+            notificationManager.notify(NOTIFICATION_ID, createNotification(true));
         } else {
-            getNotificationManager().cancel(NOTIFICATION_ID);
+            notificationManager.cancel(NOTIFICATION_ID);
         }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
 
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putBoolean(getString(R.string.start_control_key), true)
-                .apply();
+        RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
+        preferences.setStartControl(true);
+
+        notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
+
+        if (preferences.hasPresetsBeenUsed() && !preferences.hasBeenNotifiedAboutAccessibilityNotEnabledForPresets() && !SettingsFragment.isAccessibilityServiceEnabled(this)) {
+            notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
+            preferences.markAccessibilityNotEnabledForPresetsAsNotified();
+        }
     }
 
     private void setupAutoLock() {
@@ -417,6 +425,26 @@ public class RotationService extends Service {
     private boolean isNotificationShown() {
         return PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(getString(R.string.show_notification_key), true);
+    }
+
+    private Notification createPresetsNotification() {
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                PRESETS_NOTIFICATION_ID /* should use a dedicated code */,
+                SettingsFragment.newOpenAccessibilityServiceSettingsIntent(),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), WARNING_CHANNEL_ID)
+                .setSmallIcon(R.drawable.mode_auto)
+                .setSilent(true)
+                .setContentText(getString(R.string.notification_accessibility_not_enabled_subtitle))
+                .setSubText(getString(R.string.notification_discard_me_title))
+                .setContentIntent(pendingIntent);
+
+        Log.i(TAG, "prepared presets notification");
+
+        return notificationBuilder.build();
     }
 
     private void loadFromPreferences() {

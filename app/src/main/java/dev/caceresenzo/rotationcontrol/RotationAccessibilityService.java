@@ -1,11 +1,9 @@
 package dev.caceresenzo.rotationcontrol;
 
 import android.accessibilityservice.AccessibilityService;
-import android.content.SharedPreferences;
+import android.app.NotificationManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
-
-import androidx.preference.PreferenceManager;
 
 public class RotationAccessibilityService extends AccessibilityService {
 
@@ -19,10 +17,11 @@ public class RotationAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         // Log.d(TAG, String.format("event received - event=%s", event));
-
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             return;
         }
+
+        cancelNotification();
 
         CharSequence packageName = event.getPackageName();
         if (packageName == null) {
@@ -53,12 +52,16 @@ public class RotationAccessibilityService extends AccessibilityService {
         onPackageChanged(currentPackageName);
     }
 
+    private void cancelNotification() {
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(RotationService.PRESETS_NOTIFICATION_ID);
+    }
+
     private void onPackageChanged(String packageName) {
         Log.d(TAG, String.format("package changed - packageName=%s", packageName));
 
-        String key = PresetsActivity.getApplicationKey(packageName);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        RotationMode mode = RotationMode.valueOf(preferences.getString(key, null), null);
+        RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
+        RotationMode mode = preferences.getApplicationMode(packageName);
 
         if (mode != null) {
             RotationService.notifyPresetsUpdate(this, mode);
