@@ -122,21 +122,18 @@ public class PresetsActivity extends AppCompatActivity {
             public void run() {
                 PackageManager packageManager = getPackageManager();
 
-                Intent mainIntent = new Intent();
                 List<android.content.pm.ApplicationInfo> resolveInfoList = packageManager.getInstalledApplications(0);
-
                 for (android.content.pm.ApplicationInfo resolveInfo : resolveInfoList) {
                     String packageName = resolveInfo.packageName;
                     String displayName = resolveInfo.loadLabel(packageManager).toString();
                     Drawable icon = resolveInfo.loadIcon(packageManager);
-                    RotationMode currentMode = preferences.getApplicationMode(packageName);
+                    PresetRotationMode currentMode = preferences.getApplicationMode(packageName);
 
                     if (displayName.equals(packageName)) {
                         displayName = null;
                     }
 
                     ApplicationInfo application = new ApplicationInfo(packageName, displayName, icon, currentMode);
-
                     allApplications.add(application);
                 }
 
@@ -178,29 +175,14 @@ public class PresetsActivity extends AppCompatActivity {
     }
 
     private void showModeDialog(ApplicationInfo application) {
-        String[] items = {
-                getString(R.string.mode_default),
-                getString(R.string.mode_auto),
-                getString(R.string.mode_portrait),
-                getString(R.string.mode_portrait_reverse),
-                getString(R.string.mode_portrait_sensor),
-                getString(R.string.mode_landscape),
-                getString(R.string.mode_landscape_reverse),
-                getString(R.string.mode_landscape_sensor),
-        };
+        PresetRotationMode[] values = PresetRotationMode.values();
 
-        RotationMode[] values = {
-                null,
-                RotationMode.AUTO,
-                RotationMode.PORTRAIT,
-                RotationMode.PORTRAIT_REVERSE,
-                RotationMode.PORTRAIT_SENSOR,
-                RotationMode.LANDSCAPE,
-                RotationMode.LANDSCAPE_REVERSE,
-                RotationMode.LANDSCAPE_SENSOR,
-        };
+        String[] items = new String[values.length];
+        for (int index = 0; index < values.length; index++) {
+            items[index] = getString(values[index].stringId());
+        }
 
-        RotationMode currentMode = application.getCurrentMode();
+        PresetRotationMode currentMode = application.getCurrentMode();
 
         int selectedIndex = 0;
         for (int index = 0; index < values.length; index++) {
@@ -215,14 +197,14 @@ public class PresetsActivity extends AppCompatActivity {
                 .setSingleChoiceItems(items, selectedIndex, null)
                 .setPositiveButton(R.string.presets_change_positive, (dialog, which) -> {
                     int selected = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                    RotationMode selectedMode = values[selected];
+                    PresetRotationMode selectedMode = values[selected];
                     updateApplicationMode(application, selectedMode);
                 })
                 .setNegativeButton(R.string.presets_change_negative, null)
                 .show();
     }
 
-    private void updateApplicationMode(ApplicationInfo application, RotationMode newMode) {
+    private void updateApplicationMode(ApplicationInfo application, PresetRotationMode newMode) {
         String packageName = application.getPackageName();
 
         preferences.setApplicationMode(packageName, newMode);
@@ -246,7 +228,7 @@ class ApplicationInfo implements Comparable<ApplicationInfo> {
     private String packageName;
     private @Nullable String displayName;
     private Drawable icon;
-    private @Nullable RotationMode currentMode;
+    private PresetRotationMode currentMode;
 
     public boolean hasName() {
         return displayName != null;
@@ -327,7 +309,7 @@ class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter
                 packageName.setText(application.getPackageName());
             }
 
-            RotationMode currentMode = application.getCurrentMode();
+            PresetRotationMode currentMode = application.getCurrentMode();
             if (currentMode == null) {
                 currentModeText.setText(R.string.presets_mode_default);
 

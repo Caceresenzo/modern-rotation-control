@@ -44,20 +44,17 @@ public class RotationSharedPreferences {
     }
 
     @Nullable
-    public RotationMode getApplicationMode(String packageName) {
+    public PresetRotationMode getApplicationMode(String packageName) {
         String key = getApplicationKey(packageName);
         String value = preferences.getString(key, null);
 
-        return RotationMode.valueOf(value, null);
+        return PresetRotationMode.valueOf(value, PresetRotationMode.DEFAULT);
     }
 
-    public void setApplicationMode(String packageName, @Nullable RotationMode newMode) {
+    public void setApplicationMode(String packageName, PresetRotationMode newMode) {
         String key = getApplicationKey(packageName);
-        if (newMode != null) {
-            preferences.edit().putString(key, newMode.toString()).apply();
-        } else {
-            preferences.edit().remove(key).apply();
-        }
+
+        preferences.edit().putString(key, newMode.toString()).apply();
     }
 
     @NonNull

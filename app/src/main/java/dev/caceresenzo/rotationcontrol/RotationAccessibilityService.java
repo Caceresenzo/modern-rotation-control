@@ -61,12 +61,14 @@ public class RotationAccessibilityService extends AccessibilityService {
         Log.d(TAG, String.format("package changed - packageName=%s", packageName));
 
         RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
-        RotationMode mode = preferences.getApplicationMode(packageName);
+        PresetRotationMode mode = preferences.getApplicationMode(packageName);
 
-        if (mode != null) {
-            RotationService.notifyPresetsUpdate(this, mode);
-        } else {
+        if (PresetRotationMode.DEFAULT.equals(mode)) {
             RotationService.notifyPresetsRestore(this);
+        } else if (PresetRotationMode.KEEP_CURRENT.equals(mode)) {
+            ;
+        } else {
+            RotationService.notifyPresetsUpdate(this, mode.rotationMode());
         }
     }
 

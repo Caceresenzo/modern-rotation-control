@@ -13,7 +13,6 @@
     <string name="tile_with_presets">(with Presets)</string>
 
     <string name="mode_deduce">Deduce from current orientation</string>
-    <string name="mode_default">Default (don\'t change anything)</string>
     <string name="mode_auto">Auto</string>
     <string name="mode_portrait">Portrait</string>
     <string name="mode_portrait_reverse">Portrait (Reverse)</string>
@@ -22,6 +21,8 @@
     <string name="mode_landscape_reverse">Landscape (Reverse)</string>
     <string name="mode_landscape_sensor">Landscape (Sensor)</string>
     <string name="mode_refresh">Refresh</string>
+    <string name="mode_default">Default (use the global mode)</string>
+    <string name="mode_keep_current">Keep current mode (don\'t change anything)</string>
 
     <string name="control_header">Control</string>
     <string name="settings_header">Settings</string>
