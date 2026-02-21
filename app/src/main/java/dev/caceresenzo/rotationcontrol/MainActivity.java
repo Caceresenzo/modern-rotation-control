@@ -1,7 +1,6 @@
 package dev.caceresenzo.rotationcontrol;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -43,10 +42,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (checkPermissions(true)) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            boolean shouldStart = sharedPreferences.getBoolean(getString(R.string.start_control_key), false);
+            RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
 
-            if (shouldStart) {
+            if (preferences.shouldStartControl()) {
                 RotationService.start(this);
             }
         }

@@ -66,7 +66,7 @@ public class RotationAccessibilityService extends AccessibilityService {
         if (PresetRotationMode.DEFAULT.equals(mode)) {
             RotationService.notifyPresetsRestore(this);
         } else if (PresetRotationMode.KEEP_CURRENT.equals(mode)) {
-            ;
+            /* do nothing */
         } else {
             RotationService.notifyPresetsUpdate(this, mode.rotationMode());
         }

@@ -20,6 +20,10 @@ public class RotationSharedPreferences {
 
     private final SharedPreferences preferences;
 
+    public boolean shouldStartControl() {
+        return preferences.getBoolean(KEY_START_CONTROL, false);
+    }
+
     public void setStartControl(boolean enabled) {
         preferences.edit().putBoolean(KEY_START_CONTROL, enabled).apply();
     }
@@ -43,7 +47,6 @@ public class RotationSharedPreferences {
         preferences.edit().putBoolean(KEY_PRESETS_NOTIFIED_ACCESSIBILITY, true).apply();
     }
 
-    @Nullable
     public PresetRotationMode getApplicationMode(String packageName) {
         String key = getApplicationKey(packageName);
         String value = preferences.getString(key, null);
@@ -71,7 +74,7 @@ public class RotationSharedPreferences {
             KEY_PRESETS_NOTIFIED_ACCESSIBILITY = context.getString(R.string.presets_notified_accessibility_key);
         }
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         return new RotationSharedPreferences(preferences);
     }
 
