@@ -58,10 +58,10 @@ public class RotationAccessibilityService extends AccessibilityService {
     }
 
     private void onPackageChanged(String packageName) {
-        Log.d(TAG, String.format("package changed - packageName=%s", packageName));
-
         RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
         PresetRotationMode mode = preferences.getApplicationMode(packageName);
+
+        Log.d(TAG, String.format("package changed - packageName=%s mode=%s", packageName, mode));
 
         if (PresetRotationMode.DEFAULT.equals(mode)) {
             RotationService.notifyPresetsRestore(this);

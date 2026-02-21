@@ -27,7 +27,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,6 +38,10 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 public class PresetsActivity extends AppCompatActivity {
+
+    public static final List<String> KEEP_CURRENT_BY_DEFAULT = Arrays.asList(
+            "com.android.settings"
+    );
 
     public static final List<String> IGNORED_PREFIXES = Arrays.asList(
             "com.android.systemui"
@@ -61,6 +67,13 @@ public class PresetsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
 
         preferences = RotationSharedPreferences.from(this);
+
+        if (!preferences.hasPresetsBeenUsed()) {
+            for (String packageName : getKeepCurrentPackageNames()) {
+                preferences.setApplicationMode(packageName, PresetRotationMode.KEEP_CURRENT);
+            }
+        }
+
         preferences.markPresetsAsUsed();
 
         allApplications = new ArrayList<>();
@@ -76,6 +89,15 @@ public class PresetsActivity extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public Set<String> getKeepCurrentPackageNames() {
+        Set<String> packageNames = new HashSet<>();
+
+        packageNames.addAll(Queries.getAllLauncherPackageNames(this));
+        packageNames.addAll(KEEP_CURRENT_BY_DEFAULT);
+
+        return packageNames;
     }
 
     @Override
