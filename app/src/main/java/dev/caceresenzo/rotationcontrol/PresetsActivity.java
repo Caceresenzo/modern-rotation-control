@@ -2,7 +2,6 @@ package dev.caceresenzo.rotationcontrol;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,9 +69,7 @@ public class PresetsActivity extends AppCompatActivity {
         preferences = RotationSharedPreferences.from(this);
 
         if (!preferences.hasPresetsBeenUsed()) {
-            for (String packageName : getKeepCurrentPackageNames()) {
-                preferences.setApplicationMode(packageName, PresetRotationMode.KEEP_CURRENT);
-            }
+            applyDefaultKeepCurrentModes(false);
         }
 
         preferences.markPresetsAsUsed();
@@ -95,9 +93,24 @@ public class PresetsActivity extends AppCompatActivity {
         Set<String> packageNames = new HashSet<>();
 
         packageNames.addAll(Queries.getAllLauncherPackageNames(this));
+        packageNames.addAll(Queries.getAllInputMethodPackageNames(this));
         packageNames.addAll(KEEP_CURRENT_BY_DEFAULT);
 
         return packageNames;
+    }
+
+    public void applyDefaultKeepCurrentModes(boolean showToast) {
+        for (String packageName : getKeepCurrentPackageNames()) {
+            preferences.setApplicationMode(packageName, PresetRotationMode.KEEP_CURRENT);
+        }
+
+        if (showToast) {
+            Toast.makeText(this, R.string.presets_defaults_applied, Toast.LENGTH_SHORT).show();
+        }
+
+        if (adapter != null) {
+            loadInstalledApplications();
+        }
     }
 
     @Override
@@ -128,8 +141,15 @@ public class PresetsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
             getOnBackPressedDispatcher().onBackPressed();
+            return true;
+        }
+
+        if (id == R.id.action_apply_defaults) {
+            applyDefaultKeepCurrentModes(true);
             return true;
         }
 
@@ -142,6 +162,12 @@ public class PresetsActivity extends AppCompatActivity {
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                runOnUiThread(() -> {
+                    filteredApplications.clear();
+                    progressBar.setVisibility(View.VISIBLE);
+                    adapter.notifyDataSetChanged();
+                });
+
                 PackageManager packageManager = getPackageManager();
 
                 List<android.content.pm.ApplicationInfo> resolveInfoList = packageManager.getInstalledApplications(0);
@@ -170,6 +196,8 @@ public class PresetsActivity extends AppCompatActivity {
                 executor.shutdown();
             }
         });
+
+        executor.shutdown();
     }
 
     @SuppressLint("NotifyDataSetChanged")

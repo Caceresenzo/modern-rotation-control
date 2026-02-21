@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -39,14 +41,35 @@ public class Queries {
             );
         }
 
-        Set<String> launcherPackages = new HashSet<>();
+        Set<String> packageNames = new HashSet<>();
         for (ResolveInfo info : resolveInfoList) {
             if (info.activityInfo != null) {
-                launcherPackages.add(info.activityInfo.packageName);
+                packageNames.add(info.activityInfo.packageName);
             }
         }
 
-        return launcherPackages;
+        return packageNames;
+    }
+
+    /**
+     * Gets a list of package names for all installed Input Method Editors (keyboards).
+     *
+     * @param context The application context.
+     * @return A Set of strings containing the package names.
+     */
+    public static Set<String> getAllInputMethodPackageNames(Context context) {
+        Set<String> packageNames = new HashSet<>();
+
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null) {
+            List<InputMethodInfo> inputMethods = inputMethodManager.getInputMethodList();
+
+            for (InputMethodInfo info : inputMethods) {
+                packageNames.add(info.getPackageName());
+            }
+        }
+
+        return packageNames;
     }
 
 }
