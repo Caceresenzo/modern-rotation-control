@@ -63,7 +63,6 @@ public class RotationService extends Service {
     public static final String INTENT_NEW_MODE = "NEW_MODE";
 
     public static final String ACTION_REFRESH_MODE = "REFRESH_MODE";
-    public static final int ACTION_REFRESH_MODE_REQUEST_CODE = 40;
 
     public static final String TINT_METHOD = "setColorFilter";
 
@@ -74,9 +73,16 @@ public class RotationService extends Service {
     private final Runnable mBroadcastToggleGuardIntent = new Runnable() {
         @Override
         public void run() {
+            if (!currentlyRefreshing) {
+                return;
+            }
+
             currentlyRefreshing = false;
-            Log.i(TAG, String.format("new new guard=%s", guard));
-            afterStartCommand();
+
+            activeMode = previousActiveMode;
+            previousActiveMode = null;
+
+            applyMode();
         }
     };
 
@@ -265,6 +271,8 @@ public class RotationService extends Service {
                         .putString(getString(R.string.mode_key), activeMode.name())
                         .apply();
 
+                currentlyRefreshing = false;
+
                 break;
             }
 
@@ -274,6 +282,12 @@ public class RotationService extends Service {
 
                 String rawDelay = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.refresh_mode_delay_key), "600");
                 long delay = Long.parseLong(rawDelay);
+
+                previousActiveMode = activeMode;
+                activeMode = getNextRotation();
+
+                applyMode();
+
                 mHandler.postDelayed(mBroadcastToggleGuardIntent, delay);
 
                 break;
@@ -575,6 +589,32 @@ public class RotationService extends Service {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
+    }
+
+    private RotationMode getNextRotation() {
+        RotationMode rotationMode = RotationMode.fromRotationValue(getCurrentDisplayRotation());
+
+        switch (rotationMode) {
+            case PORTRAIT: {
+                return RotationMode.LANDSCAPE;
+            }
+
+            case PORTRAIT_REVERSE: {
+                return RotationMode.LANDSCAPE_REVERSE;
+            }
+
+            case LANDSCAPE: {
+                return RotationMode.PORTRAIT;
+            }
+
+            case LANDSCAPE_REVERSE: {
+                return RotationMode.PORTRAIT_REVERSE;
+            }
+
+            default: {
+                throw new IllegalArgumentException("no concrete next rotation for mode: " + rotationMode);
+            }
+        }
     }
 
     private int getCurrentDisplayRotation() {
