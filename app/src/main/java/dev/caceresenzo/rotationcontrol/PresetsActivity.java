@@ -162,8 +162,10 @@ public class PresetsActivity extends AppCompatActivity {
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                allApplications.clear();
+                filteredApplications.clear();
+
                 runOnUiThread(() -> {
-                    filteredApplications.clear();
                     progressBar.setVisibility(View.VISIBLE);
                     adapter.notifyDataSetChanged();
                 });
@@ -186,9 +188,9 @@ public class PresetsActivity extends AppCompatActivity {
                 }
 
                 Collections.sort(allApplications);
+                filteredApplications.addAll(allApplications);
 
                 runOnUiThread(() -> {
-                    filteredApplications.addAll(allApplications);
                     progressBar.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                 });
