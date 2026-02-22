@@ -9,6 +9,7 @@
         android:icon="@drawable/icon_search"
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:iconTint="?attr/colorOnSurface"
         tools:ignore="AlwaysShowAction" />
 
     <item

@@ -3,7 +3,7 @@
 
     <style name="AppTheme"></style>
 
-    <style name="AppTheme.Application" parent="@style/Theme.AppCompat.DayNight" />
+    <style name="AppTheme.Application" parent="Theme.MaterialComponents.DayNight.DarkActionBar"></style>
 
     <style name="AppTheme.NotificationButton">
         <item name="android:padding">2dp</item>
@@ -14,7 +14,7 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="AppTheme.QuickActionsDialog" parent="Theme.AppCompat.DayNight.Dialog">
+    <style name="AppTheme.QuickActionsDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowMinWidthMajor">80%</item>
