@@ -21,9 +21,12 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
-public class QuickActionsDialog extends Dialog implements View.OnClickListener, ServiceConnection {
+public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
+    private final Connection mConnection = new Connection();
     private final Listener mListener = new Listener();
+
+    private boolean mShouldUnbind = false;
 
     private RotationService mService;
 
@@ -96,10 +99,19 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         final Context context = getContext();
 
         Intent intent = new Intent(context, RotationService.class);
-        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        if (context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
+            mShouldUnbind = true;
+        }
 
         IntentFilter filter = new IntentFilter(RotationService.ACTION_NOTIFY_UPDATED);
         ContextCompat.registerReceiver(context, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
+    }
+
+    private void onServiceConnected() {
+        RotationMode activeMode = mService.getActiveMode();
+        boolean guard = mService.isGuardEnabledOrForced();
+
+        updateViews(guard, activeMode);
     }
 
     @Override
@@ -108,28 +120,14 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
 
         final Context context = getContext();
 
-        if (mService != null) {
-            context.unbindService(this);
+        if (mShouldUnbind) {
+            mShouldUnbind = false;
+
+            context.unbindService(mConnection);
             mService = null;
         }
 
         context.unregisterReceiver(mListener);
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-        RotationService.LocalBinder binder = (RotationService.LocalBinder) service;
-        mService = binder.getService();
-
-        RotationMode activeMode = mService.getActiveMode();
-        boolean guard = mService.isGuardEnabledOrForced();
-
-        updateViews(guard, activeMode);
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName className) {
-        mService = null;
     }
 
     public void updateViews(boolean guard, RotationMode activeMode) {
@@ -167,6 +165,24 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener, 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         return preferences.getBoolean(context.getString(R.string.close_dialog_on_click_key), true);
+    }
+
+    /* https://developer.android.com/reference/android/app/Service#:~:text=With%20that%20done%2C%20one%20can%20now%20write%20client%20code%20that%20directly%20accesses%20the%20running%20service%2C%20such%20as%3A */
+    public class Connection implements ServiceConnection {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            RotationService.LocalBinder binder = (RotationService.LocalBinder) service;
+            mService = binder.getService();
+
+            QuickActionsDialog.this.onServiceConnected();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mService = null;
+        }
+
     }
 
     public class Listener extends BroadcastReceiver {
