@@ -121,10 +121,10 @@
     <string name="require_notification_permission">Allow notifications and retry.</string>
 
     <string name="accessibility_permission_required_title">Accessibility Permission Required</string>
-    <string name="accessibility_permission_required_description">To monitor app changes, please enable accessibility service for this application.</string>
+    <string name="accessibility_permission_required_description">In order to monitor when you switch between applications, you must enable the accessibility service.\n\nThis is the only way to respond properly to changes.\n\nYour habits are never tracked or sent anywhere! You can check it yourself by reading the code available at the top right.</string>
     <string name="accessibility_permission_required_positive">Open Settings</string>
     <string name="accessibility_permission_required_negative">Cancel</string>
-    <string name="accessibility_service_description">Permission is required to properly detect when you change application.</string>
+    <string name="accessibility_service_description">Permission is required to properly detect when you change application. Habits will never be tracked.</string>
 
     <string name="presets_title">Presets</string>
     <string name="presets_application_no_name">(no name)</string>
