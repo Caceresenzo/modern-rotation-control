@@ -48,8 +48,12 @@ public class RotationTileService extends TileService implements ServiceConnectio
         }
 
         if (mService == null) {
+            int flags = RotationSharedPreferences.from(getApplicationContext()).shouldStartControl()
+                    ? Context.BIND_AUTO_CREATE
+                    : 0;
+
             Intent intent = new Intent(this, RotationService.class);
-            mShouldUnbindService = bindService(intent, this, Context.BIND_AUTO_CREATE);
+            mShouldUnbindService = bindService(intent, this, flags);
         }
 
         updateTile(RotationService.isRunning(this));
