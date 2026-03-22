@@ -51,7 +51,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         refreshButton.setOnClickListener(this);
 
         TextView infoView = findViewById(R.id.info);
-        if (RotationService.isRunning(getContext())) {
+        if (RotationService.isRunning(getApplicationContext())) {
             infoView.setVisibility(View.GONE);
         }
 
@@ -60,7 +60,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        final Context context = getContext();
+        final Context context = getApplicationContext();
 
         Intent intent = null;
 
@@ -91,7 +91,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     protected void onStart() {
         super.onStart();
 
-        final Context context = getContext();
+        final Context context = getApplicationContext();
 
         Intent intent = new Intent(context, RotationService.class);
         mShouldUnbind = context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -111,7 +111,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     protected void onStop() {
         super.onStop();
 
-        final Context context = getContext();
+        final Context context = getApplicationContext();
 
         if (mShouldUnbind) {
             mShouldUnbind = false;
@@ -124,7 +124,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     }
 
     public void updateViews(boolean guard, RotationMode activeMode) {
-        final Context context = getContext();
+        final Context context = getApplicationContext();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -154,10 +154,14 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     }
 
     public boolean shouldCloseOnClick() {
-        final Context context = getContext();
+        final Context context = getApplicationContext();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         return preferences.getBoolean(context.getString(R.string.close_dialog_on_click_key), true);
+    }
+
+    public Context getApplicationContext() {
+        return getContext().getApplicationContext();
     }
 
     /* https://developer.android.com/reference/android/app/Service#:~:text=With%20that%20done%2C%20one%20can%20now%20write%20client%20code%20that%20directly%20accesses%20the%20running%20service%2C%20such%20as%3A */
