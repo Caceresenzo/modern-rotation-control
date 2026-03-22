@@ -26,7 +26,9 @@ public class RotationTileService extends TileService implements ServiceConnectio
     public static final String TAG = RotationTileService.class.getSimpleName();
 
     private Listener mListener;
+
     private RotationService mService;
+    private boolean mShouldUnbindService;
 
     @Override
     public void onStartListening() {
@@ -46,8 +48,13 @@ public class RotationTileService extends TileService implements ServiceConnectio
         }
 
         if (mService == null) {
+            int flags = RotationSharedPreferences.from(this).shouldStartControl()
+                    ? Context.BIND_AUTO_CREATE
+                    : 0 /* don't start it */;
+
             Intent intent = new Intent(this, RotationService.class);
-            bindService(intent, this, Context.BIND_AUTO_CREATE);
+            bindService(intent, this, flags);
+            mShouldUnbindService = true;
         }
 
         updateTile(RotationService.isRunning(this));
@@ -64,9 +71,10 @@ public class RotationTileService extends TileService implements ServiceConnectio
             mListener = null;
         }
 
-        if (mService != null) {
+        if (mShouldUnbindService) {
             unbindService(this);
             mService = null;
+            mShouldUnbindService = false;
         }
     }
 
