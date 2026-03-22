@@ -6,12 +6,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
@@ -326,9 +324,7 @@ public class RotationService extends Service {
         RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
         preferences.setStartControl(true);
 
-        notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
-
-        if (preferences.hasPresetsBeenUsed() && !preferences.hasBeenNotifiedAboutAccessibilityNotEnabledForPresets() && !SettingsFragment.isAccessibilityServiceEnabled(this)) {
+        if (preferences.hasPresetsBeenUsed() && !preferences.hasBeenNotifiedAboutAccessibilityNotEnabledForPresets() && !Permissions.isAccessibilityServiceEnabled(this)) {
             notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
             preferences.markAccessibilityNotEnabledForPresetsAsNotified();
         }
@@ -429,7 +425,8 @@ public class RotationService extends Service {
             updateViews(layout);
         } else {
             notificationBuilder
-                    .setSubText(getString(R.string.notification_discard_me_title));
+                    .setSubText(getString(R.string.notification_discard_me_title))
+                    .setContentText(getString(R.string.notification_discard_me_subtitle));
 
             notificationBuilder
                     .setCustomContentView(null)
@@ -458,8 +455,8 @@ public class RotationService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), WARNING_CHANNEL_ID)
                 .setSmallIcon(R.drawable.mode_auto)
                 .setSilent(true)
+                .setSubText(getString(R.string.notification_accessibility_not_enabled_title))
                 .setContentText(getString(R.string.notification_accessibility_not_enabled_subtitle))
-                .setSubText(getString(R.string.notification_discard_me_title))
                 .setContentIntent(pendingIntent);
 
         Log.i(TAG, "prepared presets notification");

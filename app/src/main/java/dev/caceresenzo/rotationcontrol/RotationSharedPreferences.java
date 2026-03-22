@@ -40,7 +40,7 @@ public class RotationSharedPreferences {
     }
 
     public boolean hasBeenNotifiedAboutAccessibilityNotEnabledForPresets() {
-        return preferences.getBoolean(KEY_PRESETS_USED, false);
+        return preferences.getBoolean(KEY_PRESETS_NOTIFIED_ACCESSIBILITY, false);
     }
 
     public void markAccessibilityNotEnabledForPresetsAsNotified() {

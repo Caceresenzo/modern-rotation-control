@@ -180,7 +180,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             requestBatteryOptimization(context);
             preference.setVisible(false);
         } else if (getString(R.string.configure_presets_key).equals(key)) {
-            boolean isAlready = isAccessibilityServiceEnabled(getContext());
+            boolean isAlready = Permissions.isAccessibilityServiceEnabled(getContext());
 
             if (isAlready) {
                 Intent intent = new Intent(getContext(), PresetsActivity.class);
@@ -256,20 +256,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 
         context.startActivity(intent);
-    }
-
-    public static boolean isAccessibilityServiceEnabled(Context context) {
-        String enabledServicesSetting = Settings.Secure.getString(
-                context.getContentResolver(),
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        );
-
-        if (enabledServicesSetting == null) {
-            return false;
-        }
-
-        String expectedServiceName = context.getPackageName() + "/" + RotationAccessibilityService.class.getName();
-        return enabledServicesSetting.contains(expectedServiceName);
     }
 
     public static Intent newOpenAccessibilityServiceSettingsIntent() {

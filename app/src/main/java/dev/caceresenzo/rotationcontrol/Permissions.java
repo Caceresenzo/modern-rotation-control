@@ -16,4 +16,18 @@ public class Permissions {
         return Settings.canDrawOverlays(context);
     }
 
+    public static boolean isAccessibilityServiceEnabled(Context context) {
+        String enabledServicesSetting = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        );
+
+        if (enabledServicesSetting == null) {
+            return false;
+        }
+
+        String expectedServiceName = context.getPackageName() + "/" + RotationAccessibilityService.class.getName();
+        return enabledServicesSetting.contains(expectedServiceName);
+    }
+
 }
