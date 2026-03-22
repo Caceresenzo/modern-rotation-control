@@ -27,7 +27,6 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     private final Listener mListener = new Listener();
 
     private boolean mShouldUnbind = false;
-
     private RotationService mService;
 
     public QuickActionsDialog(@NonNull Context context) {
@@ -81,11 +80,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
             return;
         }
 
-        if (!RotationService.isRunning(context)) {
-            RotationService.start(context);
-        }
-
-        context.startService(intent);
+        context.startForegroundService(intent);
 
         if (shouldCloseOnClick()) {
             cancel();
@@ -99,9 +94,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         final Context context = getContext();
 
         Intent intent = new Intent(context, RotationService.class);
-        if (context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
-            mShouldUnbind = true;
-        }
+        mShouldUnbind = context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         IntentFilter filter = new IntentFilter(RotationService.ACTION_NOTIFY_UPDATED);
         ContextCompat.registerReceiver(context, mListener, filter, ContextCompat.RECEIVER_EXPORTED);

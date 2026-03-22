@@ -6,10 +6,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
@@ -37,7 +39,6 @@ import lombok.Getter;
 
 public class RotationService extends Service {
 
-    public static final String PACKAGE = "dev.caceresenzo.rotationcontrol";
     public static final String TAG = RotationService.class.getSimpleName();
 
     public static final String CONTROLS_CHANNEL_ID = "Controls";
@@ -96,6 +97,7 @@ public class RotationService extends Service {
 
     private final IBinder binder = new LocalBinder();
 
+    private boolean started;
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
@@ -187,16 +189,20 @@ public class RotationService extends Service {
             return START_NOT_STICKY;
         }
 
+        if (!started) {
+            Notification notification = createNotification(isNotificationShown());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            } else {
+                startForeground(NOTIFICATION_ID, notification);
+            }
+
+            started = true;
+        }
+
         switch (action) {
             case ACTION_START: {
-                Notification notification = createNotification(isNotificationShown());
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-                } else {
-                    startForeground(NOTIFICATION_ID, notification);
-                }
-
                 break;
             }
 
@@ -686,7 +692,7 @@ public class RotationService extends Service {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_CONFIGURATION_CHANGED);
 
-        context.startService(intent);
+        context.startForegroundService(intent);
     }
 
     public static void notifyOrientationChanged(Context context) {
@@ -697,7 +703,7 @@ public class RotationService extends Service {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_ORIENTATION_CHANGED);
 
-        context.startService(intent);
+        context.startForegroundService(intent);
     }
 
     public static void notifyPresetsUpdate(Context context, RotationMode newMode) {
@@ -709,7 +715,7 @@ public class RotationService extends Service {
         intent.setAction(ACTION_PRESETS_UPDATE);
         intent.putExtra(INTENT_NEW_MODE, newMode.name());
 
-        context.startService(intent);
+        context.startForegroundService(intent);
     }
 
     public static void notifyPresetsRestore(Context context) {
@@ -720,7 +726,7 @@ public class RotationService extends Service {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_PRESETS_RESTORE);
 
-        context.startService(intent);
+        context.startForegroundService(intent);
     }
 
     public static void stop(Context context) {
