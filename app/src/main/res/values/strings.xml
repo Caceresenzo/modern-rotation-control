@@ -119,6 +119,8 @@
     <string name="require_settings_write_permission">Allow the application to write settings.</string>
     <string name="require_overlay_permission">Allow the application to overlay over other apps.</string>
     <string name="require_notification_permission">Allow notifications and retry.</string>
+    <string name="missing_settings_write_permission">Cannot control rotation: Application cannot write settings.</string>
+    <string name="missing_overlay_permission">Cannot control rotation: Application cannot overlay over other apps.</string>
 
     <string name="accessibility_permission_required_title">Accessibility Permission Required</string>
     <string name="accessibility_permission_required_description">In order to monitor when you switch between applications, you must enable the accessibility service.\n\nThis is the only way to respond properly to changes.\n\nYour habits are never tracked or sent anywhere! You can check it yourself by reading the code available at the top right.</string>

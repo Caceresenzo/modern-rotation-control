@@ -503,6 +503,11 @@ public class RotationService extends Service {
         ContentResolver contentResolver = getContentResolver();
 
         if (isGuardEnabledOrForced()) {
+            if (!Permissions.canDrawOverlays(this)) {
+                Toast.makeText(this, R.string.missing_overlay_permission, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                     0,
                     0,
@@ -521,6 +526,11 @@ public class RotationService extends Service {
 
             Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
         } else {
+            if (!Permissions.canWriteSettings(this)) {
+                Toast.makeText(this, R.string.missing_settings_write_permission, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (mView != null) {
                 getWindowManager().removeView(mView);
                 mView = null;

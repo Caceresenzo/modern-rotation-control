@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean checkPermissions(boolean request) {
         Uri uri = Uri.parse("package:" + getPackageName());
 
-        if (!Settings.System.canWrite(this)) {
+        if (!Permissions.canWriteSettings(this)) {
             if (request) {
                 Log.i(TAG, "Cannot yet write settings");
                 Toast.makeText(this, R.string.require_settings_write_permission, Toast.LENGTH_LONG).show();
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!Settings.canDrawOverlays(this)) {
+        if (!Permissions.canDrawOverlays(this)) {
             if (request) {
                 Log.i(TAG, "Cannot yet draw overlays");
                 Toast.makeText(this, R.string.require_overlay_permission, Toast.LENGTH_LONG).show();
