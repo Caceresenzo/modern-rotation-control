@@ -1,7 +1,13 @@
 package dev.caceresenzo.rotationcontrol;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.Settings;
+
+import androidx.core.app.ActivityCompat;
 
 import lombok.experimental.UtilityClass;
 
@@ -28,6 +34,18 @@ public class Permissions {
 
         String expectedServiceName = context.getPackageName() + "/" + RotationAccessibilityService.class.getName();
         return enabledServicesSetting.contains(expectedServiceName);
+    }
+
+    public static boolean hasNotificationPermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        return true;
+    }
+
+    public static Intent newOpenAccessibilityServiceSettingsIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
     }
 
 }

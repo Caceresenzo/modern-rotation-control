@@ -12,12 +12,15 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     public static final String GITHUB_URL = "https://github.com/Caceresenzo/modern-rotation-control";
 
@@ -45,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
+
+            getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+                int count = getSupportFragmentManager().getBackStackEntryCount();
+                actionBar.setDisplayHomeAsUpEnabled(count > 0);
+
+                if (count == 0) {
+                    setTitle(R.string.app_name);
+                }
+            });
         }
 
         if (checkPermissions(true)) {
@@ -56,6 +68,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, @NonNull Preference preference) {
+        Fragment fragment = getSupportFragmentManager()
+                .getFragmentFactory()
+                .instantiate(
+                        getClassLoader(),
+                        preference.getFragment()
+                );
+
+        fragment.setArguments(preference.getExtras());
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.settings, fragment)
+                .addToBackStack(null)
+                .commit();
+
+        setTitle(preference.getTitle());
+
+        return true;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

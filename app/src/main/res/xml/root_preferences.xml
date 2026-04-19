@@ -2,7 +2,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="@string/control_header">
+        app:title="@string/settings_control_header">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
@@ -26,6 +26,13 @@
             app:summary="@string/mode_description"
             app:title="@string/mode_title" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="@string/settings_suggestions_key"
+        app:title="@string/settings_suggestions_header">
+
         <Preference
             app:iconSpaceReserved="false"
             app:key="@string/install_tile_key"
@@ -38,105 +45,29 @@
             app:summary="@string/battery_optimization_description"
             app:title="@string/battery_optimization_title" />
 
-        <Preference
-            app:iconSpaceReserved="false"
-            app:key="@string/configure_presets_key"
-            app:summary="@string/configure_presets_description"
-            app:title="@string/configure_presets_title" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/settings_header">
 
-        <SwitchPreferenceCompat
-            app:defaultValue="true"
+        <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.GeneralSettingsFragment"
             app:iconSpaceReserved="false"
-            app:key="@string/start_on_boot_key"
-            app:summary="@string/start_on_boot_description"
-            app:title="@string/start_on_boot_title" />
+            app:summary="@string/settings_general_description"
+            app:title="@string/settings_general_title" />
 
-        <SwitchPreferenceCompat
-            app:defaultValue="true"
+        <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.AutoLockSettingsFragment"
             app:iconSpaceReserved="false"
-            app:key="@string/refresh_on_unlock_key"
-            app:summary="@string/refresh_on_unlock_description"
-            app:title="@string/refresh_on_unlock_title" />
+            app:summary="@string/settings_auto_lock_header_description"
+            app:title="@string/settings_auto_lock_header" />
 
-        <SwitchPreferenceCompat
-            app:defaultValue="true"
+        <Preference
             app:iconSpaceReserved="false"
-            app:key="@string/show_notification_key"
-            app:summary="@string/show_notification_description"
-            app:title="@string/show_notification_title" />
-
-        <ListPreference
-            app:defaultValue="SHOW_MODES_IF_CONTROLLING"
-            app:entries="@array/tile_click_behavior_entries"
-            app:entryValues="@array/tile_click_behavior"
-            app:iconSpaceReserved="false"
-            app:key="@string/tile_click_behavior_key"
-            app:summary="@string/tile_click_behavior_description"
-            app:title="@string/tile_click_behavior_title" />
-
-        <SwitchPreferenceCompat
-            app:defaultValue="true"
-            app:iconSpaceReserved="false"
-            app:key="@string/close_dialog_on_click_key"
-            app:summary="@string/close_dialog_on_click_description"
-            app:title="@string/close_dialog_on_click_title" />
-
-        <MultiSelectListPreference
-            app:defaultValue="@array/buttons_values"
-            app:entries="@array/buttons_entries"
-            app:entryValues="@array/buttons_values"
-            app:iconSpaceReserved="false"
-            app:key="@string/buttons_key"
-            app:summary="@string/buttons_description"
-            app:title="@string/buttons_title" />
-
-        <ListPreference
-            app:defaultValue="600"
-            app:entries="@array/refresh_mode_delay_entries"
-            app:entryValues="@array/refresh_mode_delay_values"
-            app:iconSpaceReserved="false"
-            app:key="@string/refresh_mode_delay_key"
-            app:summary="@string/refresh_mode_delay_description"
-            app:title="@string/refresh_mode_delay_title" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:summary="@string/settings_auto_lock_header_description"
-        app:title="@string/settings_auto_lock_header">
-
-        <ListPreference
-            app:defaultValue="0"
-            app:entries="@array/auto_lock_entries"
-            app:entryValues="@array/auto_lock_values"
-            app:iconSpaceReserved="false"
-            app:key="@string/auto_lock_key"
-            app:summary="@string/auto_lock_description"
-            app:title="@string/auto_lock_title" />
-
-        <ListPreference
-            app:defaultValue="AUTO"
-            app:entries="@array/auto_lock_mode_entries"
-            app:entryValues="@array/auto_lock_mode_values"
-            app:iconSpaceReserved="false"
-            app:key="@string/auto_lock_mode_key"
-            app:summary="@string/auto_lock_mode_description"
-            app:title="@string/auto_lock_mode_title" />
-
-        <SwitchPreferenceCompat
-            app:defaultValue="true"
-            app:iconSpaceReserved="false"
-            app:key="@string/auto_lock_force_key"
-            app:summaryOff="@string/auto_lock_force_description_off"
-            app:summaryOn="@string/auto_lock_force_description_on"
-            app:title="@string/auto_lock_force_title" />
+            app:key="@string/configure_presets_key"
+            app:summary="@string/configure_presets_description"
+            app:title="@string/configure_presets_title" />
 
     </PreferenceCategory>
 

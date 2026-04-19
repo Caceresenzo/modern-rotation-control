@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Modern Rotation Control</string>
     <string name="title_activity_main">Modern Rotation Control</string>
 
@@ -24,12 +24,18 @@
     <string name="mode_default">Default (use the global mode)</string>
     <string name="mode_keep_current">Keep current mode (don\'t change anything)</string>
 
-    <string name="control_header">Control</string>
+    <string name="settings_control_header">Control</string>
+
+    <string name="settings_suggestions_header">Suggestions</string>
+    <string name="settings_suggestions_key">suggestions_category</string>
+
     <string name="settings_header">Settings</string>
-    <string name="settings_auto_lock_header">Settings — Auto Lock</string>
-    <string name="settings_auto_lock_header_description">Timer is reset when the device is rotated.</string>
-    <string name="settings_presets_header">Settings — Presets</string>
-    <string name="settings_presets_header_description">Change behavior depending on the current application.</string>
+
+    <string name="settings_general_title">General</string>
+    <string name="settings_general_description">Notification, boot, and tile behavior.</string>
+
+    <string name="settings_auto_lock_header">Auto Lock</string>
+    <string name="settings_auto_lock_header_description">Lock the rotation after some time. Timer is reset when the device is rotated.</string>
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
@@ -87,7 +93,7 @@
     <string name="delay_slow">Slow (1s)</string>
 
     <string name="auto_lock_key">auto_lock</string>
-    <string name="auto_lock_title">Auto Lock after some time</string>
+    <string name="auto_lock_title">Freeze rotation after some time</string>
     <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s</string>
     <string name="wait_disabled">Disabled</string>
     <string name="wait_15">after 15 seconds</string>
@@ -97,11 +103,11 @@
     <string name="auto_lock_trigger">Locked rotation mode to %s</string>
 
     <string name="auto_lock_mode_key">auto_lock_mode</string>
-    <string name="auto_lock_mode_title">Auto Lock to Mode</string>
+    <string name="auto_lock_mode_title">Only lock for a specific mode</string>
     <string name="auto_lock_mode_description">Set to the mode: %s</string>
 
     <string name="auto_lock_force_key">auto_lock_force</string>
-    <string name="auto_lock_force_title">Force Auto Lock</string>
+    <string name="auto_lock_force_title">Force apply</string>
     <string name="auto_lock_force_description_on">Forcibly apply the rotation, ignoring the current rotation.</string>
     <string name="auto_lock_force_description_off">Wait until the current rotation matches the setting to lock it.</string>
 
@@ -131,7 +137,7 @@
     <string name="presets_application_no_name">(no name)</string>
     <string name="presets_mode">Mode: %s</string>
     <string name="presets_mode_default">Default mode</string>
-    <string name="presets_search_hint">Search applications...</string>
+    <string name="presets_search_hint" tools:ignore="TypographyEllipsis">Search applications...</string>
     <string name="presets_change_title">Select Rotation Mode for %s</string>
     <string name="presets_change_positive">Change</string>
     <string name="presets_change_negative">Cancel</string>

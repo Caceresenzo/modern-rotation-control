@@ -448,7 +448,7 @@ public class RotationService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 PRESETS_NOTIFICATION_ID /* should use a dedicated code */,
-                SettingsFragment.newOpenAccessibilityServiceSettingsIntent(),
+                Permissions.newOpenAccessibilityServiceSettingsIntent(),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
