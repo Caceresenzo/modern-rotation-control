@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.rotation;
 
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -32,6 +32,11 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.receiver.UnlockBroadcastReceiver;
+import dev.caceresenzo.rotationcontrol.rotation.receiver.OrientationBroadcastReceiver;
+import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
+import dev.caceresenzo.rotationcontrol.util.Permissions;
 import lombok.Data;
 import lombok.Getter;
 

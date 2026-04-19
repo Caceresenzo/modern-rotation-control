@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +9,10 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import dev.caceresenzo.rotationcontrol.util.Permissions;
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 
 public class GeneralSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 

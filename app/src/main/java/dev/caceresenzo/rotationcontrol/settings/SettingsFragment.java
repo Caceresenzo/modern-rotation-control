@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.settings;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,6 +27,13 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
+
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
+import dev.caceresenzo.rotationcontrol.tile.RotationTileService;
+import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 

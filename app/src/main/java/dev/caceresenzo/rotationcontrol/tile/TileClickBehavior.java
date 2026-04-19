@@ -1,9 +1,11 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.tile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
+
+import dev.caceresenzo.rotationcontrol.R;
 
 public enum TileClickBehavior {
 

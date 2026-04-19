@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
+import dev.caceresenzo.rotationcontrol.settings.preset.PresetRotationMode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

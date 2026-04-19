@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.tile;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -21,6 +21,11 @@ import android.view.WindowManager;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 
 public class RotationTileService extends TileService implements ServiceConnection {
 

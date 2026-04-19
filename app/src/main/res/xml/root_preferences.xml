@@ -52,13 +52,13 @@
         app:title="@string/settings_header">
 
         <Preference
-            app:fragment="dev.caceresenzo.rotationcontrol.GeneralSettingsFragment"
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.GeneralSettingsFragment"
             app:iconSpaceReserved="false"
             app:summary="@string/settings_general_description"
             app:title="@string/settings_general_title" />
 
         <Preference
-            app:fragment="dev.caceresenzo.rotationcontrol.AutoLockSettingsFragment"
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.AutoLockSettingsFragment"
             app:iconSpaceReserved="false"
             app:summary="@string/settings_auto_lock_header_description"
             app:title="@string/settings_auto_lock_header" />

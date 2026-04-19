@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.settings.preset;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -6,18 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,9 +28,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
+import dev.caceresenzo.rotationcontrol.util.Queries;
 
 public class PresetsActivity extends AppCompatActivity {
 
@@ -275,123 +269,6 @@ public class PresetsActivity extends AppCompatActivity {
     public static void start(Context context) {
         Intent intent = new Intent(context, PresetsActivity.class);
         context.startActivity(intent);
-    }
-
-}
-
-@Data
-@AllArgsConstructor
-class ApplicationInfo implements Comparable<ApplicationInfo> {
-
-    private String packageName;
-    private @Nullable String displayName;
-    private Drawable icon;
-    private PresetRotationMode currentMode;
-
-    public boolean hasName() {
-        return displayName != null;
-    }
-
-    @Override
-    public int compareTo(ApplicationInfo other) {
-        if (displayName != null && other.displayName == null) {
-            return -1;
-        }
-
-        if (displayName == null && other.displayName != null) {
-            return 1;
-        }
-
-        if (displayName != null) {
-            return displayName.compareToIgnoreCase(other.displayName);
-        }
-
-        return packageName.compareTo(other.packageName);
-    }
-
-}
-
-@RequiredArgsConstructor
-class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter.ViewHolder> {
-
-    private final List<ApplicationInfo> list;
-    private final OnItemClickListener onItemClickListener;
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.presets_application, parent, false);
-
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        ApplicationInfo item = list.get(position);
-
-        holder.bind(item, onItemClickListener);
-    }
-
-    @Override
-    public int getItemCount() {
-        return list.size();
-    }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-
-        private final ImageView icon;
-        private final TextView displayName;
-        private final TextView currentModeText;
-        private final ImageView currentModeIcon;
-        private final TextView packageName;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            icon = itemView.findViewById(R.id.icon);
-            displayName = itemView.findViewById(R.id.display_name);
-            currentModeText = itemView.findViewById(R.id.current_mode_text);
-            currentModeIcon = itemView.findViewById(R.id.current_mode_icon);
-            packageName = itemView.findViewById(R.id.package_name);
-        }
-
-        public void bind(ApplicationInfo application, OnItemClickListener listener) {
-            icon.setImageDrawable(application.getIcon());
-
-            if (application.hasName()) {
-                displayName.setText(application.getDisplayName());
-                packageName.setText(application.getPackageName());
-            } else {
-                displayName.setText(R.string.presets_application_no_name);
-                packageName.setText(application.getPackageName());
-            }
-
-            PresetRotationMode currentMode = application.getCurrentMode();
-            if (currentMode == null) {
-                currentModeText.setText(R.string.presets_mode_default);
-
-                currentModeIcon.setImageResource(0);
-                currentModeIcon.setVisibility(View.GONE);
-            } else {
-                Context context = currentModeText.getContext();
-                currentModeText.setText(context.getString(R.string.presets_mode, context.getString(currentMode.stringId())));
-
-                currentModeIcon.setImageResource(application.getCurrentMode().drawableId());
-                currentModeIcon.setVisibility(View.VISIBLE);
-            }
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onItemClick(application);
-                }
-            });
-        }
-    }
-
-    interface OnItemClickListener {
-        void onItemClick(ApplicationInfo applicationInfo);
     }
 
 }

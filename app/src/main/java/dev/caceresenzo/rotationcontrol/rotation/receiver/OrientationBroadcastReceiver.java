@@ -1,9 +1,11 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.rotation.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 
 public class OrientationBroadcastReceiver extends BroadcastReceiver {
 

@@ -1,9 +1,15 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.accessibility;
 
 import android.accessibilityservice.AccessibilityService;
 import android.app.NotificationManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
+import dev.caceresenzo.rotationcontrol.settings.preset.PresetRotationMode;
+import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
+import dev.caceresenzo.rotationcontrol.tile.QuickActionsDialog;
 
 public class RotationAccessibilityService extends AccessibilityService {
 

@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.util;
 
 import android.Manifest;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.provider.Settings;
 
 import androidx.core.app.ActivityCompat;
 
+import dev.caceresenzo.rotationcontrol.accessibility.RotationAccessibilityService;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

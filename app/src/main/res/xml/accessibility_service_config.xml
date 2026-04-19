@@ -5,5 +5,5 @@
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="false"
     android:packageNames="@null"
-    android:settingsActivity="dev.caceresenzo.rotationcontrol.MainActivity"
+    android:settingsActivity="dev.caceresenzo.rotationcontrol.Settings.MainActivity"
     android:description="@string/accessibility_service_description" />

@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.tile;
 
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -20,6 +20,10 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.Set;
+
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 
 public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 

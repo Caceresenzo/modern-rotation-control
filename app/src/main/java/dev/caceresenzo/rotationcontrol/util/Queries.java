@@ -1,4 +1,4 @@
-package dev.caceresenzo.rotationcontrol;
+package dev.caceresenzo.rotationcontrol.util;
 
 import android.content.Context;
 import android.content.Intent;
