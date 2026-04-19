@@ -9,7 +9,8 @@ public enum TileClickBehavior {
 
     TOGGLE_CONTROL,
     SHOW_MODES_IF_CONTROLLING,
-    ALWAYS_SHOW_MODES;
+    ALWAYS_SHOW_MODES,
+    SWITCH_TO_PORTRAIT_OR_LANDSCAPE;
 
     public static TileClickBehavior fromPreferences(Context context) {
         return fromPreferences(context, TOGGLE_CONTROL);

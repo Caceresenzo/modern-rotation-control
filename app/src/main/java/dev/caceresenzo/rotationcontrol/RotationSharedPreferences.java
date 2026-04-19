@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
 import lombok.AccessLevel;
@@ -15,6 +14,7 @@ public class RotationSharedPreferences {
 
     private static boolean initializedKeys = false;
     private static String KEY_START_CONTROL;
+    private static String KEY_MODE;
     private static String KEY_PRESETS_USED;
     private static String KEY_PRESETS_NOTIFIED_ACCESSIBILITY;
 
@@ -26,6 +26,20 @@ public class RotationSharedPreferences {
 
     public void setStartControl(boolean enabled) {
         preferences.edit().putBoolean(KEY_START_CONTROL, enabled).apply();
+    }
+
+    public RotationMode getMode() {
+        return RotationMode.valueOf(
+                preferences.getString(KEY_MODE, null),
+                RotationMode.DEFAULT
+        );
+    }
+
+    public void setMode(RotationMode newMode) {
+        preferences
+                .edit()
+                .putString(KEY_MODE, newMode.toString())
+                .apply();
     }
 
     public boolean hasPresetsBeenUsed() {
@@ -70,6 +84,7 @@ public class RotationSharedPreferences {
             initializedKeys = true;
 
             KEY_START_CONTROL = context.getString(R.string.start_control_key);
+            KEY_MODE = context.getString(R.string.mode_key);
             KEY_PRESETS_USED = context.getString(R.string.presets_used_key);
             KEY_PRESETS_NOTIFIED_ACCESSIBILITY = context.getString(R.string.presets_notified_accessibility_key);
         }

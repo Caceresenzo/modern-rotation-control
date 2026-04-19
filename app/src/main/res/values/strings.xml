@@ -34,12 +34,10 @@
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
     <string name="install_tile_description">Click here to add the tile to the Quick Settings.</string>
-    ">
 
     <string name="battery_optimization_key">battery_optimization</string>
     <string name="battery_optimization_title">Exclude from Battery Optimization</string>
     <string name="battery_optimization_description">Click here to ensure that the application is never stopped.</string>
-    ">
 
     <string name="configure_presets_key">configure_presets</string>
     <string name="configure_presets_title">Configure per Application</string>

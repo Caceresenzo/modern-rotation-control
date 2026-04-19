@@ -75,6 +75,8 @@ public enum RotationMode {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
     );
 
+    public static final RotationMode DEFAULT = PORTRAIT;
+
     private final int viewId;
     private final @StringRes int stringId;
     private final @DrawableRes int drawableId;
@@ -87,6 +89,14 @@ public enum RotationMode {
 
     public boolean doesRequireGuard() {
         return this != AUTO && rotationValue == -1;
+    }
+
+    public boolean isLandscape() {
+        return this == LANDSCAPE || this == LANDSCAPE_REVERSE || this == LANDSCAPE_SENSOR;
+    }
+
+    public boolean isPortrait() {
+        return this == PORTRAIT || this == PORTRAIT_REVERSE || this == PORTRAIT_SENSOR;
     }
 
     @Nullable
@@ -122,7 +132,7 @@ public enum RotationMode {
             }
         }
 
-        return PORTRAIT;
+        return DEFAULT;
     }
 
     public static RotationMode valueOf(String name, RotationMode defaultValue) {

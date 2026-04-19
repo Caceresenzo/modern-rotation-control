@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.util.Log;
+import android.view.WindowManager;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -55,6 +56,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
             Intent intent = new Intent(this, RotationService.class);
             mShouldUnbindService = bindService(intent, this, flags);
         }
+
 
         updateTile(RotationService.isRunning(this));
     }
@@ -124,6 +126,30 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
             case ALWAYS_SHOW_MODES: {
                 showDialog(new QuickActionsDialog(this));
+
+                break;
+            }
+
+            case SWITCH_TO_PORTRAIT_OR_LANDSCAPE: {
+                RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
+
+                RotationMode mode = preferences.getMode();
+
+                if (RotationMode.AUTO.equals(mode)) {
+                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                    int rotation = windowManager.getDefaultDisplay().getRotation();
+
+                    mode = RotationMode.fromRotationValue(rotation);
+                }
+
+                if (mode.isLandscape()) {
+                    mode = RotationMode.PORTRAIT_SENSOR;
+                } else if (mode.isPortrait()) {
+                    mode = RotationMode.LANDSCAPE_SENSOR;
+                }
+
+                preferences.setMode(mode);
+                RotationService.notifyConfigurationChanged(this, true);
 
                 break;
             }
