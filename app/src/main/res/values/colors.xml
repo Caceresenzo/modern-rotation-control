@@ -19,4 +19,6 @@
 
     <color name="inactive">@color/black</color>
     <color name="active">@color/design_default_color_primary</color>
+
+    <color name="icon_background">#FFFFFF</color>
 </resources>
