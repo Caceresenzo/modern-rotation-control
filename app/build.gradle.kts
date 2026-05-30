@@ -11,6 +11,7 @@ android {
         applicationId = "dev.caceresenzo.rotationcontrol"
         minSdk = 29
         targetSdk = 35
+        compileSdk = 36
         versionCode = 15
         versionName = "1.13.0"
 
