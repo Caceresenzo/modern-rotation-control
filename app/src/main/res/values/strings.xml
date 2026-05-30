@@ -148,6 +148,14 @@
     <string name="presets_used_key">presets_used</string>
     <string name="presets_notified_accessibility_key">presets_notified_accessibility</string>
 
-    <string name="view_on_github">View on GitHub</string>
+    <string name="about_header">About</string>
+
+    <string name="view_on_github_key">view_on_github</string>
+    <string name="view_on_github_title">View on GitHub</string>
+    <string name="view_on_github_description">Read the source code, report an issue, or just star the repository.</string>
     <string name="no_browser_found">No browser found</string>
+
+    <string name="open_source_licenses_key">open_source_licenses</string>
+    <string name="open_source_licenses_title">Open source licenses</string>
+    <string name="open_source_licenses_description">License details for open source software.</string>
 </resources>

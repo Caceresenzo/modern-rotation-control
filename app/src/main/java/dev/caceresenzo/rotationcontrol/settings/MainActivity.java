@@ -1,6 +1,5 @@
 package dev.caceresenzo.rotationcontrol.settings;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,13 +19,12 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
-import dev.caceresenzo.rotationcontrol.util.Permissions;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.util.Links;
+import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
-
-    public static final String GITHUB_URL = "https://github.com/Caceresenzo/modern-rotation-control";
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -109,15 +107,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
 
         if (id == R.id.action_github) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(GITHUB_URL));
-
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException exception) {
-                Toast.makeText(this, R.string.no_browser_found, Toast.LENGTH_SHORT).show();
-            }
-
+            Links.openGitHub(this);
             return true;
         }
 

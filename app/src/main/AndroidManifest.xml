@@ -42,8 +42,7 @@
             android:name=".settings.preset.PresetsActivity"
             android:exported="true"
             android:label="@string/presets_title"
-            android:theme="@style/AppTheme.Application">
-        </activity>
+            android:theme="@style/AppTheme.Application" />
 
         <receiver
             android:name=".receiver.BootBroadcastReceiver"
@@ -89,6 +88,17 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:theme="@style/Theme.OssLicenses"
+            tools:replace="android:theme" />
+
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:theme="@style/Theme.OssLicenses"
+            tools:replace="android:theme" />
+
     </application>
 
     <queries>

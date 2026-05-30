@@ -26,6 +26,8 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity;
+
 import java.util.Objects;
 
 import dev.caceresenzo.rotationcontrol.R;
@@ -33,6 +35,7 @@ import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
 import dev.caceresenzo.rotationcontrol.tile.RotationTileService;
+import dev.caceresenzo.rotationcontrol.util.Links;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
@@ -69,6 +72,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(getString(R.string.configure_presets_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.install_tile_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.battery_optimization_key)).setOnPreferenceClickListener(this);
+
+        findPreference(getString(R.string.view_on_github_key)).setOnPreferenceClickListener(this);
+        findPreference(getString(R.string.open_source_licenses_key)).setOnPreferenceClickListener(this);
 
         updateSuggestionsVisibility();
     }
@@ -186,6 +192,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             } else {
                 requestAccessibilityService(context);
             }
+        } else if (getString(R.string.view_on_github_key).equals(key)) {
+            Links.openGitHub(context);
+        } else if (getString(R.string.open_source_licenses_key).equals(key)) {
+            startActivity(new Intent(context, OssLicensesMenuActivity.class));
         }
 
         return true;

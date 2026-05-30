@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.oss.licenses)
 }
 
 android {
@@ -47,6 +48,7 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.play.services.oss.licenses)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

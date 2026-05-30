@@ -71,4 +71,21 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/about_header">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/view_on_github_key"
+            app:summary="@string/view_on_github_description"
+            app:title="@string/view_on_github_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/open_source_licenses_key"
+            app:summary="@string/open_source_licenses_description"
+            app:title="@string/open_source_licenses_title" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
