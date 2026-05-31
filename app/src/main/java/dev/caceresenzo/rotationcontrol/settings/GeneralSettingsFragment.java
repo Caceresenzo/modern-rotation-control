@@ -8,13 +8,13 @@ import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
-import dev.caceresenzo.rotationcontrol.util.Permissions;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragmentCompat;
+import dev.caceresenzo.rotationcontrol.util.Permissions;
 
-public class GeneralSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
+public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     public static final int RESTART_SERVICE_DELAY_MILLISECOND = 200;
 
@@ -89,4 +89,5 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat implements
             RotationService.start(context);
         }, RESTART_SERVICE_DELAY_MILLISECOND);
     }
+
 }

@@ -17,9 +17,10 @@
             app:summary="@string/guard_description"
             app:title="@string/guard_title" />
 
-        <ListPreference
+        <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
             app:defaultValue="AUTO"
             app:entries="@array/buttons_entries"
+            app:entryDescriptions="@array/buttons_descriptions"
             app:entryValues="@array/buttons_values"
             app:iconSpaceReserved="false"
             app:key="@string/mode_key"

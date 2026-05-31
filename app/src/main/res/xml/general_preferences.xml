@@ -21,9 +21,10 @@
         app:summary="@string/show_notification_description"
         app:title="@string/show_notification_title" />
 
-    <ListPreference
+    <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
         app:defaultValue="SHOW_MODES_IF_CONTROLLING"
         app:entries="@array/tile_click_behavior_entries"
+        app:entryDescriptions="@array/tile_click_behavior_descriptions"
         app:entryValues="@array/tile_click_behavior"
         app:iconSpaceReserved="false"
         app:key="@string/tile_click_behavior_key"

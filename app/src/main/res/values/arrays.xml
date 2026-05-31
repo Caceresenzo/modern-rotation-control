@@ -9,6 +9,16 @@
         <item>@string/mode_landscape_sensor</item>
     </string-array>
 
+    <string-array name="buttons_descriptions">
+        <item>Rotate based on the screen orientation.</item>
+        <item>Force portrait orientation.</item>
+        <item>Force reverse portrait orientation.</item>
+        <item>Rotate based on the screen orientation, but limit to portrait modes.\nReverse doesn\'t work properly on some devices.</item>
+        <item>Force landscape orientation.</item>
+        <item>Force reverse landscape orientation.</item>
+        <item>Rotate based on the screen orientation, but limit to landscape modes.</item>
+    </string-array>
+
     <string-array name="buttons_values">
         <item>AUTO</item>
         <item>PORTRAIT</item>
@@ -20,10 +30,17 @@
     </string-array>
 
     <string-array name="tile_click_behavior_entries">
-        <item>Toggle Control</item>
-        <item>Show Modes if Controlling</item>
-        <item>Always Show Modes</item>
-        <item>Switch Portrait to/from Landscape (Sensor)</item>
+        <item>Toggle control</item>
+        <item>Turn on then mode selection</item>
+        <item>Mode selection</item>
+        <item>Switch Portrait [from/to] Landscape</item>
+    </string-array>
+
+    <string-array name="tile_click_behavior_descriptions">
+        <item>Turn on or off.</item>
+        <item>Start control if not running, then always show mode selection.</item>
+        <item>Always show mode selection.</item>
+        <item>Toggle between Portrait and Landscape, both with (Sensor).</item>
     </string-array>
 
     <string-array name="tile_click_behavior">
