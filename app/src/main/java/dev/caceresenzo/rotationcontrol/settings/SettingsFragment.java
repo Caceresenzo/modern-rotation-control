@@ -208,7 +208,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         statusBarManager.requestAddTileService(
                 new ComponentName(context, RotationTileService.class),
                 getString(R.string.tile_title),
-                Icon.createWithResource(context, R.drawable.guard),
+                Icon.createWithResource(context, R.drawable.mode_auto),
                 context.getMainExecutor(),
                 (status) -> {
                     if (status == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED || status == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED) {
