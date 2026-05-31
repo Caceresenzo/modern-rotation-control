@@ -13,14 +13,24 @@
     <string name="tile_with_presets">(with Presets)</string>
 
     <string name="mode_deduce">Deduce from current orientation</string>
+    <string name="button_guard">Guard</string>
+    <string name="button_guard_description">Force the rotation of the screen.</string>
     <string name="mode_auto">Auto</string>
+    <string name="mode_auto_description">Rotate based on the screen orientation.</string>
     <string name="mode_portrait">Portrait</string>
+    <string name="mode_portrait_description">Force portrait orientation.</string>
     <string name="mode_portrait_reverse">Portrait (Reverse)</string>
+    <string name="mode_portrait_reverse_description">Force reverse portrait orientation.</string>
     <string name="mode_portrait_sensor">Portrait (Sensor)</string>
+    <string name="mode_portrait_sensor_description">Rotate based on the screen orientation, but limit to portrait modes.\nReverse doesn\'t work properly on some devices.</string>
     <string name="mode_landscape">Landscape</string>
+    <string name="mode_landscape_description">Force landscape orientation.</string>
     <string name="mode_landscape_reverse">Landscape (Reverse)</string>
+    <string name="mode_landscape_reverse_description">Force reverse landscape orientation.</string>
     <string name="mode_landscape_sensor">Landscape (Sensor)</string>
-    <string name="mode_refresh">Refresh</string>
+    <string name="mode_landscape_sensor_description">Rotate based on the screen orientation, but limit to landscape modes.</string>
+    <string name="button_refresh">Refresh</string>
+    <string name="button_refresh_description">Simulate a forced rotation to fix UI issues.</string>
     <string name="mode_default">Default (use the global mode)</string>
     <string name="mode_keep_current">Keep current mode (don\'t change anything)</string>
 
@@ -81,7 +91,7 @@
     <string name="show_notification_title">Show Notification</string>
     <string name="show_notification_description">Users of the Quick Settings tile probably don\'t have a need for it.</string>
 
-    <string name="buttons_key">buttons</string>
+    <string name="buttons_key">buttons_v2</string>
     <string name="buttons_title">Mode Buttons</string>
     <string name="buttons_description">Select which buttons to display.</string>
 

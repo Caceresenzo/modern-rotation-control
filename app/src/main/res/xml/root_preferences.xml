@@ -19,9 +19,9 @@
 
         <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
             app:defaultValue="AUTO"
-            app:entries="@array/buttons_entries"
-            app:entryDescriptions="@array/buttons_descriptions"
-            app:entryValues="@array/buttons_values"
+            app:entries="@array/rotation_mode_entries"
+            app:entryDescriptions="@array/rotation_mode_descriptions"
+            app:entryValues="@array/rotation_mode_values"
             app:iconSpaceReserved="false"
             app:key="@string/mode_key"
             app:summary="@string/mode_description"

@@ -1,5 +1,5 @@
 <resources>
-    <string-array name="buttons_entries">
+    <string-array name="rotation_mode_entries">
         <item>@string/mode_auto</item>
         <item>@string/mode_portrait</item>
         <item>@string/mode_portrait_reverse</item>
@@ -9,17 +9,17 @@
         <item>@string/mode_landscape_sensor</item>
     </string-array>
 
-    <string-array name="buttons_descriptions">
-        <item>Rotate based on the screen orientation.</item>
-        <item>Force portrait orientation.</item>
-        <item>Force reverse portrait orientation.</item>
-        <item>Rotate based on the screen orientation, but limit to portrait modes.\nReverse doesn\'t work properly on some devices.</item>
-        <item>Force landscape orientation.</item>
-        <item>Force reverse landscape orientation.</item>
-        <item>Rotate based on the screen orientation, but limit to landscape modes.</item>
+    <string-array name="rotation_mode_descriptions">
+        <item>@string/mode_auto_description</item>
+        <item>@string/mode_portrait_description</item>
+        <item>@string/mode_portrait_reverse_description</item>
+        <item>@string/mode_portrait_sensor_description</item>
+        <item>@string/mode_landscape_description</item>
+        <item>@string/mode_landscape_reverse_description</item>
+        <item>@string/mode_landscape_sensor_description</item>
     </string-array>
 
-    <string-array name="buttons_values">
+    <string-array name="rotation_mode_values">
         <item>AUTO</item>
         <item>PORTRAIT</item>
         <item>PORTRAIT_REVERSE</item>
@@ -27,6 +27,42 @@
         <item>LANDSCAPE</item>
         <item>LANDSCAPE_REVERSE</item>
         <item>LANDSCAPE_SENSOR</item>
+    </string-array>
+
+    <string-array name="buttons_entries">
+        <item>@string/button_guard</item>
+        <item>@string/mode_auto</item>
+        <item>@string/mode_portrait</item>
+        <item>@string/mode_portrait_reverse</item>
+        <item>@string/mode_portrait_sensor</item>
+        <item>@string/mode_landscape</item>
+        <item>@string/mode_landscape_reverse</item>
+        <item>@string/mode_landscape_sensor</item>
+        <item>@string/button_refresh</item>
+    </string-array>
+
+    <string-array name="buttons_descriptions">
+        <item>@string/button_guard_description</item>
+        <item>@string/mode_auto_description</item>
+        <item>@string/mode_portrait_description</item>
+        <item>@string/mode_portrait_reverse_description</item>
+        <item>@string/mode_portrait_sensor_description</item>
+        <item>@string/mode_landscape_description</item>
+        <item>@string/mode_landscape_reverse_description</item>
+        <item>@string/mode_landscape_sensor_description</item>
+        <item>@string/button_refresh_description</item>
+    </string-array>
+
+    <string-array name="buttons_values">
+        <item>GUARD</item>
+        <item>AUTO</item>
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>PORTRAIT_SENSOR</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+        <item>LANDSCAPE_SENSOR</item>
+        <item>REFRESH</item>
     </string-array>
 
     <string-array name="tile_click_behavior_entries">

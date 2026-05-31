@@ -24,6 +24,7 @@ import java.util.Set;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 
 public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
@@ -43,16 +44,10 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
         setContentView(R.layout.quick_actions_dialog);
 
-        for (RotationMode mode : RotationMode.values()) {
-            ImageView view = findViewById(mode.viewId());
+        for (ActionButton button : ActionButton.values()) {
+            ImageView view = findViewById(button.viewId());
             view.setOnClickListener(this);
         }
-
-        ImageView guardView = findViewById(R.id.guard);
-        guardView.setOnClickListener(this);
-
-        ImageView refreshButton = findViewById(R.id.refresh);
-        refreshButton.setOnClickListener(this);
 
         TextView infoView = findViewById(R.id.info);
         if (RotationService.isRunning(getApplicationContext())) {
@@ -66,15 +61,20 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     public void onClick(View view) {
         final Context context = getApplicationContext();
 
+        ActionButton button = ActionButton.fromViewId(view.getId());
+        if (button == null) {
+            return;
+        }
+
         Intent intent = null;
 
-        int viewId = view.getId();
-        if (viewId == R.id.guard) {
+        if (button == ActionButton.GUARD) {
             intent = RotationService.newToggleGuardIntent(context);
-        } else if (viewId == R.id.refresh) {
+        } else if (button == ActionButton.REFRESH) {
             intent = RotationService.newRefreshModeIntent(context);
         } else {
-            RotationMode newMode = RotationMode.fromViewId(viewId);
+            RotationMode newMode = button.rotationMode();
+
             if (newMode != null) {
                 intent = RotationService.newChangeModeIntent(context, newMode);
             }
@@ -133,20 +133,17 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         Set<String> enabledButtons = preferences.getStringSet(context.getString(R.string.buttons_key), null);
-        for (RotationMode mode : RotationMode.values()) {
-            ImageView view = findViewById(mode.viewId());
+        for (ActionButton button : ActionButton.values()) {
+            ImageView view = findViewById(button.viewId());
 
-            if (enabledButtons != null && !enabledButtons.contains(mode.name())) {
+            if (enabledButtons != null && !enabledButtons.contains(button.name())) {
                 view.setVisibility(View.GONE);
             } else {
                 view.setVisibility(View.VISIBLE);
             }
 
-            setActiveColor(context, view, mode == activeMode);
+            setActiveColor(context, view, button.isActive(activeMode, guard));
         }
-
-        ImageView guardView = findViewById(R.id.guard);
-        setActiveColor(context, guardView, guard);
     }
 
     private void setActiveColor(Context context, ImageView view, boolean active) {

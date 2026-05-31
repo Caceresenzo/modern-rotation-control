@@ -33,8 +33,9 @@ import androidx.preference.PreferenceManager;
 import java.util.Set;
 
 import dev.caceresenzo.rotationcontrol.R;
-import dev.caceresenzo.rotationcontrol.rotation.receiver.UnlockBroadcastReceiver;
 import dev.caceresenzo.rotationcontrol.rotation.receiver.OrientationBroadcastReceiver;
+import dev.caceresenzo.rotationcontrol.rotation.receiver.UnlockBroadcastReceiver;
+import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 import lombok.Data;
@@ -489,21 +490,23 @@ public class RotationService extends Service {
     private void updateViews(RemoteViews layout) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        boolean guardValue = isGuardEnabledOrForced();
+
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
-        for (RotationMode mode : RotationMode.values()) {
-            if (enabledButtons != null && !enabledButtons.contains(mode.name())) {
-                layout.setViewVisibility(mode.viewId(), View.GONE);
+        for (ActionButton button : ActionButton.values()) {
+            if (enabledButtons != null && !enabledButtons.contains(button.name())) {
+                layout.setViewVisibility(button.viewId(), View.GONE);
             }
 
-            layout.setInt(mode.viewId(), TINT_METHOD, getColor(R.color.inactive));
+            setActiveColor(layout, button.viewId(), button.isActive(activeMode, guardValue));
         }
+    }
 
-        layout.setInt(activeMode.viewId(), TINT_METHOD, getColor(R.color.active));
-
-        if (isGuardEnabledOrForced()) {
-            layout.setInt(R.id.guard, TINT_METHOD, getColor(R.color.active));
+    private void setActiveColor(RemoteViews layout, int viewId, boolean active) {
+        if (active) {
+            layout.setInt(viewId, TINT_METHOD, getColor(R.color.active));
         } else {
-            layout.setInt(R.id.guard, TINT_METHOD, getColor(R.color.inactive));
+            layout.setInt(viewId, TINT_METHOD, getColor(R.color.inactive));
         }
     }
 
