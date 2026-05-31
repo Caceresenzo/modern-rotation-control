@@ -62,7 +62,6 @@ public class RotationTileService extends TileService implements ServiceConnectio
             mShouldUnbindService = bindService(intent, this, flags);
         }
 
-
         updateTile(RotationService.isRunning(this));
     }
 
