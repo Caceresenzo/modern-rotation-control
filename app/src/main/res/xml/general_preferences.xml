@@ -38,9 +38,10 @@
         app:summary="@string/close_dialog_on_click_description"
         app:title="@string/close_dialog_on_click_title" />
 
-    <MultiSelectListPreference
+    <dev.caceresenzo.rotationcontrol.settings.preference.MultiSelectListPreferenceWithDescription
         app:defaultValue="@array/buttons_values"
         app:entries="@array/buttons_entries"
+        app:entryDescriptions="@array/buttons_descriptions"
         app:entryValues="@array/buttons_values"
         app:iconSpaceReserved="false"
         app:key="@string/buttons_key"
