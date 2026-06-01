@@ -49,12 +49,14 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
             view.setOnClickListener(this);
         }
 
+        boolean isServiceRunning = RotationService.isRunning(getApplicationContext());
+
         TextView infoView = findViewById(R.id.info);
-        if (RotationService.isRunning(getApplicationContext())) {
+        if (isServiceRunning) {
             infoView.setVisibility(View.GONE);
         }
 
-        updateViews(false, null);
+        updateViews(false, null, isServiceRunning);
     }
 
     @Override
@@ -72,6 +74,8 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
             intent = RotationService.newToggleGuardIntent(context);
         } else if (button == ActionButton.REFRESH) {
             intent = RotationService.newRefreshModeIntent(context);
+        }  else if (button == ActionButton.POWER) {
+            intent = RotationService.newStartIfStoppedOrStopIfStartedIntent(context);
         } else {
             RotationMode newMode = button.rotationMode();
 
@@ -107,8 +111,9 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     private void onServiceConnected() {
         RotationMode activeMode = mService.getActiveMode();
         boolean guard = mService.isGuardEnabledOrForced();
+        boolean isServiceRunning = mService.isRunning();
 
-        updateViews(guard, activeMode);
+        updateViews(guard, activeMode, isServiceRunning);
     }
 
     @Override
@@ -127,7 +132,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         context.unregisterReceiver(mListener);
     }
 
-    public void updateViews(boolean guard, RotationMode activeMode) {
+    public void updateViews(boolean guard, RotationMode activeMode, boolean isServiceRunning) {
         final Context context = getApplicationContext();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -142,7 +147,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
                 view.setVisibility(View.VISIBLE);
             }
 
-            setActiveColor(context, view, button.isActive(activeMode, guard));
+            setActiveColor(context, view, button.isActive(activeMode, guard, isServiceRunning));
         }
     }
 
@@ -200,8 +205,9 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
             boolean guard = preferences.getBoolean(context.getString(R.string.guard_key), false);
             RotationMode activeMode = RotationMode.fromPreferences(context);
+            boolean isServiceRunning = RotationService.isRunning(context);
 
-            updateViews(guard, activeMode);
+            updateViews(guard, activeMode, isServiceRunning);
         }
     }
 

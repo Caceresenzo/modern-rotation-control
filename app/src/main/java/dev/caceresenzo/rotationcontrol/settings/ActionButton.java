@@ -33,6 +33,12 @@ public enum ActionButton {
             R.id.refresh,
             R.string.button_refresh,
             R.drawable.refresh
+    ),
+
+    POWER(
+            R.id.power,
+            R.string.button_power,
+            R.drawable.power
     );
 
     private final RotationMode rotationMode;
@@ -54,13 +60,17 @@ public enum ActionButton {
         this.drawableId = drawableId;
     }
 
-    public boolean isActive(RotationMode currentMode, boolean guard) {
+    public boolean isActive(RotationMode currentMode, boolean guard, boolean running) {
         if (currentMode != null && currentMode.equals(this.rotationMode)) {
             return true;
         }
 
         if (this == GUARD) {
             return guard;
+        }
+
+        if (this == POWER) {
+            return running;
         }
 
         return false;

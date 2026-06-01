@@ -57,7 +57,7 @@ public class RotationService extends Service {
     public static final String ACTION_PRESETS_UPDATE = "PRESETS_UPDATE";
     public static final String ACTION_PRESETS_RESTORE = "PRESETS_RESTORE";
 
-    public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH";
+    public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH_NOTIFICATION";
     public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
 
     public static final String ACTION_CHANGE_GUARD = "CHANGE_GUARD";
@@ -67,7 +67,11 @@ public class RotationService extends Service {
     public static final int ACTION_CHANGE_MODE_REQUEST_CODE_BASE = 30;
     public static final String INTENT_NEW_MODE = "NEW_MODE";
 
-    public static final String ACTION_REFRESH_MODE = "REFRESH_MODE";
+    public static final String ACTION_REFRESH = "REFRESH";
+    public static final int ACTION_REFRESH_REQUEST_CODE = 40;
+
+    public static final String ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED = "STOP_IF_STARTED_OR_START_IF_STOPPED";
+    public static final int ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED_REQUEST_CODE = 50;
 
     public static final String TINT_METHOD = "setColorFilter";
 
@@ -102,6 +106,7 @@ public class RotationService extends Service {
     private final IBinder binder = new LocalBinder();
 
     private boolean started;
+    private boolean running;
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
@@ -286,7 +291,7 @@ public class RotationService extends Service {
                 break;
             }
 
-            case ACTION_REFRESH_MODE: {
+            case ACTION_REFRESH: {
                 currentlyRefreshing = true;
                 Log.i(TAG, String.format("new guard=%s", guard));
 
@@ -303,12 +308,23 @@ public class RotationService extends Service {
                 break;
             }
 
+            case ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED: {
+                if (running) {
+                    // TODO Service is not killed right because of the TileService
+                    Toast.makeText(this, R.string.stopping_service_soon, Toast.LENGTH_LONG).show();
+                    stopSelf();
+                }
+
+                break;
+            }
+
             default: {
                 Log.i(TAG, String.format("unknown action - action=%s", action));
                 return START_NOT_STICKY;
             }
         }
 
+        running = true;
         afterStartCommand();
 
         return START_STICKY;
@@ -414,6 +430,7 @@ public class RotationService extends Service {
             RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
             layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
             layout.setOnClickPendingIntent(R.id.refresh, newRefreshModePendingIntent());
+            layout.setOnClickPendingIntent(R.id.power, newStartIfStoppedOrStopIfStartedPendingIntent());
 
             for (RotationMode mode : RotationMode.values()) {
                 // Log.i(TAG, String.format("attach intent - mode=%s viewId=%d", mode, mode.viewId()));
@@ -423,7 +440,7 @@ public class RotationService extends Service {
             notificationBuilder
                     .setCustomContentView(layout)
                     .setCustomBigContentView(layout)
-                    .setDeleteIntent(newRefreshPendingIntent());
+                    .setDeleteIntent(newRefreshNotificationPendingIntent());
 
             notificationBuilder
                     .setSubText(null);
@@ -479,6 +496,10 @@ public class RotationService extends Service {
         autoLock.load(preferences);
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     public boolean isGuardEnabledOrForced() {
         return (guard || activeMode.doesRequireGuard()) && !currentlyRefreshing;
     }
@@ -490,7 +511,7 @@ public class RotationService extends Service {
     private void updateViews(RemoteViews layout) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        boolean guardValue = isGuardEnabledOrForced();
+        boolean guard = isGuardEnabledOrForced();
 
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
         for (ActionButton button : ActionButton.values()) {
@@ -498,7 +519,7 @@ public class RotationService extends Service {
                 layout.setViewVisibility(button.viewId(), View.GONE);
             }
 
-            setActiveColor(layout, button.viewId(), button.isActive(activeMode, guardValue));
+            setActiveColor(layout, button.viewId(), button.isActive(activeMode, guard, running));
         }
     }
 
@@ -567,7 +588,7 @@ public class RotationService extends Service {
         getNotificationManager().createNotificationChannel(notificationChannel);
     }
 
-    private PendingIntent newRefreshPendingIntent() {
+    private PendingIntent newRefreshNotificationPendingIntent() {
         Intent intent = new Intent(getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_REFRESH_NOTIFICATION);
 
@@ -584,7 +605,18 @@ public class RotationService extends Service {
 
         return PendingIntent.getService(
                 this,
-                ACTION_REFRESH_NOTIFICATION_REQUEST_CODE,
+                ACTION_REFRESH_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    private PendingIntent newStartIfStoppedOrStopIfStartedPendingIntent() {
+        Intent intent = newStartIfStoppedOrStopIfStartedIntent(this);
+
+        return PendingIntent.getService(
+                this,
+                ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED_REQUEST_CODE,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
@@ -665,7 +697,14 @@ public class RotationService extends Service {
 
     public static Intent newRefreshModeIntent(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
-        intent.setAction(ACTION_REFRESH_MODE);
+        intent.setAction(ACTION_REFRESH);
+
+        return intent;
+    }
+
+    public static Intent newStartIfStoppedOrStopIfStartedIntent(Context context) {
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED);
 
         return intent;
     }

@@ -39,6 +39,7 @@
         <item>@string/mode_landscape_reverse</item>
         <item>@string/mode_landscape_sensor</item>
         <item>@string/button_refresh</item>
+        <item>@string/button_power</item>
     </string-array>
 
     <string-array name="buttons_descriptions">
@@ -51,6 +52,7 @@
         <item>@string/mode_landscape_reverse_description</item>
         <item>@string/mode_landscape_sensor_description</item>
         <item>@string/button_refresh_description</item>
+        <item>@string/button_power_description</item>
     </string-array>
 
     <string-array name="buttons_values">
@@ -63,6 +65,7 @@
         <item>LANDSCAPE_REVERSE</item>
         <item>LANDSCAPE_SENSOR</item>
         <item>REFRESH</item>
+        <item>POWER</item>
     </string-array>
 
     <string-array name="tile_click_behavior_entries">

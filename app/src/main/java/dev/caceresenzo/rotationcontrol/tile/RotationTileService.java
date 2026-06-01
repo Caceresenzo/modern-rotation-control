@@ -177,11 +177,12 @@ public class RotationTileService extends TileService implements ServiceConnectio
     }
 
     public void updateTileUsingService() {
+        boolean isRunning = mService.isRunning();
         RotationMode activeMode = mService.getActiveMode();
         boolean guard = mService.isGuardEnabledOrForced();
         boolean presets = mService.isUsingPresets();
 
-        updateTile(true, activeMode, guard, presets);
+        updateTile(isRunning, activeMode, guard, presets);
     }
 
     public void updateTile(boolean running, RotationMode activeMode, boolean guard, boolean presets) {

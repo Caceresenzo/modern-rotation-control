@@ -50,4 +50,9 @@
         style="@style/AppTheme.NotificationButton"
         android:src="@drawable/refresh" />
 
+    <ImageView
+        android:id="@+id/power"
+        style="@style/AppTheme.NotificationButton"
+        android:src="@drawable/power" />
+
 </LinearLayout>
