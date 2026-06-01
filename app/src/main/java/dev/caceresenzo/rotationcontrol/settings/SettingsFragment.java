@@ -160,7 +160,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
                 return true;
             }
 
-            if (Permissions.hasNotificationPermission(context)) {
+            if (!Permissions.hasNotificationPermission(context)) {
                 Toast.makeText(context, R.string.require_notification_permission, Toast.LENGTH_LONG).show();
                 mNotificationPermissionActivityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
                 return false;
