@@ -5,9 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
+
+import java.util.Set;
 
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
@@ -30,6 +33,7 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
         if (sharedPreferences != null) {
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         }
+
     }
 
     @Override
@@ -37,6 +41,9 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
         setPreferencesFromResource(R.xml.general_preferences, rootKey);
 
         findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
+
+        findPreference(getString(R.string.notification_buttons_key)).setOnPreferenceChangeListener(this);
+        findPreference(getString(R.string.tile_buttons_key)).setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -62,6 +69,17 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
                 && Permissions.hasNotificationPermission(context)
         ) {
             restartService();
+            return true;
+        }
+
+        if (getString(R.string.notification_buttons_key).equals(key) || getString(R.string.tile_buttons_key).equals(key)) {
+            Set<String> selectedValues = (Set<String>) newValue;
+
+            if (selectedValues.isEmpty()) {
+                Toast.makeText(getContext(), R.string.buttons_at_least_one, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
             return true;
         }
 

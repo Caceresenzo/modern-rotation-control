@@ -106,6 +106,7 @@
     <string name="notification_buttons_key">notification_buttons</string>
     <string name="notification_buttons_title">Notification Mode Buttons</string>
     <string name="notification_buttons_description">Select which buttons to display.</string>
+    <string name="buttons_at_least_one">At least one button must be selected.</string>
 
     <string name="settings_general_other_header">Other</string>
     <string name="settings_general_other_key">general_other_category</string>
