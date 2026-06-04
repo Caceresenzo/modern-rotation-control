@@ -1,5 +1,6 @@
 <resources>
     <declare-styleable name="ListPreferenceWithDescription">
         <attr name="entryDescriptions" format="reference" />
+        <attr name="entryIcons" format="reference" />
     </declare-styleable>
 </resources>

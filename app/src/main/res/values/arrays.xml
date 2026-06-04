@@ -55,6 +55,19 @@
         <item>@string/button_power_description</item>
     </string-array>
 
+    <string-array name="buttons_icons">
+        <item>@drawable/guard</item>
+        <item>@drawable/mode_auto</item>
+        <item>@drawable/mode_portrait</item>
+        <item>@drawable/mode_portrait_reverse</item>
+        <item>@drawable/mode_portrait_sensor</item>
+        <item>@drawable/mode_landscape</item>
+        <item>@drawable/mode_landscape_reverse</item>
+        <item>@drawable/mode_landscape_sensor</item>
+        <item>@drawable/refresh</item>
+        <item>@drawable/power</item>
+    </string-array>
+
     <string-array name="buttons_values">
         <item>GUARD</item>
         <item>AUTO</item>
