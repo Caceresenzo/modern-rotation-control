@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -21,7 +20,6 @@ import androidx.preference.PreferenceManager;
 
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
-import dev.caceresenzo.rotationcontrol.util.Links;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -94,22 +92,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
             getOnBackPressedDispatcher().onBackPressed();
-            return true;
-        }
-
-        if (id == R.id.action_github) {
-            Links.openGitHub(this);
             return true;
         }
 
