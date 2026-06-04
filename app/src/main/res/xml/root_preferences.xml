@@ -21,6 +21,7 @@
             app:defaultValue="AUTO"
             app:entries="@array/rotation_mode_entries"
             app:entryDescriptions="@array/rotation_mode_descriptions"
+            app:entryIcons="@array/rotation_mode_icons"
             app:entryValues="@array/rotation_mode_values"
             app:iconSpaceReserved="false"
             app:key="@string/mode_key"

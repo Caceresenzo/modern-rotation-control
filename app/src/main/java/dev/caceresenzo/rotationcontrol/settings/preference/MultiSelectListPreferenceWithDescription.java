@@ -161,7 +161,7 @@ public class MultiSelectListPreferenceWithDescription extends MultiSelectListPre
                 }
 
                 ImageView iconImageView = item.findViewById(R.id.image);
-                int iconResourceId = mEntryIcons[index];
+                int iconResourceId = mEntryIcons == null ? 0 : mEntryIcons[index];
                 if (iconResourceId != 0) {
                     iconImageView.setVisibility(View.VISIBLE);
                     iconImageView.setImageDrawable(AppCompatResources.getDrawable(context, iconResourceId));

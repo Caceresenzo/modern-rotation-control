@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
@@ -27,12 +29,26 @@ import dev.caceresenzo.rotationcontrol.R;
 public class ListPreferenceWithDescription extends ListPreference {
 
     private CharSequence[] mEntryDescriptions;
+    private int[] mEntryIcons;
 
     public ListPreferenceWithDescription(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.ListPreferenceWithDescription);
         this.mEntryDescriptions = array.getTextArray(dev.caceresenzo.rotationcontrol.R.styleable.ListPreferenceWithDescription_entryDescriptions);
+
+        int resourceId = array.getResourceId(R.styleable.ListPreferenceWithDescription_entryIcons, 0);
+        if (resourceId != 0) {
+            TypedArray icons = context.getResources().obtainTypedArray(resourceId);
+
+            mEntryIcons = new int[icons.length()];
+            for (int index = 0; index < icons.length(); index++) {
+                mEntryIcons[index] = icons.getResourceId(index, 0);
+            }
+
+            icons.recycle();
+        }
+
         array.recycle();
     }
 
@@ -40,16 +56,22 @@ public class ListPreferenceWithDescription extends ListPreference {
         return mEntryDescriptions;
     }
 
+    public int[] getEntryIcons() {
+        return mEntryIcons;
+    }
+
     public static class DialogFragment extends PreferenceDialogFragmentCompat {
 
         private static final String SAVE_STATE_INDEX = "ListPreferenceWithDescription.DialogFragment.index";
         private static final String SAVE_STATE_ENTRIES = "ListPreferenceWithDescription.DialogFragment.entries";
         private static final String SAVE_STATE_ENTRY_DESCRIPTIONS = "ListPreferenceWithDescription.DialogFragment.entryDescriptions";
+        private static final String SAVE_STATE_ENTRY_ICONS = "ListPreferenceWithDescription.entryIcons";
         private static final String SAVE_STATE_ENTRY_VALUES = "ListPreferenceWithDescription.DialogFragment.entryValues";
 
         int mClickedDialogEntryIndex;
         private CharSequence[] mEntries;
         private CharSequence[] mEntryDescriptions;
+        private int[] mEntryIcons;
         private CharSequence[] mEntryValues;
 
         @androidx.annotation.NonNull
@@ -74,11 +96,13 @@ public class ListPreferenceWithDescription extends ListPreference {
                 mClickedDialogEntryIndex = preference.findIndexOfValue(preference.getValue());
                 mEntries = preference.getEntries();
                 mEntryDescriptions = preference.getEntryDescriptions();
+                mEntryIcons = preference.getEntryIcons();
                 mEntryValues = preference.getEntryValues();
             } else {
                 mClickedDialogEntryIndex = savedInstanceState.getInt(SAVE_STATE_INDEX, 0);
                 mEntries = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRIES);
                 mEntryDescriptions = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRY_DESCRIPTIONS);
+                mEntryIcons = savedInstanceState.getIntArray(SAVE_STATE_ENTRY_ICONS);
                 mEntryValues = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRY_VALUES);
             }
         }
@@ -89,6 +113,7 @@ public class ListPreferenceWithDescription extends ListPreference {
             outState.putInt(SAVE_STATE_INDEX, mClickedDialogEntryIndex);
             outState.putCharSequenceArray(SAVE_STATE_ENTRIES, mEntries);
             outState.putCharSequenceArray(SAVE_STATE_ENTRY_DESCRIPTIONS, mEntryDescriptions);
+            outState.putIntArray(SAVE_STATE_ENTRY_ICONS, mEntryIcons);
             outState.putCharSequenceArray(SAVE_STATE_ENTRY_VALUES, mEntryValues);
         }
 
@@ -130,7 +155,24 @@ public class ListPreferenceWithDescription extends ListPreference {
                 View item = inflater.inflate(R.layout.preference_list_item_with_description, layout, false);
 
                 ((TextView) item.findViewById(R.id.title)).setText(mEntries[index]);
-                ((TextView) item.findViewById(R.id.description)).setText(mEntryDescriptions[index]);
+
+                TextView descriptionTextView = item.findViewById(R.id.description);
+                CharSequence description = mEntryDescriptions[index];
+                if (description != null && description.length() > 0) {
+                    descriptionTextView.setVisibility(View.VISIBLE);
+                    descriptionTextView.setText(description);
+                } else {
+                    descriptionTextView.setVisibility(View.GONE);
+                }
+
+                ImageView iconImageView = item.findViewById(R.id.image);
+                int iconResourceId = mEntryIcons == null ? 0 : mEntryIcons[index];
+                if (iconResourceId != 0) {
+                    iconImageView.setVisibility(View.VISIBLE);
+                    iconImageView.setImageDrawable(AppCompatResources.getDrawable(context, iconResourceId));
+                } else {
+                    iconImageView.setVisibility(View.GONE);
+                }
 
                 RadioButton radio = item.findViewById(R.id.radio);
                 radioButtons.add(radio);

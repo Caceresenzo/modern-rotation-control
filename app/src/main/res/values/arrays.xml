@@ -19,6 +19,16 @@
         <item>@string/mode_landscape_sensor_description</item>
     </string-array>
 
+    <string-array name="rotation_mode_icons">
+        <item>@drawable/mode_auto</item>
+        <item>@drawable/mode_portrait</item>
+        <item>@drawable/mode_portrait_reverse</item>
+        <item>@drawable/mode_portrait_sensor</item>
+        <item>@drawable/mode_landscape</item>
+        <item>@drawable/mode_landscape_reverse</item>
+        <item>@drawable/mode_landscape_sensor</item>
+    </string-array>
+
     <string-array name="rotation_mode_values">
         <item>AUTO</item>
         <item>PORTRAIT</item>
