@@ -28,7 +28,6 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:key="@string/settings_general_tile_key"
-        app:summary="@string/settings_general_tile_description"
         app:title="@string/settings_general_tile_header">
 
         <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription

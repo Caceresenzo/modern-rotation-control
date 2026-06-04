@@ -76,7 +76,6 @@
     <string name="mode_description">Currently set to: %s</string>
 
     <string name="settings_general_tile_header">Tile</string>
-    <string name="settings_general_tile_description">Use the same mode buttons as the notification.</string>
     <string name="settings_general_tile_key">general_tile_category</string>
 
     <string name="tile_click_behavior_key">tile_click_behavior</string>
