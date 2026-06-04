@@ -87,6 +87,15 @@
     <string name="close_dialog_on_click_title">Close Dialog on Click</string>
     <string name="close_dialog_on_click_description">Close the Modes dialog after selecting one.</string>
 
+    <string name="tile_different_buttons_as_notification_key">tile_different_buttons_as_notification</string>
+    <string name="tile_different_buttons_as_notification_title">Use different buttons for the tile</string>
+    <string name="tile_different_buttons_as_notification_description_on">Disable to avoid configuring the tile buttons twice.</string>
+    <string name="tile_different_buttons_as_notification_description_off">Enable to configure the tile buttons separately.</string>
+
+    <string name="tile_buttons_key">tile_buttons</string>
+    <string name="tile_buttons_title">Tile Mode Buttons</string>
+    <string name="tile_buttons_description">Select which buttons to display.</string>
+
     <string name="settings_general_notification_header">Notification</string>
     <string name="settings_general_notification_key">general_notification_category</string>
 
@@ -94,9 +103,9 @@
     <string name="show_notification_title">Show Notification</string>
     <string name="show_notification_description">Users of the Quick Settings tile probably don\'t have a need for it.</string>
 
-    <string name="buttons_key">buttons_v2</string>
-    <string name="buttons_title">Mode Buttons</string>
-    <string name="buttons_description">Select which buttons to display.</string>
+    <string name="notification_buttons_key">notification_buttons</string>
+    <string name="notification_buttons_title">Notification Mode Buttons</string>
+    <string name="notification_buttons_description">Select which buttons to display.</string>
 
     <string name="settings_general_other_header">Other</string>
     <string name="settings_general_other_key">general_other_category</string>

@@ -75,7 +75,7 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
             return;
         }
 
-        if (getString(R.string.buttons_key).equals(key)
+        if (getString(R.string.notification_buttons_key).equals(key)
                 || getString(R.string.show_notification_key).equals(key)) {
             RotationService.notifyConfigurationChanged(context);
         }

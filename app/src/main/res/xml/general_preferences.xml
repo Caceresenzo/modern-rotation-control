@@ -18,9 +18,9 @@
             app:entryDescriptions="@array/buttons_descriptions"
             app:entryValues="@array/buttons_values"
             app:iconSpaceReserved="false"
-            app:key="@string/buttons_key"
-            app:summary="@string/buttons_description"
-            app:title="@string/buttons_title" />
+            app:key="@string/notification_buttons_key"
+            app:summary="@string/notification_buttons_description"
+            app:title="@string/notification_buttons_title" />
 
     </PreferenceCategory>
 
@@ -46,6 +46,25 @@
             app:key="@string/close_dialog_on_click_key"
             app:summary="@string/close_dialog_on_click_description"
             app:title="@string/close_dialog_on_click_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="@string/tile_different_buttons_as_notification_key"
+            app:summaryOff="@string/tile_different_buttons_as_notification_description_off"
+            app:summaryOn="@string/tile_different_buttons_as_notification_description_on"
+            app:title="@string/tile_different_buttons_as_notification_title" />
+
+        <dev.caceresenzo.rotationcontrol.settings.preference.MultiSelectListPreferenceWithDescription
+            app:defaultValue="@array/buttons_values"
+            app:dependency="@string/tile_different_buttons_as_notification_key"
+            app:entries="@array/buttons_entries"
+            app:entryDescriptions="@array/buttons_descriptions"
+            app:entryValues="@array/buttons_values"
+            app:iconSpaceReserved="false"
+            app:key="@string/tile_buttons_key"
+            app:summary="@string/tile_buttons_description"
+            app:title="@string/tile_buttons_title" />
 
     </PreferenceCategory>
 

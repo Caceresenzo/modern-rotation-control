@@ -513,7 +513,7 @@ public class RotationService extends Service {
 
         boolean guard = isGuardEnabledOrForced();
 
-        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.buttons_key), null);
+        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.notification_buttons_key), null);
         for (ActionButton button : ActionButton.values()) {
             if (enabledButtons != null && !enabledButtons.contains(button.name())) {
                 layout.setViewVisibility(button.viewId(), View.GONE);
