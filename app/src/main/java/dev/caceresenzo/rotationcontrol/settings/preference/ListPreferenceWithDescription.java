@@ -34,22 +34,10 @@ public class ListPreferenceWithDescription extends ListPreference {
     public ListPreferenceWithDescription(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.ListPreferenceWithDescription);
-        this.mEntryDescriptions = array.getTextArray(dev.caceresenzo.rotationcontrol.R.styleable.ListPreferenceWithDescription_entryDescriptions);
-
-        int resourceId = array.getResourceId(R.styleable.ListPreferenceWithDescription_entryIcons, 0);
-        if (resourceId != 0) {
-            TypedArray icons = context.getResources().obtainTypedArray(resourceId);
-
-            mEntryIcons = new int[icons.length()];
-            for (int index = 0; index < icons.length(); index++) {
-                mEntryIcons[index] = icons.getResourceId(index, 0);
-            }
-
-            icons.recycle();
+        try (TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.ListPreferenceWithDescription)) {
+            this.mEntryDescriptions = array.getTextArray(dev.caceresenzo.rotationcontrol.R.styleable.ListPreferenceWithDescription_entryDescriptions);
+            this.mEntryIcons = Helper.getEntryIcons(context, array);
         }
-
-        array.recycle();
     }
 
     public CharSequence[] getEntryDescriptions() {
