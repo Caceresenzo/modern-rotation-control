@@ -13,12 +13,15 @@ import android.os.IBinder;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import dev.caceresenzo.rotationcontrol.R;
@@ -74,7 +77,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
             intent = RotationService.newToggleGuardIntent(context);
         } else if (button == ActionButton.REFRESH) {
             intent = RotationService.newRefreshModeIntent(context);
-        }  else if (button == ActionButton.POWER) {
+        } else if (button == ActionButton.POWER) {
             intent = RotationService.newStartIfStoppedOrStopIfStartedIntent(context);
         } else {
             RotationMode newMode = button.rotationMode();
@@ -141,6 +144,8 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         String buttonsKey = context.getString(isDifferentAsNotification ? R.string.tile_buttons_key : R.string.notification_buttons_key);
 
         Set<String> enabledButtons = preferences.getStringSet(buttonsKey, null);
+        Set<Integer> enabledLineIds = new HashSet<>();
+
         for (ActionButton button : ActionButton.values()) {
             ImageView view = findViewById(button.viewId());
 
@@ -148,9 +153,27 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
                 view.setVisibility(View.GONE);
             } else {
                 view.setVisibility(View.VISIBLE);
+                enabledLineIds.add(button.lineId());
             }
 
             setActiveColor(context, view, button.isActive(activeMode, guard, isServiceRunning));
+        }
+
+        boolean swapButtonDirection = preferences.getBoolean(context.getString(R.string.tile_swap_buttons_direction_key), false);
+        setButtonDirection(enabledLineIds, R.id.line_1, swapButtonDirection);
+        setButtonDirection(enabledLineIds, R.id.line_2, swapButtonDirection);
+        setButtonDirection(enabledLineIds, R.id.line_3, swapButtonDirection);
+        setButtonDirection(enabledLineIds, R.id.line_4, swapButtonDirection);
+    }
+
+    private void setButtonDirection(Set<Integer> enabledLineIds, @IdRes int lineId, boolean swap) {
+        LinearLayout line = findViewById(lineId);
+
+        if (enabledLineIds.contains(lineId)) {
+            line.setVisibility(View.VISIBLE);
+            line.setLayoutDirection(swap ? LinearLayout.LAYOUT_DIRECTION_RTL : LinearLayout.LAYOUT_DIRECTION_LTR);
+        } else {
+            line.setVisibility(View.GONE);
         }
     }
 

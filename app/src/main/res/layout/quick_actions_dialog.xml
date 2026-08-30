@@ -1,10 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/notification" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/line_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/guard"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/guard" />
+
+            <ImageView
+                android:id="@+id/mode_auto"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_auto" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/line_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/mode_portrait_sensor"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_portrait_sensor" />
+
+            <ImageView
+                android:id="@+id/mode_portrait_reverse"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_portrait_reverse" />
+
+            <ImageView
+                android:id="@+id/mode_portrait"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_portrait" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/line_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/mode_landscape_sensor"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_landscape_sensor" />
+
+            <ImageView
+                android:id="@+id/mode_landscape_reverse"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_landscape_reverse" />
+
+            <ImageView
+                android:id="@+id/mode_landscape"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/mode_landscape" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/line_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/power"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/power" />
+
+            <ImageView
+                android:id="@+id/refresh"
+                style="@style/AppTheme.QuickActionsDialogButton"
+                android:src="@drawable/refresh" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/info"
