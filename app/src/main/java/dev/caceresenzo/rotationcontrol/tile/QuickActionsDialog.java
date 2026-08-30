@@ -37,15 +37,38 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     private boolean mShouldUnbind = false;
     private RotationService mService;
 
-    public QuickActionsDialog(@NonNull Context context) {
-        super(new ContextThemeWrapper(context, R.style.AppTheme_QuickActionsDialog));
+    private SharedPreferences mPreferences;
+    private boolean mShowButtonsAsLine;
+
+    private QuickActionsDialog(@NonNull Context context, SharedPreferences preferences, boolean showButtonsAsLine) {
+        super(new ContextThemeWrapper(
+                context,
+                showButtonsAsLine
+                        ? R.style.AppTheme_QuickActionsDialogLine
+                        : R.style.AppTheme_QuickActionsDialogPad
+        ));
+
+        this.mPreferences = preferences;
+        this.mShowButtonsAsLine = showButtonsAsLine;
+    }
+
+    public static QuickActionsDialog newInstance(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        boolean showButtonsAsLine = preferences.getBoolean(context.getString(R.string.tile_dialog_line_design_key), false);
+
+        return new QuickActionsDialog(context, preferences, showButtonsAsLine);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.quick_actions_dialog);
+        setContentView(
+                mShowButtonsAsLine
+                        ? R.layout.quick_actions_dialog_line
+                        : R.layout.quick_actions_dialog_pad
+        );
 
         for (ActionButton button : ActionButton.values()) {
             ImageView view = findViewById(button.viewId());
@@ -138,12 +161,10 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     public void updateViews(boolean guard, RotationMode activeMode, boolean isServiceRunning) {
         final Context context = getApplicationContext();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        boolean isDifferentAsNotification = preferences.getBoolean(context.getString(R.string.tile_different_buttons_as_notification_key), false);
+        boolean isDifferentAsNotification = mPreferences.getBoolean(context.getString(R.string.tile_different_buttons_as_notification_key), false);
         String buttonsKey = context.getString(isDifferentAsNotification ? R.string.tile_buttons_key : R.string.notification_buttons_key);
 
-        Set<String> enabledButtons = preferences.getStringSet(buttonsKey, null);
+        Set<String> enabledButtons = mPreferences.getStringSet(buttonsKey, null);
         Set<Integer> enabledLineIds = new HashSet<>();
 
         for (ActionButton button : ActionButton.values()) {
@@ -159,11 +180,17 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
             setActiveColor(context, view, button.isActive(activeMode, guard, isServiceRunning));
         }
 
-        boolean swapButtonDirection = preferences.getBoolean(context.getString(R.string.tile_swap_buttons_direction_key), false);
-        setButtonDirection(enabledLineIds, R.id.line_1, swapButtonDirection);
-        setButtonDirection(enabledLineIds, R.id.line_2, swapButtonDirection);
-        setButtonDirection(enabledLineIds, R.id.line_3, swapButtonDirection);
-        setButtonDirection(enabledLineIds, R.id.line_4, swapButtonDirection);
+        boolean swapButtonDirection = mPreferences.getBoolean(context.getString(R.string.tile_swap_buttons_direction_key), false);
+
+        if (mShowButtonsAsLine) {
+            LinearLayout root = findViewById(R.id.line);
+            setButtonDirection(root, swapButtonDirection);
+        } else {
+            setButtonDirection(enabledLineIds, R.id.line_1, swapButtonDirection);
+            setButtonDirection(enabledLineIds, R.id.line_2, swapButtonDirection);
+            setButtonDirection(enabledLineIds, R.id.line_3, swapButtonDirection);
+            setButtonDirection(enabledLineIds, R.id.line_4, swapButtonDirection);
+        }
     }
 
     private void setButtonDirection(Set<Integer> enabledLineIds, @IdRes int lineId, boolean swap) {
@@ -171,10 +198,14 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
         if (enabledLineIds.contains(lineId)) {
             line.setVisibility(View.VISIBLE);
-            line.setLayoutDirection(swap ? LinearLayout.LAYOUT_DIRECTION_RTL : LinearLayout.LAYOUT_DIRECTION_LTR);
+            setButtonDirection(line, swap);
         } else {
             line.setVisibility(View.GONE);
         }
+    }
+
+    private void setButtonDirection(LinearLayout line, boolean swap) {
+        line.setLayoutDirection(swap ? LinearLayout.LAYOUT_DIRECTION_RTL : LinearLayout.LAYOUT_DIRECTION_LTR);
     }
 
     private void setActiveColor(Context context, ImageView view, boolean active) {

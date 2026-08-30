@@ -75,6 +75,14 @@
             app:summaryOn="@string/tile_swap_buttons_direction_description_on"
             app:title="@string/tile_swap_buttons_direction_title" />
 
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="@string/tile_dialog_line_design_key"
+            app:summaryOff="@string/tile_dialog_line_design_description_off"
+            app:summaryOn="@string/tile_dialog_line_design_description_on"
+            app:title="@string/tile_dialog_line_design_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

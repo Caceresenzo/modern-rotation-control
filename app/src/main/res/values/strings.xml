@@ -96,6 +96,11 @@
     <string name="tile_swap_buttons_direction_description_on">Disable it to make it better for right-handed people.</string>
     <string name="tile_swap_buttons_direction_description_off">Enable it to make it better for left-handed people.</string>
 
+    <string name="tile_dialog_line_design_key">tile_dialog_line_design</string>
+    <string name="tile_dialog_line_design_title">Show the buttons in a single line</string>
+    <string name="tile_dialog_line_design_description_on">Disable to show the buttons as a pad.</string>
+    <string name="tile_dialog_line_design_description_off">Enable to show the buttons as a line, like the notifications.</string>
+
     <string name="tile_buttons_key">tile_buttons</string>
     <string name="tile_buttons_title">Tile Mode Buttons</string>
     <string name="tile_buttons_description">Select which buttons to display.</string>

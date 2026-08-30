@@ -23,7 +23,14 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="AppTheme.QuickActionsDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+    <style name="AppTheme.QuickActionsDialogLine" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+
+    <style name="AppTheme.QuickActionsDialogPad" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

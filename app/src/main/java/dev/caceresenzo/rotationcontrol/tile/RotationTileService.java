@@ -119,7 +119,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
             case SHOW_MODES_IF_CONTROLLING: {
                 if (RotationService.isRunning(this)) {
-                    showDialog(new QuickActionsDialog(this));
+                    showDialog(QuickActionsDialog.newInstance(this));
                 } else {
                     setTileUnavailable();
                     RotationService.start(this);
@@ -129,7 +129,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
             }
 
             case ALWAYS_SHOW_MODES: {
-                showDialog(new QuickActionsDialog(this));
+                showDialog(QuickActionsDialog.newInstance(this));
 
                 break;
             }
