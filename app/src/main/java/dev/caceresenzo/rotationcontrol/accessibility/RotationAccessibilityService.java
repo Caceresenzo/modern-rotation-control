@@ -17,12 +17,13 @@ public class RotationAccessibilityService extends AccessibilityService {
     public static final String QUICK_ACTIONS_DIALOG = QuickActionsDialog.class.getName();
 
     private static final String TAG = RotationAccessibilityService.class.getSimpleName();
+    private static final String SOFT_INPUT_CLASS = "android.inputmethodservice.SoftInputWindow";
 
     private String previousPackageName;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        // Log.d(TAG, String.format("event received - event=%s", event));
+        Log.d(TAG, String.format("event received - event=%s", event));
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             return;
         }
@@ -31,6 +32,12 @@ public class RotationAccessibilityService extends AccessibilityService {
 
         CharSequence packageName = event.getPackageName();
         if (packageName == null) {
+            return;
+        }
+
+        CharSequence className = event.getClassName();
+        if (SOFT_INPUT_CLASS.contentEquals(className)) {
+            onKeyboardAppeared();
             return;
         }
 
@@ -76,6 +83,13 @@ public class RotationAccessibilityService extends AccessibilityService {
         } else {
             RotationService.notifyPresetsUpdate(this, mode.rotationMode());
         }
+    }
+
+    private void onKeyboardAppeared() {
+        // TODO Check sharedPreferences
+
+        Log.d(TAG, "keyboard appeared");
+        RotationService.notifyKeyboardAppeared(this);
     }
 
     @Override

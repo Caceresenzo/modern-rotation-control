@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.graphics.PixelFormat;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -19,9 +21,11 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -31,6 +35,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.receiver.OrientationBroadcastReceiver;
@@ -56,6 +61,7 @@ public class RotationService extends Service {
     public static final String ACTION_ORIENTATION_CHANGED = "ORIENTATION_CHANGED";
     public static final String ACTION_PRESETS_UPDATE = "PRESETS_UPDATE";
     public static final String ACTION_PRESETS_RESTORE = "PRESETS_RESTORE";
+    public static final String ACTION_KEYBOARD_APPEARED = "KEYBOARD_APPEARED";
 
     public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH_NOTIFICATION";
     public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
@@ -103,6 +109,27 @@ public class RotationService extends Service {
         }
     };
 
+    private Runnable mHideSuggestion = new Runnable() {
+        @Override
+        public void run() {
+            hideSuggestion();
+        }
+    };
+
+    private final IntConsumer mOnProposedRotation = new IntConsumer() {
+        @Override
+        public void accept(int value) {
+            Log.i(TAG, String.format("onProposedRotation - value=%d", value));
+
+            RotationMode newMode = RotationMode.fromRotationValue(value);
+            if (newMode == activeMode) {
+                return;
+            }
+
+            showSuggestion(newMode);
+        }
+    };
+
     private final IBinder binder = new LocalBinder();
 
     private boolean started;
@@ -120,6 +147,12 @@ public class RotationService extends Service {
     private Handler mHandler;
     private UnlockBroadcastReceiver mUnlockBroadcastReceiver;
     private OrientationBroadcastReceiver mOrientationReceiver;
+
+    private View mSuggestionView;
+    private RotationMode mSuggestedMode;
+    private Object mSuggestionToken;
+
+    private Context mUiContext;
 
     @Nullable
     @Override
@@ -147,6 +180,10 @@ public class RotationService extends Service {
         setupAutoLock();
 
         sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getUiWindowManager().addProposedRotationListener(getMainExecutor(), mOnProposedRotation);
+        }
     }
 
     @Override
@@ -156,6 +193,11 @@ public class RotationService extends Service {
         if (mView != null) {
             getWindowManager().removeView(mView);
             mView = null;
+        }
+
+        if (mSuggestionView != null) {
+            getWindowManager().removeView(mSuggestionView);
+            mSuggestionView = null;
         }
 
         if (mUnlockBroadcastReceiver != null) {
@@ -179,6 +221,15 @@ public class RotationService extends Service {
 
         mHandler.removeCallbacks(mBroadcastToggleGuardIntent);
         mHandler.removeCallbacks(mTriggerAutoLock);
+
+        if (mSuggestionToken != null) {
+            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
+            mSuggestionToken = null;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getUiWindowManager().removeProposedRotationListener(mOnProposedRotation);
+        }
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -255,6 +306,11 @@ public class RotationService extends Service {
                             .apply();
                 }
 
+                break;
+            }
+
+            case ACTION_KEYBOARD_APPEARED: {
+                hideSuggestion();
                 break;
             }
 
@@ -577,6 +633,53 @@ public class RotationService extends Service {
         }
     }
 
+    public void hideSuggestion() {
+        if (mSuggestionToken != null) {
+            getWindowManager().removeView(mSuggestionView);
+            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
+
+            mSuggestionToken = null;
+        }
+    }
+
+    public void showSuggestion(RotationMode suggestedMode) {
+        if (mSuggestionView == null) {
+            mSuggestionView = new ImageButton(getApplicationContext());
+
+            mSuggestionView.setOnClickListener(v -> {
+                Intent intent = newChangeModeIntent(v.getContext(), mSuggestedMode);
+                v.getContext().startService(intent);
+
+                hideSuggestion();
+            });
+        }
+
+        if (mSuggestionToken != null) {
+            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
+        } else {
+            WindowManager.LayoutParams mSuggestionParams = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    PixelFormat.TRANSLUCENT
+            );
+
+            mSuggestionParams.gravity = Gravity.BOTTOM | Gravity.END;
+            mSuggestionParams.x = 24;
+            mSuggestionParams.y = 96;
+
+            getWindowManager().addView(mSuggestionView, mSuggestionParams);
+        }
+
+        mSuggestedMode = suggestedMode;
+        ((ImageButton) mSuggestionView).setImageResource(suggestedMode.drawableId());
+        Log.d(TAG, "suggestion: changed to: " + suggestedMode + " (res: " + suggestedMode.drawableId() + ")");
+
+        mSuggestionToken = new Object();
+        mHandler.postDelayed(mHideSuggestion, mSuggestionToken, 5000);
+    }
+
     private void createNotificationChannel(String id, @StringRes int name) {
         NotificationChannel notificationChannel = new NotificationChannel(id, getString(name), NotificationManager.IMPORTANCE_DEFAULT);
         notificationChannel.setSound(null, null);
@@ -710,11 +813,27 @@ public class RotationService extends Service {
     }
 
     private NotificationManager getNotificationManager() {
-        return (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        return getApplicationContext().getSystemService(NotificationManager.class);
     }
 
     private WindowManager getWindowManager() {
-        return (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
+        return getApplicationContext().getSystemService(WindowManager.class);
+    }
+
+    private WindowManager getUiWindowManager() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return null;
+        }
+
+        if (mUiContext == null) {
+            Display display = getSystemService(DisplayManager.class)
+                    .getDisplay(Display.DEFAULT_DISPLAY);
+
+            mUiContext = createDisplayContext(display)
+                    .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
+        }
+
+        return mUiContext.getSystemService(WindowManager.class);
     }
 
     public static void start(Context context) {
@@ -769,6 +888,17 @@ public class RotationService extends Service {
 
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_PRESETS_RESTORE);
+
+        context.startForegroundService(intent);
+    }
+
+    public static void notifyKeyboardAppeared(Context context) {
+        if (!isRunning(context)) {
+            return;
+        }
+
+        Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
+        intent.setAction(ACTION_KEYBOARD_APPEARED);
 
         context.startForegroundService(intent);
     }
