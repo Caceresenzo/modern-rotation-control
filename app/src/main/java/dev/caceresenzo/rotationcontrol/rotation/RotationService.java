@@ -9,11 +9,8 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
-import android.graphics.PixelFormat;
-import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -21,11 +18,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -35,15 +30,15 @@ import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.Set;
-import java.util.function.IntConsumer;
 
 import dev.caceresenzo.rotationcontrol.R;
-import dev.caceresenzo.rotationcontrol.rotation.receiver.OrientationBroadcastReceiver;
-import dev.caceresenzo.rotationcontrol.rotation.receiver.UnlockBroadcastReceiver;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.AutoLockSystem;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.ExternalEventSystem;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.RefreshSystem;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionSystem;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
-import lombok.Data;
 import lombok.Getter;
 
 public class RotationService extends Service {
@@ -85,74 +80,23 @@ public class RotationService extends Service {
     public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
     public static final String ACTION_NOTIFY_UPDATED = "dev.caceresenzo.rotationcontrol.SERVICE_UPDATED";
 
-    private final Runnable mBroadcastToggleGuardIntent = new Runnable() {
-        @Override
-        public void run() {
-            if (!currentlyRefreshing) {
-                return;
-            }
-
-            currentlyRefreshing = false;
-
-            activeMode = previousActiveMode;
-            previousActiveMode = null;
-
-            applyMode();
-        }
-    };
-
-    private final Runnable mTriggerAutoLock = new Runnable() {
-        @Override
-        public void run() {
-            Log.i(TAG, "triggering auto lock");
-            triggerAutoLock();
-        }
-    };
-
-    private Runnable mHideSuggestion = new Runnable() {
-        @Override
-        public void run() {
-            hideSuggestion();
-        }
-    };
-
-    private final IntConsumer mOnProposedRotation = new IntConsumer() {
-        @Override
-        public void accept(int value) {
-            Log.i(TAG, String.format("onProposedRotation - value=%d", value));
-
-            RotationMode newMode = RotationMode.fromRotationValue(value);
-            if (newMode == activeMode) {
-                return;
-            }
-
-            showSuggestion(newMode);
-        }
-    };
-
     private final IBinder binder = new LocalBinder();
 
     private boolean started;
+    @Getter
     private boolean running;
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
-    private @Getter boolean currentlyRefreshing = false;
-
-    private @Getter AutoLockSettings autoLock = new AutoLockSettings();
-    private @Getter int lastDisplayRotationValue = -1;
 
     private View mView;
 
-    private Handler mHandler;
-    private UnlockBroadcastReceiver mUnlockBroadcastReceiver;
-    private OrientationBroadcastReceiver mOrientationReceiver;
+    private @Getter Handler handler;
 
-    private View mSuggestionView;
-    private RotationMode mSuggestedMode;
-    private Object mSuggestionToken;
-
-    private Context mUiContext;
+    private final ExternalEventSystem mExternalEventSystem = new ExternalEventSystem(this);
+    private final RefreshSystem mRefreshSystem = new RefreshSystem(this);
+    private final AutoLockSystem mAutoLockSystem = new AutoLockSystem(this);
+    private final SuggestionSystem mSuggestionSystem = new SuggestionSystem(this);
 
     @Nullable
     @Override
@@ -169,21 +113,13 @@ public class RotationService extends Service {
         createNotificationChannel(WARNING_CHANNEL_ID, R.string.warning_notification_channel_name);
         loadFromPreferences();
 
-        mHandler = new Handler(Looper.getMainLooper());
+        handler = new Handler(Looper.getMainLooper());
 
-        mUnlockBroadcastReceiver = new UnlockBroadcastReceiver();
-        registerReceiver(mUnlockBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
-
-        mOrientationReceiver = new OrientationBroadcastReceiver();
-        registerReceiver(mOrientationReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
-
-        setupAutoLock();
+        mExternalEventSystem.onCreate();
+        mAutoLockSystem.onCreate();
+        mSuggestionSystem.onCreate();
 
         sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            getUiWindowManager().addProposedRotationListener(getMainExecutor(), mOnProposedRotation);
-        }
     }
 
     @Override
@@ -195,20 +131,9 @@ public class RotationService extends Service {
             mView = null;
         }
 
-        if (mSuggestionView != null) {
-            getWindowManager().removeView(mSuggestionView);
-            mSuggestionView = null;
-        }
-
-        if (mUnlockBroadcastReceiver != null) {
-            unregisterReceiver(mUnlockBroadcastReceiver);
-            mUnlockBroadcastReceiver = null;
-        }
-
-        if (mOrientationReceiver != null) {
-            unregisterReceiver(mOrientationReceiver);
-            mOrientationReceiver = null;
-        }
+        mExternalEventSystem.onDestroy();
+        mAutoLockSystem.onDestroy();
+        mSuggestionSystem.onDestroy();
 
         sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
 
@@ -218,18 +143,6 @@ public class RotationService extends Service {
                 .apply();
 
         getNotificationManager().cancel(NOTIFICATION_ID);
-
-        mHandler.removeCallbacks(mBroadcastToggleGuardIntent);
-        mHandler.removeCallbacks(mTriggerAutoLock);
-
-        if (mSuggestionToken != null) {
-            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
-            mSuggestionToken = null;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            getUiWindowManager().removeProposedRotationListener(mOnProposedRotation);
-        }
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -268,15 +181,13 @@ public class RotationService extends Service {
 
             case ACTION_CONFIGURATION_CHANGED: {
                 loadFromPreferences();
-                setupAutoLock();
+                mAutoLockSystem.reset();
 
                 break;
             }
 
             case ACTION_ORIENTATION_CHANGED: {
-                if (hasRotationValueChanged()) {
-                    setupAutoLock();
-                }
+                mAutoLockSystem.resetIfRotationChanged();
 
                 break;
             }
@@ -310,7 +221,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_KEYBOARD_APPEARED: {
-                hideSuggestion();
+                mSuggestionSystem.hideSuggestion();
                 break;
             }
 
@@ -342,24 +253,18 @@ public class RotationService extends Service {
                         .putString(getString(R.string.mode_key), activeMode.name())
                         .apply();
 
-                currentlyRefreshing = false;
+                mRefreshSystem.cancel();
 
                 break;
             }
 
             case ACTION_REFRESH: {
-                currentlyRefreshing = true;
-                Log.i(TAG, String.format("new guard=%s", guard));
-
-                String rawDelay = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.refresh_mode_delay_key), "600");
-                long delay = Long.parseLong(rawDelay);
-
                 previousActiveMode = activeMode;
                 activeMode = getNextRotation();
 
                 applyMode();
 
-                mHandler.postDelayed(mBroadcastToggleGuardIntent, delay);
+                mRefreshSystem.schedule();
 
                 break;
             }
@@ -387,7 +292,7 @@ public class RotationService extends Service {
     }
 
     private void afterStartCommand() {
-        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s autoLock=%s", guard, activeMode, autoLock));
+        Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
         applyMode();
 
         NotificationManager notificationManager = getNotificationManager();
@@ -406,68 +311,6 @@ public class RotationService extends Service {
             notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
             preferences.markAccessibilityNotEnabledForPresetsAsNotified();
         }
-    }
-
-    private void setupAutoLock() {
-        mHandler.removeCallbacks(mTriggerAutoLock);
-
-        boolean isEnabled = autoLock.isEnabled() && !currentlyRefreshing;
-        if (!isEnabled) {
-            Log.d(TAG, String.format("setupAutoLock not enabled - autoLockWait=%s currentlyRefreshing=%s", autoLock.isEnabled(), currentlyRefreshing));
-            return;
-        }
-
-        if (!RotationMode.AUTO.equals(activeMode)) {
-            Log.d(TAG, String.format("setupAutoLock cancelled - activeMode=%s", activeMode));
-            return;
-        }
-
-        lastDisplayRotationValue = getCurrentDisplayRotation();
-        Log.d(TAG, String.format("setupAutoLock - lastDisplayRotationValue=%s", lastDisplayRotationValue));
-
-        mHandler.postDelayed(mTriggerAutoLock, autoLock.getWaitSeconds() * 1000L);
-    }
-
-    private void triggerAutoLock() {
-        if (lastDisplayRotationValue == -1) {
-            lastDisplayRotationValue = getCurrentDisplayRotation();
-        }
-
-        RotationMode newMode = RotationMode.fromPreferences(this, R.string.auto_lock_mode_key, RotationMode.AUTO);
-        if (newMode == RotationMode.AUTO) {
-            newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
-        } else if (!autoLock.isForce()) {
-            RotationMode currentMode = RotationMode.fromRotationValue(getCurrentDisplayRotation());
-
-            if (!isCompatible(newMode, currentMode)) {
-                return;
-            }
-        }
-
-        Toast.makeText(this, getString(R.string.auto_lock_trigger, getString(newMode.stringId())), Toast.LENGTH_SHORT).show();
-
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putString(getString(R.string.mode_key), newMode.name())
-                .apply();
-
-        notifyConfigurationChanged(this);
-    }
-
-    private boolean isCompatible(RotationMode toMode, RotationMode currentMode) {
-        if (toMode.equals(currentMode)) {
-            return true;
-        }
-
-        if (RotationMode.LANDSCAPE_SENSOR.equals(toMode)) {
-            return RotationMode.LANDSCAPE.equals(currentMode) || RotationMode.LANDSCAPE_REVERSE.equals(currentMode);
-        }
-
-        if (RotationMode.PORTRAIT_SENSOR.equals(toMode)) {
-            return RotationMode.PORTRAIT.equals(currentMode) || RotationMode.PORTRAIT_REVERSE.equals(currentMode);
-        }
-
-        return false;
     }
 
     private Notification createNotification(boolean showNotification) {
@@ -549,19 +392,19 @@ public class RotationService extends Service {
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
         activeMode = RotationMode.fromPreferences(this);
 
-        autoLock.load(preferences);
-    }
-
-    public boolean isRunning() {
-        return running;
+        mAutoLockSystem.load(preferences);
     }
 
     public boolean isGuardEnabledOrForced() {
-        return (guard || activeMode.doesRequireGuard()) && !currentlyRefreshing;
+        return (guard || activeMode.doesRequireGuard()) && !isCurrentlyRefreshing();
     }
 
     public boolean isUsingPresets() {
         return previousActiveMode != null;
+    }
+
+    public boolean isCurrentlyRefreshing() {
+        return mRefreshSystem.isCurrentlyRefreshing();
     }
 
     private void updateViews(RemoteViews layout) {
@@ -584,6 +427,15 @@ public class RotationService extends Service {
             layout.setInt(viewId, TINT_METHOD, getColor(R.color.active));
         } else {
             layout.setInt(viewId, TINT_METHOD, getColor(R.color.inactive));
+        }
+    }
+
+    public void restorePreviousMode() {
+        if (previousActiveMode != null) {
+            activeMode = previousActiveMode;
+            previousActiveMode = null;
+
+            applyMode();
         }
     }
 
@@ -631,53 +483,6 @@ public class RotationService extends Service {
                 Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, activeMode.rotationValue());
             }
         }
-    }
-
-    public void hideSuggestion() {
-        if (mSuggestionToken != null) {
-            getWindowManager().removeView(mSuggestionView);
-            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
-
-            mSuggestionToken = null;
-        }
-    }
-
-    public void showSuggestion(RotationMode suggestedMode) {
-        if (mSuggestionView == null) {
-            mSuggestionView = new ImageButton(getApplicationContext());
-
-            mSuggestionView.setOnClickListener(v -> {
-                Intent intent = newChangeModeIntent(v.getContext(), mSuggestedMode);
-                v.getContext().startService(intent);
-
-                hideSuggestion();
-            });
-        }
-
-        if (mSuggestionToken != null) {
-            mHandler.removeCallbacks(mHideSuggestion, mSuggestionToken);
-        } else {
-            WindowManager.LayoutParams mSuggestionParams = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                    PixelFormat.TRANSLUCENT
-            );
-
-            mSuggestionParams.gravity = Gravity.BOTTOM | Gravity.END;
-            mSuggestionParams.x = 24;
-            mSuggestionParams.y = 96;
-
-            getWindowManager().addView(mSuggestionView, mSuggestionParams);
-        }
-
-        mSuggestedMode = suggestedMode;
-        ((ImageButton) mSuggestionView).setImageResource(suggestedMode.drawableId());
-        Log.d(TAG, "suggestion: changed to: " + suggestedMode + " (res: " + suggestedMode.drawableId() + ")");
-
-        mSuggestionToken = new Object();
-        mHandler.postDelayed(mHideSuggestion, mSuggestionToken, 5000);
     }
 
     private void createNotificationChannel(String id, @StringRes int name) {
@@ -773,14 +578,8 @@ public class RotationService extends Service {
         }
     }
 
-    private int getCurrentDisplayRotation() {
+    public int getCurrentDisplayRotation() {
         return getWindowManager().getDefaultDisplay().getRotation();
-    }
-
-    public boolean hasRotationValueChanged() {
-        int rotationValue = getCurrentDisplayRotation();
-
-        return lastDisplayRotationValue != rotationValue;
     }
 
     public static Intent newToggleGuardIntent(Context context) {
@@ -812,28 +611,12 @@ public class RotationService extends Service {
         return intent;
     }
 
-    private NotificationManager getNotificationManager() {
+    public NotificationManager getNotificationManager() {
         return getApplicationContext().getSystemService(NotificationManager.class);
     }
 
-    private WindowManager getWindowManager() {
+    public WindowManager getWindowManager() {
         return getApplicationContext().getSystemService(WindowManager.class);
-    }
-
-    private WindowManager getUiWindowManager() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return null;
-        }
-
-        if (mUiContext == null) {
-            Display display = getSystemService(DisplayManager.class)
-                    .getDisplay(Display.DEFAULT_DISPLAY);
-
-            mUiContext = createDisplayContext(display)
-                    .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
-        }
-
-        return mUiContext.getSystemService(WindowManager.class);
     }
 
     public static void start(Context context) {
@@ -925,21 +708,6 @@ public class RotationService extends Service {
 
         public RotationService getService() {
             return RotationService.this;
-        }
-
-    }
-
-    @Data
-    public class AutoLockSettings {
-
-        private boolean enabled;
-        private int waitSeconds;
-        private boolean force;
-
-        public void load(SharedPreferences preferences) {
-            this.waitSeconds = Integer.parseInt(preferences.getString(getString(R.string.auto_lock_key), "0"));
-            this.enabled = this.waitSeconds != 0;
-            this.force = preferences.getBoolean(getString(R.string.auto_lock_force_key), false);
         }
 
     }
