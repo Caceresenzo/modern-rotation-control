@@ -76,17 +76,17 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         findPreference(getString(R.string.view_on_github_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.open_source_licenses_key)).setOnPreferenceClickListener(this);
 
-        updateSuggestionsVisibility();
+        updateRecommendationsVisibility();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        updateSuggestionsVisibility();
+        updateRecommendationsVisibility();
     }
 
-    private void updateSuggestionsVisibility() {
+    private void updateRecommendationsVisibility() {
         Context context = getContext();
         if (context == null) {
             return;
@@ -116,7 +116,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         }
 
         {
-            PreferenceCategory category = findPreference(getString(R.string.settings_suggestions_key));
+            PreferenceCategory category = findPreference(getString(R.string.settings_recommendations_key));
             category.setVisible(tileVisible || batteryVisible);
         }
     }
@@ -185,7 +185,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
             requestAddTile(context);
         } else if (getString(R.string.battery_optimization_key).equals(key)) {
             requestBatteryOptimization(context);
-            updateSuggestionsVisibility();
+            updateRecommendationsVisibility();
         } else if (getString(R.string.configure_presets_key).equals(key)) {
             if (Permissions.isAccessibilityServiceEnabled(context)) {
                 PresetsActivity.start(context);
@@ -217,7 +217,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
                                 .putBoolean(getString(R.string.install_tile_key), true)
                                 .apply();
 
-                        updateSuggestionsVisibility();
+                        updateRecommendationsVisibility();
                     }
                 }
         );

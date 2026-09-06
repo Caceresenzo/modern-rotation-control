@@ -40,8 +40,8 @@
 
     <string name="settings_control_header">Control</string>
 
-    <string name="settings_suggestions_header">Suggestions</string>
-    <string name="settings_suggestions_key">suggestions_category</string>
+    <string name="settings_recommendations_header">Recommendations</string>
+    <string name="settings_recommendations_key">recommendations_category</string>
 
     <string name="settings_header">Settings</string>
 

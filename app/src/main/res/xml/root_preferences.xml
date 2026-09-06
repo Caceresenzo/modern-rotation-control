@@ -32,8 +32,8 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:key="@string/settings_suggestions_key"
-        app:title="@string/settings_suggestions_header">
+        app:key="@string/settings_recommendations_key"
+        app:title="@string/settings_recommendations_header">
 
         <Preference
             app:iconSpaceReserved="false"
