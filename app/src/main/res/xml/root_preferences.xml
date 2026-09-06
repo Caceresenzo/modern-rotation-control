@@ -54,10 +54,16 @@
         app:title="@string/settings_header">
 
         <Preference
-            app:fragment="dev.caceresenzo.rotationcontrol.settings.GeneralSettingsFragment"
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.TileSettingsFragment"
             app:iconSpaceReserved="false"
-            app:summary="@string/settings_general_description"
-            app:title="@string/settings_general_title" />
+            app:summary="@string/settings_tile_description"
+            app:title="@string/settings_tile_title" />
+
+        <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.NotificationSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:summary="@string/settings_notification_description"
+            app:title="@string/settings_notification_title" />
 
         <Preference
             app:fragment="dev.caceresenzo.rotationcontrol.settings.AutoLockSettingsFragment"
@@ -70,6 +76,12 @@
             app:key="@string/configure_presets_key"
             app:summary="@string/configure_presets_description"
             app:title="@string/configure_presets_title" />
+
+        <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.OtherSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:summary="@string/settings_other_description"
+            app:title="@string/settings_other_title" />
 
     </PreferenceCategory>
 

@@ -27,7 +27,7 @@ public class AutoLockSettingsFragment extends PreferenceFragmentCompat implement
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.auto_lock_preferences, rootKey);
 
-        updateAutoLockModeEnabledState();
+        updateEnabledState();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class AutoLockSettingsFragment extends PreferenceFragmentCompat implement
             return;
         }
 
-        updateAutoLockModeEnabledState();
+        updateEnabledState();
 
         if (getString(R.string.auto_lock_key).equals(key)
                 || getString(R.string.auto_lock_mode_key).equals(key)
@@ -56,11 +56,12 @@ public class AutoLockSettingsFragment extends PreferenceFragmentCompat implement
         }
     }
 
-    private void updateAutoLockModeEnabledState() {
+    private void updateEnabledState() {
         boolean isEnabled = !"0".equals(getPreferenceScreen().getSharedPreferences().getString(getString(R.string.auto_lock_key), "0"));
         findPreference(getString(R.string.auto_lock_mode_key)).setEnabled(isEnabled);
 
         boolean isModeAuto = RotationMode.AUTO.equals(RotationMode.fromPreferences(getContext(), R.string.auto_lock_mode_key, RotationMode.AUTO));
         findPreference(getString(R.string.auto_lock_force_key)).setEnabled(isEnabled && !isModeAuto);
     }
+
 }

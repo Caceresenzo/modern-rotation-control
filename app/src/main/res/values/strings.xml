@@ -45,11 +45,17 @@
 
     <string name="settings_header">Settings</string>
 
-    <string name="settings_general_title">General</string>
-    <string name="settings_general_description">Notification, boot, and tile behavior.</string>
+    <string name="settings_tile_title">Tile</string>
+    <string name="settings_tile_description">The optimal way to use the application.</string>
+
+    <string name="settings_notification_title">Notification</string>
+    <string name="settings_notification_description">For old users who do not want to use the Tile.</string>
 
     <string name="settings_auto_lock_header">Auto Lock</string>
     <string name="settings_auto_lock_header_description">Lock the rotation after some time. Timer is reset when the device is rotated.</string>
+
+    <string name="settings_other_title">Other</string>
+    <string name="settings_other_description">Less relevant settings.</string>
 
     <string name="install_tile_key">install_tile</string>
     <string name="install_tile_title">Add the Tile</string>
@@ -75,9 +81,6 @@
     <string name="mode_title">Rotation mode</string>
     <string name="mode_description">Currently set to: %s</string>
 
-    <string name="settings_general_tile_header">Tile</string>
-    <string name="settings_general_tile_key">general_tile_category</string>
-
     <string name="tile_click_behavior_key">tile_click_behavior</string>
     <string name="tile_click_behavior_title">Tile Click Behavior</string>
     <string name="tile_click_behavior_description">Change the behavior of the tile when tapped.\nCurrently set to: %s</string>
@@ -85,11 +88,6 @@
     <string name="close_dialog_on_click_key">close_dialog_on_click</string>
     <string name="close_dialog_on_click_title">Close Dialog on Click</string>
     <string name="close_dialog_on_click_description">Close the Modes dialog after selecting one.</string>
-
-    <string name="tile_different_buttons_as_notification_key">tile_different_buttons_as_notification</string>
-    <string name="tile_different_buttons_as_notification_title">Use different buttons for the tile</string>
-    <string name="tile_different_buttons_as_notification_description_on">Disable to avoid configuring the tile buttons twice.</string>
-    <string name="tile_different_buttons_as_notification_description_off">Enable to configure the tile buttons separately.</string>
 
     <string name="tile_swap_buttons_direction_key">tile_swap_buttons_direction</string>
     <string name="tile_swap_buttons_direction_title">Swap buttons direction</string>
@@ -105,9 +103,6 @@
     <string name="tile_buttons_title">Tile Mode Buttons</string>
     <string name="tile_buttons_description">Select which buttons to display.</string>
 
-    <string name="settings_general_notification_header">Notification</string>
-    <string name="settings_general_notification_key">general_notification_category</string>
-
     <string name="show_notification_key">show_notification</string>
     <string name="show_notification_title">Show Notification</string>
     <string name="show_notification_description">Users of the Quick Settings tile probably don\'t have a need for it.</string>
@@ -116,9 +111,6 @@
     <string name="notification_buttons_title">Notification Mode Buttons</string>
     <string name="notification_buttons_description">Select which buttons to display.</string>
     <string name="buttons_at_least_one">At least one button must be selected.</string>
-
-    <string name="settings_general_other_header">Other</string>
-    <string name="settings_general_other_key">general_other_category</string>
 
     <string name="start_on_boot_key">start_on_boot</string>
     <string name="start_on_boot_title">Start on Boot</string>

@@ -17,7 +17,7 @@ import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragmentCompat;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 
-public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
+public class NotificationSettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     public static final int RESTART_SERVICE_DELAY_MILLISECOND = 200;
 
@@ -33,17 +33,14 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
         if (sharedPreferences != null) {
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         }
-
     }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.general_preferences, rootKey);
+        setPreferencesFromResource(R.xml.notification_preferences, rootKey);
 
         findPreference(getString(R.string.show_notification_key)).setOnPreferenceChangeListener(this);
-
         findPreference(getString(R.string.notification_buttons_key)).setOnPreferenceChangeListener(this);
-        findPreference(getString(R.string.tile_buttons_key)).setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -72,7 +69,7 @@ public class GeneralSettingsFragment extends CustomPreferenceFragmentCompat impl
             return true;
         }
 
-        if (getString(R.string.notification_buttons_key).equals(key) || getString(R.string.tile_buttons_key).equals(key)) {
+        if (getString(R.string.notification_buttons_key).equals(key)) {
             Set<String> selectedValues = (Set<String>) newValue;
 
             if (selectedValues.isEmpty()) {

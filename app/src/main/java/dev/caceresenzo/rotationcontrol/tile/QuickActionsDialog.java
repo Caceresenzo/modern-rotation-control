@@ -161,10 +161,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     public void updateViews(boolean guard, RotationMode activeMode, boolean isServiceRunning) {
         final Context context = getApplicationContext();
 
-        boolean isDifferentAsNotification = mPreferences.getBoolean(context.getString(R.string.tile_different_buttons_as_notification_key), false);
-        String buttonsKey = context.getString(isDifferentAsNotification ? R.string.tile_buttons_key : R.string.notification_buttons_key);
-
-        Set<String> enabledButtons = mPreferences.getStringSet(buttonsKey, null);
+        Set<String> enabledButtons = mPreferences.getStringSet(context.getString(R.string.tile_buttons_key), null);
         Set<Integer> enabledLineIds = new HashSet<>();
 
         for (ActionButton button : ActionButton.values()) {

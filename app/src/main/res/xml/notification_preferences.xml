@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:iconSpaceReserved="false"
+        app:key="@string/show_notification_key"
+        app:summary="@string/show_notification_description"
+        app:title="@string/show_notification_title" />
+
+    <dev.caceresenzo.rotationcontrol.settings.preference.MultiSelectListPreferenceWithDescription
+        app:defaultValue="@array/buttons_values"
+        app:dependency="@string/show_notification_key"
+        app:entries="@array/buttons_entries"
+        app:entryDescriptions="@array/buttons_descriptions"
+        app:entryIcons="@array/buttons_icons"
+        app:entryValues="@array/buttons_values"
+        app:iconSpaceReserved="false"
+        app:key="@string/notification_buttons_key"
+        app:summary="@string/notification_buttons_description"
+        app:title="@string/notification_buttons_title" />
+
+</PreferenceScreen>

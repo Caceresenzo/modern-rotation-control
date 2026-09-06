@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:iconSpaceReserved="false"
+        app:key="@string/start_on_boot_key"
+        app:summary="@string/start_on_boot_description"
+        app:title="@string/start_on_boot_title" />
+
+    <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:iconSpaceReserved="false"
+        app:key="@string/refresh_on_unlock_key"
+        app:summary="@string/refresh_on_unlock_description"
+        app:title="@string/refresh_on_unlock_title" />
+
+    <ListPreference
+        app:defaultValue="600"
+        app:entries="@array/refresh_mode_delay_entries"
+        app:entryValues="@array/refresh_mode_delay_values"
+        app:iconSpaceReserved="false"
+        app:key="@string/refresh_mode_delay_key"
+        app:summary="@string/refresh_mode_delay_description"
+        app:title="@string/refresh_mode_delay_title" />
+
+</PreferenceScreen>

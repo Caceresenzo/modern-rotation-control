@@ -37,8 +37,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         setContentView(R.layout.main_activity);
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, true);
-        PreferenceManager.setDefaultValues(this, R.xml.general_preferences, true);
+        PreferenceManager.setDefaultValues(this, R.xml.tile_preferences, true);
+        PreferenceManager.setDefaultValues(this, R.xml.notification_preferences, true);
         PreferenceManager.setDefaultValues(this, R.xml.auto_lock_preferences, true);
+        PreferenceManager.setDefaultValues(this, R.xml.other_preferences, true);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
