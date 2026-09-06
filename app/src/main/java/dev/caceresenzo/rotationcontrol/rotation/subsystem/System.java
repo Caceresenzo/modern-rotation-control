@@ -1,5 +1,6 @@
 package dev.caceresenzo.rotationcontrol.rotation.subsystem;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
 
 import androidx.annotation.StringRes;
@@ -15,6 +16,9 @@ public abstract class System {
     }
 
     public void onCreate() {
+    }
+
+    public void onConfiguration(SharedPreferences preferences, boolean isFirstTime) {
     }
 
     public void onDestroy() {

@@ -30,18 +30,17 @@ public class AutoLockSystem extends System {
         super(service);
     }
 
-    public void onCreate() {
+    @Override
+    public void onConfiguration(SharedPreferences preferences, boolean isFirstTime) {
+        this.waitSeconds = Integer.parseInt(preferences.getString(mService.getString(R.string.auto_lock_key), "0"));
+        this.enabled = this.waitSeconds != 0;
+        this.force = preferences.getBoolean(mService.getString(R.string.auto_lock_force_key), false);
+
         reset();
     }
 
     public void onDestroy() {
         getHandler().removeCallbacks(mTriggerAutoLock);
-    }
-
-    public void load(SharedPreferences preferences) {
-        this.waitSeconds = Integer.parseInt(preferences.getString(mService.getString(R.string.auto_lock_key), "0"));
-        this.enabled = this.waitSeconds != 0;
-        this.force = preferences.getBoolean(mService.getString(R.string.auto_lock_force_key), false);
     }
 
     public void reset() {
@@ -64,7 +63,6 @@ public class AutoLockSystem extends System {
 
         getHandler().postDelayed(mTriggerAutoLock, waitSeconds * 1000L);
     }
-
 
     private void triggerAutoLock() {
         int currentDisplayRotation = getCurrentDisplayRotation();

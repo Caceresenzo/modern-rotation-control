@@ -112,6 +112,45 @@
         <item>SWITCH_TO_PORTRAIT_OR_LANDSCAPE</item>
     </string-array>
 
+    <string-array name="suggestions_entries">
+        <item>@string/mode_auto</item>
+        <item>@string/mode_portrait</item>
+        <item>@string/mode_portrait_reverse</item>
+        <item>@string/mode_landscape</item>
+        <item>@string/mode_landscape_reverse</item>
+    </string-array>
+
+    <string-array name="suggestions_descriptions">
+        <item>Suggested when the device is on a flat surface.</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item></item>
+    </string-array>
+
+    <string-array name="suggestions_icons">
+        <item>@drawable/mode_auto</item>
+        <item>@drawable/mode_portrait</item>
+        <item>@drawable/mode_portrait_reverse</item>
+        <item>@drawable/mode_landscape</item>
+        <item>@drawable/mode_landscape_reverse</item>
+    </string-array>
+
+    <string-array name="suggestions_values">
+        <item>AUTO</item>
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+    </string-array>
+
+    <string-array name="suggestions_default_values">
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+    </string-array>
+
     <string-array name="refresh_mode_delay_entries">
         <item>@string/delay_fast</item>
         <item>@string/delay_normal</item>

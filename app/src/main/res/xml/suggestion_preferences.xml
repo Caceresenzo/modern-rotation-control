@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestions_enabled_key"
+        app:summary="@string/suggestions_enabled_key_description"
+        app:title="@string/suggestions_enabled_key_title" />
+
+    <dev.caceresenzo.rotationcontrol.settings.preference.MultiSelectListPreferenceWithDescription
+        app:defaultValue="@array/suggestions_values"
+        app:dependency="@string/suggestions_enabled_key"
+        app:entries="@array/suggestions_entries"
+        app:entryDescriptions="@array/suggestions_descriptions"
+        app:entryIcons="@array/suggestions_icons"
+        app:entryValues="@array/suggestions_values"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggest_for_modes_key"
+        app:summary="@string/suggest_for_modes_description"
+        app:title="@string/suggest_for_modes_title" />
+
+    <SeekBarPreference
+        android:max="10000"
+        app:defaultValue="3000"
+        app:dependency="@string/suggestions_enabled_key"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestion_expiration_key"
+        app:min="100"
+        app:showSeekBarValue="true"
+        app:summary="@string/suggestion_expiration_description"
+        app:title="@string/suggestion_expiration_title" />
+
+    <SwitchPreferenceCompat
+        app:defaultValue="false"
+        app:dependency="@string/suggestions_enabled_key"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestion_button_bigger_key"
+        app:summary="@string/suggestion_button_bigger_description"
+        app:title="@string/suggestion_button_bigger_title" />
+
+</PreferenceScreen>

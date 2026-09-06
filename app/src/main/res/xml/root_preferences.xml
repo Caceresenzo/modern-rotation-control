@@ -66,6 +66,12 @@
             app:title="@string/settings_notification_title" />
 
         <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.SuggestionsSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:summary="@string/settings_suggestions_description"
+            app:title="@string/settings_suggestions_title" />
+
+        <Preference
             app:fragment="dev.caceresenzo.rotationcontrol.settings.AutoLockSettingsFragment"
             app:iconSpaceReserved="false"
             app:summary="@string/settings_auto_lock_header_description"

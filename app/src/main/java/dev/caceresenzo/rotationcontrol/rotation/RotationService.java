@@ -35,7 +35,7 @@ import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.AutoLockSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.ExternalEventSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.RefreshSystem;
-import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionSystem;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
@@ -96,7 +96,7 @@ public class RotationService extends Service {
     private final ExternalEventSystem mExternalEventSystem = new ExternalEventSystem(this);
     private final RefreshSystem mRefreshSystem = new RefreshSystem(this);
     private final AutoLockSystem mAutoLockSystem = new AutoLockSystem(this);
-    private final SuggestionSystem mSuggestionSystem = new SuggestionSystem(this);
+    private final SuggestionsSystem mSuggestionsSystem = new SuggestionsSystem(this);
 
     @Nullable
     @Override
@@ -111,13 +111,15 @@ public class RotationService extends Service {
         createNotificationChannel(CONTROLS_CHANNEL_ID, R.string.controls_notification_channel_name);
         createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
         createNotificationChannel(WARNING_CHANNEL_ID, R.string.warning_notification_channel_name);
-        loadFromPreferences();
 
         handler = new Handler(Looper.getMainLooper());
 
         mExternalEventSystem.onCreate();
+        mRefreshSystem.onCreate();
         mAutoLockSystem.onCreate();
-        mSuggestionSystem.onCreate();
+        mSuggestionsSystem.onCreate();
+
+        loadFromPreferences(true);
 
         sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
     }
@@ -133,7 +135,7 @@ public class RotationService extends Service {
 
         mExternalEventSystem.onDestroy();
         mAutoLockSystem.onDestroy();
-        mSuggestionSystem.onDestroy();
+        mSuggestionsSystem.onDestroy();
 
         sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
 
@@ -180,8 +182,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_CONFIGURATION_CHANGED: {
-                loadFromPreferences();
-                mAutoLockSystem.reset();
+                loadFromPreferences(false);
 
                 break;
             }
@@ -221,7 +222,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_KEYBOARD_APPEARED: {
-                mSuggestionSystem.hideSuggestion();
+                mSuggestionsSystem.hideSuggestion();
                 break;
             }
 
@@ -386,13 +387,16 @@ public class RotationService extends Service {
         return notificationBuilder.build();
     }
 
-    private void loadFromPreferences() {
+    private void loadFromPreferences(boolean isFirstTime) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         guard = preferences.getBoolean(getString(R.string.guard_key), true);
         activeMode = RotationMode.fromPreferences(this);
 
-        mAutoLockSystem.load(preferences);
+        mExternalEventSystem.onConfiguration(preferences, isFirstTime);
+        mRefreshSystem.onConfiguration(preferences, isFirstTime);
+        mSuggestionsSystem.onConfiguration(preferences, isFirstTime);
+        mAutoLockSystem.onConfiguration(preferences, isFirstTime);
     }
 
     public boolean isGuardEnabledOrForced() {

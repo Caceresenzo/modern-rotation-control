@@ -51,6 +51,9 @@
     <string name="settings_notification_title">Notification</string>
     <string name="settings_notification_description">For old users who do not want to use the Tile.</string>
 
+    <string name="settings_suggestions_title">Suggestions</string>
+    <string name="settings_suggestions_description">Detect your intention to change the rotation.</string>
+
     <string name="settings_auto_lock_header">Auto Lock</string>
     <string name="settings_auto_lock_header_description">Lock the rotation after some time. Timer is reset when the device is rotated.</string>
 
@@ -111,6 +114,22 @@
     <string name="notification_buttons_title">Notification Mode Buttons</string>
     <string name="notification_buttons_description">Select which buttons to display.</string>
     <string name="buttons_at_least_one">At least one button must be selected.</string>
+
+    <string name="suggestions_enabled_key">suggestions_enabled</string>
+    <string name="suggestions_enabled_key_title">Enable rotation Suggestions</string>
+    <string name="suggestions_enabled_key_description">Show a small icon to quickly apply a new rotation.</string>
+
+    <string name="suggest_for_modes_key">suggest_for_modes</string>
+    <string name="suggest_for_modes_title">Suggest for Modes</string>
+    <string name="suggest_for_modes_description">Only specify some suggestions.</string>
+
+    <string name="suggestion_expiration_key">suggestion_expiration</string>
+    <string name="suggestion_expiration_title">Suggestion Expiration</string>
+    <string name="suggestion_expiration_description">The delay (in milliseconds) after which the suggestion disappears.</string>
+
+    <string name="suggestion_button_bigger_key">suggestion_button_bigger</string>
+    <string name="suggestion_button_bigger_title">Make Button bigger</string>
+    <string name="suggestion_button_bigger_description">Make the button bigger.</string>
 
     <string name="start_on_boot_key">start_on_boot</string>
     <string name="start_on_boot_title">Start on Boot</string>
