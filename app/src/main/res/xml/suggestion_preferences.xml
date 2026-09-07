@@ -39,4 +39,13 @@
         app:summary="@string/suggestion_button_bigger_description"
         app:title="@string/suggestion_button_bigger_title" />
 
+    <SwitchPreferenceCompat
+        app:defaultValue="false"
+        app:dependency="@string/suggestions_enabled_key"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestion_swap_button_side_key"
+        app:summaryOff="@string/suggestion_swap_button_description_off"
+        app:summaryOn="@string/suggestion_swap_button_description_on"
+        app:title="@string/suggestion_swap_button_side_title" />
+
 </PreferenceScreen>

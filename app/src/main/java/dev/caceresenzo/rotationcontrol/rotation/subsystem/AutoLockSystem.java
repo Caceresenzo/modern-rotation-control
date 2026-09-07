@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 
 import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.DisplayRotation;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 
@@ -18,7 +19,7 @@ public class AutoLockSystem extends System {
     private int waitSeconds;
     private boolean force;
 
-    private int lastDisplayRotationValue = -1;
+    private DisplayRotation lastRotation = null;
 
     private final Runnable mTriggerAutoLock = () -> {
         Log.i(TAG, "triggering auto lock");
@@ -58,27 +59,23 @@ public class AutoLockSystem extends System {
             return;
         }
 
-        lastDisplayRotationValue = getCurrentDisplayRotation();
-        Log.d(TAG, String.format("setupAutoLock - lastDisplayRotationValue=%s", lastDisplayRotationValue));
+        lastRotation = getCurrentDisplayRotation();
+        Log.d(TAG, String.format("setupAutoLock - lastDisplayRotation=%s", lastRotation));
 
         getHandler().postDelayed(mTriggerAutoLock, waitSeconds * 1000L);
     }
 
     private void triggerAutoLock() {
-        int currentDisplayRotation = getCurrentDisplayRotation();
-        if (lastDisplayRotationValue == -1) {
-            lastDisplayRotationValue = currentDisplayRotation;
+        DisplayRotation currentDisplayRotation = getCurrentDisplayRotation();
+        if (lastRotation == null) {
+            lastRotation = currentDisplayRotation;
         }
 
         RotationMode newMode = RotationMode.fromPreferences(mService, R.string.auto_lock_mode_key, RotationMode.AUTO);
         if (newMode == RotationMode.AUTO) {
-            newMode = RotationMode.fromRotationValue(lastDisplayRotationValue);
-        } else if (!force) {
-            RotationMode currentMode = RotationMode.fromRotationValue(currentDisplayRotation);
-
-            if (!isCompatible(newMode, currentMode)) {
-                return;
-            }
+            newMode = lastRotation.rotationMode();
+        } else if (!force && !isCompatible(newMode, currentDisplayRotation)) {
+            return;
         }
 
         Toast.makeText(mService, mService.getString(R.string.auto_lock_trigger, mService.getString(newMode.stringId())), Toast.LENGTH_SHORT).show();
@@ -91,26 +88,26 @@ public class AutoLockSystem extends System {
         RotationService.notifyConfigurationChanged(mService);
     }
 
-    private boolean isCompatible(RotationMode toMode, RotationMode currentMode) {
-        if (toMode.equals(currentMode)) {
+    private boolean isCompatible(RotationMode toMode, DisplayRotation currentMode) {
+        if (toMode.equals(currentMode.rotationMode())) {
             return true;
         }
 
         if (RotationMode.LANDSCAPE_SENSOR.equals(toMode)) {
-            return RotationMode.LANDSCAPE.equals(currentMode) || RotationMode.LANDSCAPE_REVERSE.equals(currentMode);
+            return DisplayRotation.LANDSCAPE.equals(currentMode) || DisplayRotation.LANDSCAPE_REVERSE.equals(currentMode);
         }
 
         if (RotationMode.PORTRAIT_SENSOR.equals(toMode)) {
-            return RotationMode.PORTRAIT.equals(currentMode) || RotationMode.PORTRAIT_REVERSE.equals(currentMode);
+            return DisplayRotation.PORTRAIT.equals(currentMode) || DisplayRotation.PORTRAIT_REVERSE.equals(currentMode);
         }
 
         return false;
     }
 
     public boolean hasRotationValueChanged() {
-        int rotationValue = getCurrentDisplayRotation();
+        DisplayRotation currentRotation = getCurrentDisplayRotation();
 
-        return lastDisplayRotationValue != rotationValue;
+        return lastRotation != currentRotation;
     }
 
     public void resetIfRotationChanged() {

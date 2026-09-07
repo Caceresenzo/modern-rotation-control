@@ -9,20 +9,22 @@ import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-
-import dev.caceresenzo.rotationcontrol.R;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.IntConsumer;
 
+import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.DisplayRotation;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.SuggestedRotationMode;
+import lombok.AllArgsConstructor;
 
 public class SuggestionsSystem extends System implements View.OnClickListener {
 
@@ -34,18 +36,22 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private static final int BIGGER_PADDING = 48;
 
     private boolean mEnabled;
-    private Set<RotationMode> mSuggestForModes = EnumSet.noneOf(RotationMode.class);
+    private Set<SuggestedRotationMode> mSuggestForModes = EnumSet.noneOf(SuggestedRotationMode.class);
     private int mExpiration;
     private boolean mBiggerButton;
+    private boolean mLeftHanded;
 
     private WindowManager mUiWindowManager;
 
     private View mSuggestionView;
-    private RotationMode mSuggestedMode;
+    private WindowManager.LayoutParams mSuggestionParams;
+    private SuggestedRotationMode mSuggestedMode;
     private Object mSuggestionToken;
+    private DisplayRotation mLastConcreteSuggestedMode;
 
     private final Runnable mHideSuggestion = this::hideSuggestion;
 
+    // NOTE: `ORIENTATION_UNKNOWN` or (-1) is when the device is on a flat surface (more or less)
     private final IntConsumer mOnProposedRotation = (value) -> {
         Log.i(TAG, String.format("onProposedRotation - value=%d", value));
 
@@ -53,22 +59,25 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
             return;
         }
 
-        // NOTE: `ORIENTATION_UNKNOWN` or (-1) is when the device is on a flat surface
-        RotationMode newMode = OrientationEventListener.ORIENTATION_UNKNOWN == value
-                ? RotationMode.AUTO
-                : RotationMode.fromRotationValue(value);
+        DisplayRotation proposedRotation = DisplayRotation.fromValue(value, null);
+        if (proposedRotation != null) {
+            // NOTE: Could be rejected by condition below, so naming is a bit off
+            mLastConcreteSuggestedMode = proposedRotation;
+        }
 
-        Log.d(TAG, "onProposedRotation: " + newMode + " (enabled: " + mSuggestForModes + ")");
+        SuggestedRotationMode suggestedRotationMode = SuggestedRotationMode.fromNullableAsAuto(proposedRotation);
+        Log.d(TAG, "onProposedRotation: " + suggestedRotationMode + " (enabled: " + mSuggestForModes + ")");
 
-        if (!mSuggestForModes.contains(newMode)) {
+        if (!mSuggestForModes.contains(suggestedRotationMode)) {
             return;
         }
 
-        if (newMode == mService.getActiveMode()) {
-            return;
+        if (suggestedRotationMode.rotationMode() == mService.getActiveMode()) {
+            hideSuggestion();
+        } else {
+            // TODO: Not great, need better algorithm to take into account the current rotation
+            getHandler().postDelayed(() -> showSuggestion(suggestedRotationMode), 100);
         }
-
-        showSuggestion(newMode);
     };
 
     public SuggestionsSystem(RotationService mService) {
@@ -86,6 +95,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     public void onConfiguration(SharedPreferences preferences, boolean isFirstTime) {
         mEnabled = preferences.getBoolean(getString(R.string.suggestions_enabled_key), true);
         mExpiration = preferences.getInt(getString(R.string.suggestion_expiration_key), 3000);
+        mLeftHanded = preferences.getBoolean(getString(R.string.suggestion_swap_button_side_key), false);
 
         {
             mSuggestForModes.clear();
@@ -95,7 +105,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
             }
 
             for (String mode : suggestedModes) {
-                mSuggestForModes.add(RotationMode.valueOf(mode));
+                mSuggestForModes.add(SuggestedRotationMode.valueOf(mode));
             }
         }
 
@@ -122,7 +132,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Intent intent = RotationService.newChangeModeIntent(view.getContext(), mSuggestedMode);
+        Intent intent = RotationService.newChangeModeIntent(view.getContext(), mSuggestedMode.rotationMode());
         view.getContext().startService(intent);
 
         hideSuggestion();
@@ -137,34 +147,39 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
     }
 
-    public void showSuggestion(RotationMode suggestedMode) {
+    public void showSuggestion(SuggestedRotationMode suggestedMode) {
         if (mSuggestionView == null) {
             mSuggestionView = new ImageButton(mService.getApplicationContext());
+            mSuggestionView.setOnClickListener(this);
             applyPadding();
 
-            mSuggestionView.setOnClickListener(this);
-        }
-
-        if (mSuggestionToken != null) {
-            getHandler().removeCallbacks(mHideSuggestion, mSuggestionToken);
-        } else {
-            WindowManager.LayoutParams mSuggestionParams = new WindowManager.LayoutParams(
+            mSuggestionParams = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
             );
-
-            mSuggestionParams.gravity = Gravity.BOTTOM | Gravity.END;
             mSuggestionParams.x = 24;
             mSuggestionParams.y = 96;
+        }
 
+        IconLocation iconLocation = computeIconLocation(suggestedMode);
+        mSuggestionParams.gravity = iconLocation.gravity;
+        mSuggestionView.setRotation(iconLocation.rotation);
+
+        if (mSuggestionToken != null) {
+            getHandler().removeCallbacks(mHideSuggestion, mSuggestionToken);
+
+            mService.getWindowManager().updateViewLayout(mSuggestionView, mSuggestionParams);
+        } else {
             mService.getWindowManager().addView(mSuggestionView, mSuggestionParams);
         }
 
         mSuggestedMode = suggestedMode;
+
         ((ImageButton) mSuggestionView).setImageResource(suggestedMode.drawableId());
+        // ((ImageButton) mSuggestionView).setImageResource(RotationMode.PORTRAIT_REVERSE.drawableId());
 
         mSuggestionToken = new Object();
         getHandler().postDelayed(mHideSuggestion, mSuggestionToken, mExpiration);
@@ -178,6 +193,46 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
     }
 
+    private IconLocation computeIconLocation(SuggestedRotationMode suggestedRotation) {
+        RotationMode activeMode = mService.getActiveMode();
+        if (activeMode == RotationMode.AUTO) {
+            int side = mLeftHanded ? Gravity.LEFT : Gravity.RIGHT;
+            return new IconLocation(Gravity.BOTTOM | side, 0);
+        }
+
+        Log.d(TAG, "computeIconLocation: " + suggestedRotation + " (active: " + activeMode + ", previous: " + mLastConcreteSuggestedMode + ")");
+        if (suggestedRotation == SuggestedRotationMode.AUTO && mLastConcreteSuggestedMode != null) {
+            suggestedRotation = SuggestedRotationMode.from(mLastConcreteSuggestedMode);
+        }
+
+        DisplayRotation currentRotation = getCurrentDisplayRotation();
+        int relativeDirection = (currentRotation.rotationValue() - suggestedRotation.rotationValue() + 4) % 4;
+
+        // NOTE: Rotation is relative to current rotation, not absolute!
+        switch (relativeDirection) {
+            default:
+            case Surface.ROTATION_0: {
+                int side = mLeftHanded ? Gravity.LEFT : Gravity.RIGHT;
+                return new IconLocation(Gravity.BOTTOM | side, 0);
+            }
+
+            case Surface.ROTATION_90: {
+                int side = mLeftHanded ? Gravity.BOTTOM : Gravity.TOP;
+                return new IconLocation(side | Gravity.RIGHT, 270);
+            }
+
+            case Surface.ROTATION_180: {
+                int side = mLeftHanded ? Gravity.RIGHT : Gravity.LEFT;
+                return new IconLocation(Gravity.TOP | side, 180);
+            }
+
+            case Surface.ROTATION_270: {
+                int side = mLeftHanded ? Gravity.TOP : Gravity.BOTTOM;
+                return new IconLocation(side | Gravity.LEFT, 90);
+            }
+        }
+    }
+
     private WindowManager createUiWindowManager() {
         Display display = mService.getSystemService(DisplayManager.class)
                 .getDisplay(Display.DEFAULT_DISPLAY);
@@ -186,6 +241,14 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
                 .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
 
         return uiContext.getSystemService(WindowManager.class);
+    }
+
+    @AllArgsConstructor
+    private static class IconLocation {
+
+        int gravity;
+        int rotation;
+
     }
 
 }

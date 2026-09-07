@@ -6,6 +6,7 @@ import android.os.Handler;
 import androidx.annotation.StringRes;
 
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.DisplayRotation;
 
 public abstract class System {
 
@@ -32,7 +33,7 @@ public abstract class System {
         return mService.getString(id);
     }
 
-    public int getCurrentDisplayRotation() {
+    public DisplayRotation getCurrentDisplayRotation() {
         return mService.getCurrentDisplayRotation();
     }
 

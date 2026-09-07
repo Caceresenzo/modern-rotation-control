@@ -261,7 +261,7 @@ public class RotationService extends Service {
 
             case ACTION_REFRESH: {
                 previousActiveMode = activeMode;
-                activeMode = getNextRotation();
+                activeMode = getCurrentDisplayRotation().next().rotationMode();
 
                 applyMode();
 
@@ -554,34 +554,9 @@ public class RotationService extends Service {
         );
     }
 
-    private RotationMode getNextRotation() {
-        RotationMode rotationMode = RotationMode.fromRotationValue(getCurrentDisplayRotation());
-
-        switch (rotationMode) {
-            case PORTRAIT: {
-                return RotationMode.LANDSCAPE;
-            }
-
-            case PORTRAIT_REVERSE: {
-                return RotationMode.LANDSCAPE_REVERSE;
-            }
-
-            case LANDSCAPE: {
-                return RotationMode.PORTRAIT;
-            }
-
-            case LANDSCAPE_REVERSE: {
-                return RotationMode.PORTRAIT_REVERSE;
-            }
-
-            default: {
-                throw new IllegalArgumentException("no concrete next rotation for mode: " + rotationMode);
-            }
-        }
-    }
-
-    public int getCurrentDisplayRotation() {
-        return getWindowManager().getDefaultDisplay().getRotation();
+    public DisplayRotation getCurrentDisplayRotation() {
+        int value = getWindowManager().getDefaultDisplay().getRotation();
+        return DisplayRotation.fromValue(value, DisplayRotation.PORTRAIT);
     }
 
     public static Intent newToggleGuardIntent(Context context) {

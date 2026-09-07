@@ -131,6 +131,11 @@
     <string name="suggestion_button_bigger_title">Make Button bigger</string>
     <string name="suggestion_button_bigger_description">Make the button bigger.</string>
 
+    <string name="suggestion_swap_button_side_key">suggestion_swap_button_side</string>
+    <string name="suggestion_swap_button_side_title">Swap button side</string>
+    <string name="suggestion_swap_button_description_on">Disable it to make it better for right-handed people.</string>
+    <string name="suggestion_swap_button_description_off">Enable it to make it better for left-handed people.</string>
+
     <string name="start_on_boot_key">start_on_boot</string>
     <string name="start_on_boot_title">Start on Boot</string>
     <string name="start_on_boot_description">Automatically start the service when the device is restarted.</string>
