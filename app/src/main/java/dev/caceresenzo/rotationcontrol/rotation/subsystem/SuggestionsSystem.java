@@ -1,5 +1,6 @@
 package dev.caceresenzo.rotationcontrol.rotation.subsystem;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -193,6 +194,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
     }
 
+    @SuppressLint("RtlHardcoded")
     private IconLocation computeIconLocation(SuggestedRotationMode suggestedRotation) {
         RotationMode activeMode = mService.getActiveMode();
         if (activeMode == RotationMode.AUTO) {
@@ -233,6 +235,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
     }
 
+    @SuppressLint("NewApi")
     private WindowManager createUiWindowManager() {
         Display display = mService.getSystemService(DisplayManager.class)
                 .getDisplay(Display.DEFAULT_DISPLAY);
