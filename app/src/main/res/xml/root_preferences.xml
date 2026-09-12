@@ -68,6 +68,7 @@
         <Preference
             app:fragment="dev.caceresenzo.rotationcontrol.settings.SuggestionsSettingsFragment"
             app:iconSpaceReserved="false"
+            app:key="@string/settings_suggestions_key"
             app:summary="@string/settings_suggestions_description"
             app:title="@string/settings_suggestions_title" />
 

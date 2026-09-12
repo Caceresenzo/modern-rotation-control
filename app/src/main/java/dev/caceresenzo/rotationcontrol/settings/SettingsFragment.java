@@ -32,6 +32,7 @@ import java.util.Objects;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragmentCompat;
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
 import dev.caceresenzo.rotationcontrol.tile.RotationTileService;
@@ -77,6 +78,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         findPreference(getString(R.string.open_source_licenses_key)).setOnPreferenceClickListener(this);
 
         updateRecommendationsVisibility();
+        updateSettingsVersionRequirements();
     }
 
     @Override
@@ -87,10 +89,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
     }
 
     private void updateRecommendationsVisibility() {
-        Context context = getContext();
-        if (context == null) {
-            return;
-        }
+        Context context = requireContext();
 
         boolean tileVisible = false;
         {
@@ -118,6 +117,16 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         {
             PreferenceCategory category = findPreference(getString(R.string.settings_recommendations_key));
             category.setVisible(tileVisible || batteryVisible);
+        }
+    }
+
+    private void updateSettingsVersionRequirements() {
+        if (!SuggestionsSystem.IS_SUPPORTED) {
+            String key = getString(R.string.settings_suggestions_key);
+            Preference preference = Objects.requireNonNull(findPreference(key));
+
+            preference.setEnabled(false);
+            preference.setSummary(R.string.settings_suggestions_description_not_available);
         }
     }
 
