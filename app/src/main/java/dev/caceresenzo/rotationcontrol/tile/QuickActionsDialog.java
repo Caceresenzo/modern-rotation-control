@@ -10,7 +10,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,6 +27,7 @@ import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
+import dev.caceresenzo.rotationcontrol.util.Colors;
 
 public class QuickActionsDialog extends Dialog implements View.OnClickListener {
 
@@ -41,7 +41,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     private boolean mShowButtonsAsLine;
 
     private QuickActionsDialog(@NonNull Context context, SharedPreferences preferences, boolean showButtonsAsLine) {
-        super(new ContextThemeWrapper(
+        super(Colors.createThemedContext(
                 context,
                 showButtonsAsLine
                         ? R.style.AppTheme_QuickActionsDialogLine
@@ -78,6 +78,8 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         boolean isServiceRunning = RotationService.isRunning(getApplicationContext());
 
         TextView infoView = findViewById(R.id.info);
+        infoView.setTextColor(Colors.getActive(getContext()));
+
         if (isServiceRunning) {
             infoView.setVisibility(View.GONE);
         }
@@ -159,7 +161,7 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     }
 
     public void updateViews(boolean guard, RotationMode activeMode, boolean isServiceRunning) {
-        final Context context = getApplicationContext();
+        final Context context = getContext();
 
         Set<String> enabledButtons = mPreferences.getStringSet(context.getString(R.string.tile_buttons_key), null);
         Set<Integer> enabledLineIds = new HashSet<>();
@@ -206,11 +208,11 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     }
 
     private void setActiveColor(Context context, ImageView view, boolean active) {
-        if (active) {
-            view.setColorFilter(context.getColor(R.color.active));
-        } else {
-            view.setColorFilter(context.getColor(R.color.inactive));
-        }
+        int color = active
+                ? Colors.getActive(context)
+                : Colors.getInactive(context);
+
+        view.setColorFilter(color);
     }
 
     public boolean shouldCloseOnClick() {

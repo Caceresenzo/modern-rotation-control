@@ -38,6 +38,7 @@ import dev.caceresenzo.rotationcontrol.rotation.subsystem.RefreshSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
+import dev.caceresenzo.rotationcontrol.util.Colors;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 import lombok.Getter;
 
@@ -89,6 +90,7 @@ public class RotationService extends Service {
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
 
+    private Context mThemedContext;
     private View mView;
 
     private @Getter Handler handler;
@@ -107,6 +109,8 @@ public class RotationService extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
+
+        mThemedContext = Colors.createThemedContext(this, R.style.AppTheme_Application);
 
         createNotificationChannel(CONTROLS_CHANNEL_ID, R.string.controls_notification_channel_name);
         createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
@@ -127,6 +131,10 @@ public class RotationService extends Service {
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
+
+        if (mThemedContext != null) {
+            mThemedContext = null;
+        }
 
         if (mView != null) {
             getWindowManager().removeView(mView);
@@ -376,7 +384,6 @@ public class RotationService extends Service {
         );
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), WARNING_CHANNEL_ID)
-                .setSmallIcon(R.drawable.mode_auto)
                 .setSilent(true)
                 .setSubText(getString(R.string.notification_accessibility_not_enabled_title))
                 .setContentText(getString(R.string.notification_accessibility_not_enabled_subtitle))
@@ -425,11 +432,11 @@ public class RotationService extends Service {
     }
 
     private void setActiveColor(RemoteViews layout, int viewId, boolean active) {
-        if (active) {
-            layout.setInt(viewId, TINT_METHOD, getColor(R.color.active));
-        } else {
-            layout.setInt(viewId, TINT_METHOD, getColor(R.color.inactive));
-        }
+        int color = active
+                ? Colors.getActive(mThemedContext)
+                : Colors.getInactive(mThemedContext);
+
+        layout.setInt(viewId, TINT_METHOD, color);
     }
 
     public void restorePreviousMode() {

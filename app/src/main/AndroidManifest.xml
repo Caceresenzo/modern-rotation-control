@@ -11,19 +11,20 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
+        android:name=".RotationControlApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/icon"
-        android:roundIcon="@mipmap/icon"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/icon"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.Application"
-        tools:targetApi="31">
+        android:theme="@style/AppTheme.Application">
 
         <activity
             android:name=".settings.MainActivity"
@@ -58,8 +59,8 @@
             android:configChanges="uiMode"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/service_rotation_title"
-            android:foregroundServiceType="specialUse">
+            android:foregroundServiceType="specialUse"
+            android:label="@string/service_rotation_title">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="persistent notification" />

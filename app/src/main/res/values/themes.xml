@@ -3,7 +3,9 @@
 
     <style name="AppTheme"></style>
 
-    <style name="AppTheme.Application" parent="Theme.MaterialComponents.DayNight.DarkActionBar"></style>
+    <style name="AppTheme.Application" parent="Theme.Material3.DayNight">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 
     <style name="AppTheme.NotificationButton">
         <item name="android:padding">2dp</item>
@@ -23,16 +25,15 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="AppTheme.QuickActionsDialogLine" parent="Theme.MaterialComponents.DayNight.Dialog">
+    <style name="AppTheme.QuickActionsDialogPad" parent="Theme.Material3.DayNight.Dialog">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowMinWidthMajor">80%</item>
-        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
     </style>
 
-    <style name="AppTheme.QuickActionsDialogPad" parent="Theme.MaterialComponents.DayNight.Dialog">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme.QuickActionsDialogLine" parent="AppTheme.QuickActionsDialogPad">
+        <item name="android:windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
     </style>
 
     <style name="Theme.OssLicenses" parent="AppTheme.Application"></style>
