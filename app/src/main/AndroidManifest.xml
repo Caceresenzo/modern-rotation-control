@@ -90,12 +90,7 @@
         </service>
 
         <activity
-            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-            android:theme="@style/Theme.OssLicenses"
-            tools:replace="android:theme" />
-
-        <activity
-            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:name="com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity"
             android:theme="@style/Theme.OssLicenses"
             tools:replace="android:theme" />
 
