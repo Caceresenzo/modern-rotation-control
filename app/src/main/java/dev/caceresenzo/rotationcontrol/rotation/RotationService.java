@@ -32,6 +32,7 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
+import dev.caceresenzo.rotationcontrol.BuildConfig;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.AutoLockSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.ExternalEventSystem;
@@ -76,9 +77,9 @@ public class RotationService extends Service {
 
     public static final String TINT_METHOD = "setColorFilter";
 
-    public static final String ACTION_NOTIFY_CREATED = "dev.caceresenzo.rotationcontrol.SERVICE_CREATED";
-    public static final String ACTION_NOTIFY_DESTROYED = "dev.caceresenzo.rotationcontrol.SERVICE_DESTROYED";
-    public static final String ACTION_NOTIFY_UPDATED = "dev.caceresenzo.rotationcontrol.SERVICE_UPDATED";
+    public static final String ACTION_NOTIFY_CREATED = BuildConfig.APPLICATION_ID + ".SERVICE_CREATED";
+    public static final String ACTION_NOTIFY_DESTROYED = BuildConfig.APPLICATION_ID + ".SERVICE_DESTROYED";
+    public static final String ACTION_NOTIFY_UPDATED = BuildConfig.APPLICATION_ID + ".SERVICE_UPDATED";
 
     private final IBinder binder = new LocalBinder();
 
