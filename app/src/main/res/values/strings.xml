@@ -219,4 +219,7 @@
     <string name="open_source_licenses_key">open_source_licenses</string>
     <string name="open_source_licenses_title">Open source licenses</string>
     <string name="open_source_licenses_description">License details for open source software.</string>
+
+    <string name="tap_to_start_notification_title">Start the service</string>
+    <string name="tap_to_start_notification_text">The rotation service could not start automatically. Tap to start it now!</string>
 </resources>

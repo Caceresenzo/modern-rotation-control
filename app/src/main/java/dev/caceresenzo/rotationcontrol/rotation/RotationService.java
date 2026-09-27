@@ -2,7 +2,6 @@ package dev.caceresenzo.rotationcontrol.rotation;
 
 import android.app.ActivityManager;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -25,7 +24,6 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -39,6 +37,7 @@ import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Colors;
+import dev.caceresenzo.rotationcontrol.util.Notifications;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 import lombok.Getter;
 
@@ -46,13 +45,9 @@ public class RotationService extends Service {
 
     public static final String TAG = RotationService.class.getSimpleName();
 
-    public static final String CONTROLS_CHANNEL_ID = "Controls";
-    public static final String SERVICE_CHANNEL_ID = "Service";
-    public static final String WARNING_CHANNEL_ID = "Warning";
-    public static final int NOTIFICATION_ID = 1;
-    public static final int PRESETS_NOTIFICATION_ID = 2;
-
     public static final String ACTION_START = "START";
+    public static final int ACTION_START_REQUEST_CODE = 10;
+
     public static final String ACTION_CONFIGURATION_CHANGED = "CONFIGURATION_CHANGED";
     public static final String ACTION_ORIENTATION_CHANGED = "ORIENTATION_CHANGED";
     public static final String ACTION_PRESETS_UPDATE = "PRESETS_UPDATE";
@@ -60,20 +55,20 @@ public class RotationService extends Service {
     public static final String ACTION_KEYBOARD_APPEARED = "KEYBOARD_APPEARED";
 
     public static final String ACTION_REFRESH_NOTIFICATION = "REFRESH_NOTIFICATION";
-    public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 10;
+    public static final int ACTION_REFRESH_NOTIFICATION_REQUEST_CODE = 20;
 
     public static final String ACTION_CHANGE_GUARD = "CHANGE_GUARD";
-    public static final int ACTION_CHANGE_GUARD_REQUEST_CODE = 20;
+    public static final int ACTION_CHANGE_GUARD_REQUEST_CODE = 30;
 
     public static final String ACTION_CHANGE_MODE = "CHANGE_MODE";
-    public static final int ACTION_CHANGE_MODE_REQUEST_CODE_BASE = 30;
+    public static final int ACTION_CHANGE_MODE_REQUEST_CODE_BASE = 40;
     public static final String INTENT_NEW_MODE = "NEW_MODE";
 
     public static final String ACTION_REFRESH = "REFRESH";
-    public static final int ACTION_REFRESH_REQUEST_CODE = 40;
+    public static final int ACTION_REFRESH_REQUEST_CODE = 50;
 
     public static final String ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED = "STOP_IF_STARTED_OR_START_IF_STOPPED";
-    public static final int ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED_REQUEST_CODE = 50;
+    public static final int ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED_REQUEST_CODE = 60;
 
     public static final String TINT_METHOD = "setColorFilter";
 
@@ -112,9 +107,7 @@ public class RotationService extends Service {
 
         mThemedContext = Colors.createThemedContext(this, R.style.AppTheme_Application);
 
-        createNotificationChannel(CONTROLS_CHANNEL_ID, R.string.controls_notification_channel_name);
-        createNotificationChannel(SERVICE_CHANNEL_ID, R.string.service_notification_channel_name);
-        createNotificationChannel(WARNING_CHANNEL_ID, R.string.warning_notification_channel_name);
+        Notifications.createChannels(this);
 
         handler = new Handler(Looper.getMainLooper());
 
@@ -152,7 +145,7 @@ public class RotationService extends Service {
                 .putBoolean(getString(R.string.start_control_key), false)
                 .apply();
 
-        getNotificationManager().cancel(NOTIFICATION_ID);
+        getNotificationManager().cancel(Notifications.SERVICE_NOTIFICATION_ID);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -176,9 +169,9 @@ public class RotationService extends Service {
             Notification notification = createNotification(isNotificationShown());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                startForeground(Notifications.SERVICE_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
             } else {
-                startForeground(NOTIFICATION_ID, notification);
+                startForeground(Notifications.SERVICE_NOTIFICATION_ID, notification);
             }
 
             started = true;
@@ -306,9 +299,9 @@ public class RotationService extends Service {
 
         NotificationManager notificationManager = getNotificationManager();
         if (isNotificationShown()) {
-            notificationManager.notify(NOTIFICATION_ID, createNotification(true));
+            notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createNotification(true));
         } else {
-            notificationManager.cancel(NOTIFICATION_ID);
+            notificationManager.cancel(Notifications.SERVICE_NOTIFICATION_ID);
         }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
@@ -317,15 +310,17 @@ public class RotationService extends Service {
         preferences.setStartControl(true);
 
         if (preferences.hasPresetsBeenUsed() && !preferences.hasBeenNotifiedAboutAccessibilityNotEnabledForPresets() && !Permissions.isAccessibilityServiceEnabled(this)) {
-            notificationManager.notify(PRESETS_NOTIFICATION_ID, createPresetsNotification());
+            notificationManager.notify(Notifications.PRESETS_NOTIFICATION_ID, createPresetsNotification());
             preferences.markAccessibilityNotEnabledForPresetsAsNotified();
         }
+
+        notificationManager.cancel(Notifications.TAP_TO_START_NOTIFICATION_ID);
     }
 
     private Notification createNotification(boolean showNotification) {
         String channelId = showNotification
-                ? CONTROLS_CHANNEL_ID
-                : SERVICE_CHANNEL_ID;
+                ? Notifications.CONTROLS_CHANNEL_ID
+                : Notifications.SERVICE_CHANNEL_ID;
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setSmallIcon(R.drawable.mode_auto)
@@ -378,12 +373,12 @@ public class RotationService extends Service {
     private Notification createPresetsNotification() {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
-                PRESETS_NOTIFICATION_ID /* should use a dedicated code */,
+                Notifications.PRESETS_NOTIFICATION_ID /* should use a dedicated code */,
                 Permissions.newOpenAccessibilityServiceSettingsIntent(),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), WARNING_CHANNEL_ID)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), Notifications.WARNING_CHANNEL_ID)
                 .setSilent(true)
                 .setSubText(getString(R.string.notification_accessibility_not_enabled_title))
                 .setContentText(getString(R.string.notification_accessibility_not_enabled_subtitle))
@@ -494,17 +489,6 @@ public class RotationService extends Service {
         }
     }
 
-    private void createNotificationChannel(String id, @StringRes int name) {
-        NotificationChannel notificationChannel = new NotificationChannel(id, getString(name), NotificationManager.IMPORTANCE_DEFAULT);
-        notificationChannel.setSound(null, null);
-        notificationChannel.setShowBadge(false);
-        notificationChannel.enableVibration(false);
-        notificationChannel.enableLights(false);
-        notificationChannel.setLockscreenVisibility(NotificationCompat.VISIBILITY_SECRET);
-
-        getNotificationManager().createNotificationChannel(notificationChannel);
-    }
-
     private PendingIntent newRefreshNotificationPendingIntent() {
         Intent intent = new Intent(getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_REFRESH_NOTIFICATION);
@@ -603,11 +587,26 @@ public class RotationService extends Service {
         return getApplicationContext().getSystemService(WindowManager.class);
     }
 
-    public static void start(Context context) {
+    public static Intent newStartIntent(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_START);
 
-        context.startForegroundService(intent);
+        return intent;
+    }
+
+    public static PendingIntent newStartPendingIntent(Context context) {
+        Intent intent = newStartIntent(context);
+
+        return PendingIntent.getService(
+                context,
+                ACTION_START_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    public static void start(Context context) {
+        context.startForegroundService(newStartIntent(context));
     }
 
     public static void notifyConfigurationChanged(Context context) {
