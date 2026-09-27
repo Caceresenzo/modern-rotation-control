@@ -227,4 +227,8 @@
     <string name="permission_notification_title">Missing permission</string>
     <string name="permission_notification_text_write_settings">The rotation service lacks the necessary permissions to write settings. Tap to resolve now!</string>
     <string name="permission_notification_text_draw_overlays">The rotation service lacks the necessary permissions to draw overlays. Tap to resolve now!</string>
+
+    <string name="oss_license_title">Open source licenses</string>
+    <string name="oss_license_dialog_close">Close</string>
+    <string name="oss_license_error">Unable to load licenses: %s</string>
 </resources>

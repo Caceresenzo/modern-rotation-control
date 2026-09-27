@@ -100,9 +100,9 @@
         </service>
 
         <activity
-            android:name="com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity"
-            android:theme="@style/Theme.OssLicenses"
-            tools:replace="android:theme" />
+            android:theme="@style/AppTheme.Application"
+            android:name=".oss.OssLicensesActivity"
+            android:exported="false" />
 
     </application>
 

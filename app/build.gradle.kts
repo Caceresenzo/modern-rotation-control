@@ -52,7 +52,6 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.play.services.oss.licenses)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

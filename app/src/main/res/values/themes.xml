@@ -35,6 +35,4 @@
         <item name="android:windowMinWidthMajor">80%</item>
         <item name="android:windowMinWidthMinor">90%</item>
     </style>
-
-    <style name="Theme.OssLicenses" parent="AppTheme.Application"></style>
 </resources>

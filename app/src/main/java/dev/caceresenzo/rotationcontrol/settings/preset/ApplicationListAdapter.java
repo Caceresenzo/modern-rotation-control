@@ -85,12 +85,7 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
                 currentModeIcon.setVisibility(View.VISIBLE);
             }
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onItemClick(application);
-                }
-            });
+            itemView.setOnClickListener((view) -> listener.onItemClick(application));
         }
     }
 

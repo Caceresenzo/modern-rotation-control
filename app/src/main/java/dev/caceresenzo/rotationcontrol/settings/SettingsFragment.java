@@ -25,11 +25,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity;
-
 import java.util.Objects;
 
 import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.oss.OssLicensesActivity;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
@@ -204,7 +203,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         } else if (getString(R.string.view_on_github_key).equals(key)) {
             Links.openGitHub(context);
         } else if (getString(R.string.open_source_licenses_key).equals(key)) {
-            startActivity(new Intent(context, OssLicensesMenuActivity.class));
+            startActivity(new Intent(context, OssLicensesActivity.class));
         }
 
         return true;
