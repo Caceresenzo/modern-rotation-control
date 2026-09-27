@@ -300,8 +300,6 @@ public class RotationService extends Service {
         NotificationManager notificationManager = getNotificationManager();
         if (isNotificationShown()) {
             notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createNotification(true));
-        } else {
-            notificationManager.cancel(Notifications.SERVICE_NOTIFICATION_ID);
         }
 
         sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
