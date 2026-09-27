@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -89,6 +91,7 @@ public class RotationService extends Service {
     private View mView;
 
     private @Getter Handler handler;
+    private @Getter WindowManager windowManager;
 
     private final ExternalEventSystem mExternalEventSystem = new ExternalEventSystem(this);
     private final RefreshSystem mRefreshSystem = new RefreshSystem(this);
@@ -110,6 +113,7 @@ public class RotationService extends Service {
         Notifications.createChannels(this);
 
         handler = new Handler(Looper.getMainLooper());
+        windowManager = createUiWindowManager();
 
         mExternalEventSystem.onCreate();
         mRefreshSystem.onCreate();
@@ -145,7 +149,8 @@ public class RotationService extends Service {
                 .putBoolean(getString(R.string.start_control_key), false)
                 .apply();
 
-        getNotificationManager().cancel(Notifications.SERVICE_NOTIFICATION_ID);
+        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        notificationManager.cancel(Notifications.SERVICE_NOTIFICATION_ID);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
@@ -297,7 +302,7 @@ public class RotationService extends Service {
         Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
         applyMode();
 
-        NotificationManager notificationManager = getNotificationManager();
+        NotificationManager notificationManager = Notifications.getNotificationManager(this);
         if (isNotificationShown()) {
             notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createNotification(true));
         }
@@ -487,6 +492,20 @@ public class RotationService extends Service {
         }
     }
 
+    private WindowManager createUiWindowManager() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return getSystemService(WindowManager.class);
+        }
+
+        Display display = getSystemService(DisplayManager.class)
+                .getDisplay(Display.DEFAULT_DISPLAY);
+
+        Context uiContext = createDisplayContext(display)
+                .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
+
+        return uiContext.getSystemService(WindowManager.class);
+    }
+
     private PendingIntent newRefreshNotificationPendingIntent() {
         Intent intent = new Intent(getApplicationContext(), RotationService.class);
         intent.setAction(ACTION_REFRESH_NOTIFICATION);
@@ -575,14 +594,6 @@ public class RotationService extends Service {
         intent.setAction(ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED);
 
         return intent;
-    }
-
-    public NotificationManager getNotificationManager() {
-        return getApplicationContext().getSystemService(NotificationManager.class);
-    }
-
-    public WindowManager getWindowManager() {
-        return getApplicationContext().getSystemService(WindowManager.class);
     }
 
     public static Intent newStartIntent(Context context) {

@@ -1,14 +1,11 @@
 package dev.caceresenzo.rotationcontrol.rotation.subsystem;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.View;
@@ -41,8 +38,6 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private int mExpiration;
     private boolean mBiggerButton;
     private boolean mLeftHanded;
-
-    private WindowManager mUiWindowManager;
 
     private View mSuggestionView;
     private WindowManager.LayoutParams mSuggestionParams;
@@ -87,8 +82,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
     public void onCreate() {
         if (IS_SUPPORTED) {
-            mUiWindowManager = createUiWindowManager();
-            mUiWindowManager.addProposedRotationListener(mService.getMainExecutor(), mOnProposedRotation);
+            mService.getWindowManager().addProposedRotationListener(mService.getMainExecutor(), mOnProposedRotation);
         }
     }
 
@@ -126,8 +120,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         mSuggestionView = null;
 
         if (IS_SUPPORTED) {
-            mUiWindowManager.removeProposedRotationListener(mOnProposedRotation);
-            mUiWindowManager = null;
+            mService.getWindowManager().removeProposedRotationListener(mOnProposedRotation);
         }
     }
 
@@ -233,17 +226,6 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
                 return new IconLocation(side | Gravity.LEFT, 90);
             }
         }
-    }
-
-    @SuppressLint("NewApi")
-    private WindowManager createUiWindowManager() {
-        Display display = mService.getSystemService(DisplayManager.class)
-                .getDisplay(Display.DEFAULT_DISPLAY);
-
-        Context uiContext = mService.createDisplayContext(display)
-                .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
-
-        return uiContext.getSystemService(WindowManager.class);
     }
 
     @AllArgsConstructor
