@@ -1,5 +1,7 @@
 package dev.caceresenzo.rotationcontrol.settings;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -133,6 +135,18 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
 
         return true;
+    }
+
+    public static PendingIntent newPendingIntent(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        return PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
     }
 
 }

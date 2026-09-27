@@ -18,6 +18,8 @@ public class Notifications {
     public static final int SERVICE_NOTIFICATION_ID = 1;
     public static final int PRESETS_NOTIFICATION_ID = 2;
     public static final int TAP_TO_START_NOTIFICATION_ID = 3;
+    public static final int PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID = 4;
+    public static final int PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID = 5;
 
     private static boolean channelsCreated = false;
 

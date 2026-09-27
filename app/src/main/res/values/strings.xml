@@ -185,6 +185,7 @@
     <string name="require_settings_write_permission">Allow the application to write settings.</string>
     <string name="require_overlay_permission">Allow the application to overlay over other apps.</string>
     <string name="require_notification_permission">Allow notifications and retry.</string>
+
     <string name="missing_settings_write_permission">Cannot control rotation: Application cannot write settings.</string>
     <string name="missing_overlay_permission">Cannot control rotation: Application cannot overlay over other apps.</string>
 
@@ -222,4 +223,8 @@
 
     <string name="tap_to_start_notification_title">Start the service</string>
     <string name="tap_to_start_notification_text">The rotation service could not start automatically. Tap to start it now!</string>
+
+    <string name="permission_notification_title">Missing permission</string>
+    <string name="permission_notification_text_write_settings">The rotation service lacks the necessary permissions to write settings. Tap to resolve now!</string>
+    <string name="permission_notification_text_draw_overlays">The rotation service lacks the necessary permissions to draw overlays. Tap to resolve now!</string>
 </resources>

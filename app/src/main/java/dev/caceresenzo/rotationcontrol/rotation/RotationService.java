@@ -26,6 +26,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -37,6 +38,7 @@ import dev.caceresenzo.rotationcontrol.rotation.subsystem.ExternalEventSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.RefreshSystem;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
+import dev.caceresenzo.rotationcontrol.settings.MainActivity;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Colors;
 import dev.caceresenzo.rotationcontrol.util.Notifications;
@@ -446,12 +448,49 @@ public class RotationService extends Service {
         }
     }
 
+    public boolean canWriteSettingsOrStop() {
+        if (Permissions.canWriteSettings(this)) {
+            NotificationManager notificationManager = Notifications.getNotificationManager(this);
+            notificationManager.cancel(Notifications.PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID);
+            return true;
+        }
+
+        sendPermissionSettingsAndStop(R.string.permission_notification_text_write_settings, Notifications.PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID);
+        return false;
+    }
+
+    public boolean canDrawOverlaysOrStop() {
+        if (Permissions.canDrawOverlays(this)) {
+            NotificationManager notificationManager = Notifications.getNotificationManager(this);
+            notificationManager.cancel(Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
+
+            return true;
+        }
+
+        sendPermissionSettingsAndStop(R.string.permission_notification_text_draw_overlays, Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
+        return false;
+    }
+
+    private void sendPermissionSettingsAndStop(@StringRes int contentText, int notificationId) {
+        Notification notification = new NotificationCompat.Builder(this, Notifications.WARNING_CHANNEL_ID)
+                .setSmallIcon(R.drawable.mode_auto)
+                .setAutoCancel(true)
+                .setContentTitle(getString(R.string.permission_notification_title))
+                .setContentText(getString(contentText))
+                .setContentIntent(MainActivity.newPendingIntent(this))
+                .build();
+
+        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        notificationManager.notify(notificationId, notification);
+
+        stopSelf();
+    }
+
     private void applyMode() {
         ContentResolver contentResolver = getContentResolver();
 
         if (isGuardEnabledOrForced()) {
-            if (!Permissions.canDrawOverlays(this)) {
-                Toast.makeText(this, R.string.missing_overlay_permission, Toast.LENGTH_SHORT).show();
+            if (!canDrawOverlaysOrStop()) {
                 return;
             }
 
@@ -473,8 +512,7 @@ public class RotationService extends Service {
 
             Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
         } else {
-            if (!Permissions.canWriteSettings(this)) {
-                Toast.makeText(this, R.string.missing_settings_write_permission, Toast.LENGTH_SHORT).show();
+            if (!canWriteSettingsOrStop()) {
                 return;
             }
 

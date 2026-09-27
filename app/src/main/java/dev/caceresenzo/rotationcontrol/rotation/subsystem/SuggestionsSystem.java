@@ -142,6 +142,10 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     }
 
     public void showSuggestion(SuggestedRotationMode suggestedMode) {
+        if (!mService.canDrawOverlaysOrStop()) {
+            return;
+        }
+
         if (mSuggestionView == null) {
             mSuggestionView = new ImageButton(mService.getApplicationContext());
             mSuggestionView.setOnClickListener(this);
