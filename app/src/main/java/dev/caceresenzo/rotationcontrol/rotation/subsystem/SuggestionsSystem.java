@@ -7,10 +7,12 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -22,7 +24,8 @@ import dev.caceresenzo.rotationcontrol.rotation.DisplayRotation;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.rotation.SuggestedRotationMode;
-import lombok.AllArgsConstructor;
+import dev.caceresenzo.rotationcontrol.util.Colors;
+import lombok.Value;
 
 public class SuggestionsSystem extends System implements View.OnClickListener {
 
@@ -36,10 +39,14 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private boolean mEnabled;
     private Set<SuggestedRotationMode> mSuggestForModes = EnumSet.noneOf(SuggestedRotationMode.class);
     private int mExpiration;
+    private boolean mCoSuggestAuto;
     private boolean mBiggerButton;
     private boolean mLeftHanded;
 
-    private View mSuggestionView;
+    private LinearLayout mSuggestionView;
+    private ImageButton mSuggestedModeButtonView;
+    private ImageButton mAutoModeButtonView;
+
     private WindowManager.LayoutParams mSuggestionParams;
     private SuggestedRotationMode mSuggestedMode;
     private Object mSuggestionToken;
@@ -105,19 +112,33 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
 
         {
+            boolean newCoSuggestAuto = preferences.getBoolean(getString(R.string.suggestion_co_suggest_auto_key), true);
+            boolean coSuggestAutoChanged = !isFirstTime && mCoSuggestAuto != newCoSuggestAuto;
+            mCoSuggestAuto = newCoSuggestAuto;
+
+            if (coSuggestAutoChanged && mSuggestionView != null) {
+                applyCoSuggestButtonVisibility();
+            }
+        }
+
+        {
             boolean newBiggerButton = preferences.getBoolean(getString(R.string.suggestion_button_bigger_key), false);
             boolean biggerButtonChanged = !isFirstTime && mBiggerButton != newBiggerButton;
             mBiggerButton = newBiggerButton;
 
             if (biggerButtonChanged && mSuggestionView != null) {
-                applyPadding();
+                applyButtonChanges(mSuggestedModeButtonView);
+                applyButtonChanges(mAutoModeButtonView);
             }
         }
     }
 
     public void onDestroy() {
         hideSuggestion();
+
         mSuggestionView = null;
+        mSuggestedModeButtonView = null;
+        mAutoModeButtonView = null;
 
         if (IS_SUPPORTED) {
             mService.getWindowManager().removeProposedRotationListener(mOnProposedRotation);
@@ -126,7 +147,12 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Intent intent = RotationService.newChangeModeIntent(view.getContext(), mSuggestedMode.rotationMode());
+        RotationMode newMode = RotationMode.AUTO;
+        if (R.id.suggested_mode == view.getId()) {
+            newMode = mSuggestedMode.rotationMode();
+        }
+
+        Intent intent = RotationService.newChangeModeIntent(view.getContext(), newMode);
         view.getContext().startService(intent);
 
         hideSuggestion();
@@ -147,9 +173,18 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
 
         if (mSuggestionView == null) {
-            mSuggestionView = new ImageButton(mService.getApplicationContext());
-            mSuggestionView.setOnClickListener(this);
-            applyPadding();
+            mSuggestionView = (LinearLayout) LayoutInflater
+                    .from(mService.getThemedContext())
+                    .inflate(R.layout.suggestion_buttons, null);
+
+            mSuggestedModeButtonView = mSuggestionView.findViewById(R.id.suggested_mode);
+            mAutoModeButtonView = mSuggestionView.findViewById(R.id.mode_auto);
+
+            mSuggestedModeButtonView.setOnClickListener(this);
+            mAutoModeButtonView.setOnClickListener(this);
+
+            applyButtonChanges(mSuggestedModeButtonView);
+            applyButtonChanges(mAutoModeButtonView);
 
             mSuggestionParams = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
@@ -163,8 +198,10 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         }
 
         IconLocation iconLocation = computeIconLocation(suggestedMode);
-        mSuggestionParams.gravity = iconLocation.gravity;
-        mSuggestionView.setRotation(iconLocation.rotation);
+        mSuggestionParams.gravity = iconLocation.getRootGravity();
+        mSuggestedModeButtonView.setRotation(iconLocation.getIconRotation());
+        mAutoModeButtonView.setRotation(iconLocation.getIconRotation());
+        mSuggestionView.setOrientation(iconLocation.getLayoutOrientation());
 
         if (mSuggestionToken != null) {
             getHandler().removeCallbacks(mHideSuggestion, mSuggestionToken);
@@ -176,19 +213,33 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
         mSuggestedMode = suggestedMode;
 
-        ((ImageButton) mSuggestionView).setImageResource(suggestedMode.drawableId());
-        // ((ImageButton) mSuggestionView).setImageResource(RotationMode.PORTRAIT_REVERSE.drawableId());
+        mSuggestedModeButtonView.setImageResource(suggestedMode.drawableId());
+        applyCoSuggestButtonVisibility();
 
         mSuggestionToken = new Object();
         getHandler().postDelayed(mHideSuggestion, mSuggestionToken, mExpiration);
     }
 
-    private void applyPadding() {
+    private void applyButtonChanges(ImageButton button) {
         if (mBiggerButton) {
-            mSuggestionView.setPadding(BIGGER_PADDING, BIGGER_PADDING, BIGGER_PADDING, BIGGER_PADDING);
+            button.setPadding(BIGGER_PADDING, BIGGER_PADDING, BIGGER_PADDING, BIGGER_PADDING);
         } else {
-            mSuggestionView.setPadding(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
+            button.setPadding(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
         }
+
+        button.setColorFilter(Colors.getActive(mService.getThemedContext()));
+    }
+
+    private void applyCoSuggestButtonVisibility() {
+        boolean hideCoSuggest = !mCoSuggestAuto;
+        boolean isAutoSuggested = SuggestedRotationMode.AUTO.equals(mSuggestedMode);
+        boolean isCurrentAuto = RotationMode.AUTO.equals(mService.getActiveMode());
+
+        mAutoModeButtonView.setVisibility(
+                hideCoSuggest || isAutoSuggested || isCurrentAuto
+                        ? View.GONE
+                        : View.VISIBLE
+        );
     }
 
     @SuppressLint("RtlHardcoded")
@@ -196,7 +247,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         RotationMode activeMode = mService.getActiveMode();
         if (activeMode == RotationMode.AUTO) {
             int side = mLeftHanded ? Gravity.LEFT : Gravity.RIGHT;
-            return new IconLocation(Gravity.BOTTOM | side, 0);
+            return new IconLocation(Gravity.BOTTOM | side, 0, LinearLayout.HORIZONTAL);
         }
 
         Log.d(TAG, "computeIconLocation: " + suggestedRotation + " (active: " + activeMode + ", previous: " + mLastConcreteSuggestedMode + ")");
@@ -212,31 +263,32 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
             default:
             case Surface.ROTATION_0: {
                 int side = mLeftHanded ? Gravity.LEFT : Gravity.RIGHT;
-                return new IconLocation(Gravity.BOTTOM | side, 0);
+                return new IconLocation(Gravity.BOTTOM | side, 0, LinearLayout.HORIZONTAL);
             }
 
             case Surface.ROTATION_90: {
                 int side = mLeftHanded ? Gravity.BOTTOM : Gravity.TOP;
-                return new IconLocation(side | Gravity.RIGHT, 270);
+                return new IconLocation(side | Gravity.RIGHT, 270, LinearLayout.VERTICAL);
             }
 
             case Surface.ROTATION_180: {
                 int side = mLeftHanded ? Gravity.RIGHT : Gravity.LEFT;
-                return new IconLocation(Gravity.TOP | side, 180);
+                return new IconLocation(Gravity.TOP | side, 180, LinearLayout.HORIZONTAL);
             }
 
             case Surface.ROTATION_270: {
                 int side = mLeftHanded ? Gravity.TOP : Gravity.BOTTOM;
-                return new IconLocation(side | Gravity.LEFT, 90);
+                return new IconLocation(side | Gravity.LEFT, 90, LinearLayout.VERTICAL);
             }
         }
     }
 
-    @AllArgsConstructor
+    @Value
     private static class IconLocation {
 
-        int gravity;
-        int rotation;
+        int rootGravity;
+        int iconRotation;
+        int layoutOrientation;
 
     }
 

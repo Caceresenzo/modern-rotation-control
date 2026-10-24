@@ -90,7 +90,7 @@ public class RotationService extends Service {
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
 
-    private Context mThemedContext;
+    private @Getter Context themedContext;
     private View mView;
 
     private @Getter Handler handler;
@@ -111,7 +111,7 @@ public class RotationService extends Service {
     public void onCreate() {
         Log.i(TAG, "onCreate");
 
-        mThemedContext = Colors.createThemedContext(this, R.style.AppTheme_Application);
+        themedContext = Colors.createThemedContext(this, R.style.AppTheme_Application);
 
         Notifications.createChannels(this);
 
@@ -132,8 +132,8 @@ public class RotationService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
 
-        if (mThemedContext != null) {
-            mThemedContext = null;
+        if (themedContext != null) {
+            themedContext = null;
         }
 
         if (mView != null) {
@@ -361,8 +361,8 @@ public class RotationService extends Service {
             layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
         }
 
-        int activeColor = Colors.getActive(mThemedContext);
-        int inactiveColor = Colors.getInactive(mThemedContext);
+        int activeColor = Colors.getActive(themedContext);
+        int inactiveColor = Colors.getInactive(themedContext);
 
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.notification_buttons_key), null);
         for (ActionButton button : ActionButton.values()) {

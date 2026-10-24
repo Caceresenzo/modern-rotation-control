@@ -32,6 +32,14 @@
         app:title="@string/suggestion_expiration_title" />
 
     <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:dependency="@string/suggestions_enabled_key"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestion_co_suggest_auto_key"
+        app:summary="@string/suggestion_co_suggest_auto_description"
+        app:title="@string/suggestion_co_suggest_auto_title" />
+
+    <SwitchPreferenceCompat
         app:defaultValue="false"
         app:dependency="@string/suggestions_enabled_key"
         app:iconSpaceReserved="false"

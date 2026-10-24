@@ -129,6 +129,10 @@
     <string name="suggestion_expiration_title">Suggestion Expiration</string>
     <string name="suggestion_expiration_description">The delay (in milliseconds) after which the suggestion disappears.</string>
 
+    <string name="suggestion_co_suggest_auto_key">suggestion_co_suggest_auto</string>
+    <string name="suggestion_co_suggest_auto_title">Always co-suggest Auto</string>
+    <string name="suggestion_co_suggest_auto_description">Show a button to apply the Auto mode next to the suggested mode.</string>
+
     <string name="suggestion_button_bigger_key">suggestion_button_bigger</string>
     <string name="suggestion_button_bigger_title">Make Button bigger</string>
     <string name="suggestion_button_bigger_description">Make the button bigger.</string>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:divider="@drawable/blank_divider"
+    android:showDividers="middle"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/suggested_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/circle_background"
+        android:scaleType="centerInside"
+        android:src="@drawable/mode_portrait" />
+
+    <ImageButton
+        android:id="@+id/mode_auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/circle_background"
+        android:scaleType="centerInside"
+        android:src="@drawable/mode_auto" />
+
+</LinearLayout>
