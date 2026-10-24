@@ -1,15 +1,10 @@
 package dev.caceresenzo.rotationcontrol.tile;
 
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.HashSet;
@@ -26,16 +20,13 @@ import java.util.Set;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.RotationServiceStateProvider;
 import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.util.Colors;
 
-public class QuickActionsDialog extends Dialog implements View.OnClickListener {
+public class QuickActionsDialog extends Dialog implements View.OnClickListener, RotationServiceStateProvider.Callback {
 
-    private final Connection mConnection = new Connection();
-    private final Listener mListener = new Listener();
-
-    private boolean mShouldUnbind = false;
-    private RotationService mService;
+    private RotationServiceStateProvider mServiceStateProvider;
 
     private SharedPreferences mPreferences;
     private boolean mShowButtonsAsLine;
@@ -70,26 +61,17 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
                         : R.layout.quick_actions_dialog_pad
         );
 
+        mServiceStateProvider = new RotationServiceStateProvider(getContext(), this);
+
         for (ActionButton button : ActionButton.values()) {
             ImageView view = findViewById(button.viewId());
             view.setOnClickListener(this);
         }
-
-        boolean isServiceRunning = RotationService.isRunning(getApplicationContext());
-
-        TextView infoView = findViewById(R.id.info);
-        infoView.setTextColor(Colors.getActive(getContext()));
-
-        if (isServiceRunning) {
-            infoView.setVisibility(View.GONE);
-        }
-
-        updateViews(false, null, isServiceRunning);
     }
 
     @Override
     public void onClick(View view) {
-        final Context context = getApplicationContext();
+        final Context context = getContext();
 
         ActionButton button = ActionButton.fromViewId(view.getId());
         if (button == null) {
@@ -127,44 +109,33 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
     protected void onStart() {
         super.onStart();
 
-        final Context context = getApplicationContext();
-
-        Intent intent = new Intent(context, RotationService.class);
-        mShouldUnbind = context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
-        IntentFilter filter = new IntentFilter(RotationService.ACTION_NOTIFY_UPDATED);
-        ContextCompat.registerReceiver(context, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
-    }
-
-    private void onServiceConnected() {
-        RotationMode activeMode = mService.getActiveMode();
-        boolean guard = mService.isGuardEnabledOrForced();
-        boolean isServiceRunning = mService.isRunning();
-
-        updateViews(guard, activeMode, isServiceRunning);
+        mServiceStateProvider.bind();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        final Context context = getApplicationContext();
-
-        if (mShouldUnbind) {
-            mShouldUnbind = false;
-
-            context.unbindService(mConnection);
-            mService = null;
-        }
-
-        context.unregisterReceiver(mListener);
+        mServiceStateProvider.unbind();
     }
 
-    public void updateViews(boolean guard, RotationMode activeMode, boolean isServiceRunning) {
+    @Override
+    public void onRotationData(RotationServiceStateProvider.State state) {
+        updateViews(state.isRunning(), state.getActiveMode(), state.isGuardOrForced());
+    }
+
+    public void updateViews(boolean isServiceRunning, RotationMode activeMode, boolean guard) {
         final Context context = getContext();
+
+        TextView infoView = findViewById(R.id.info);
+        infoView.setTextColor(Colors.getActive(context));
+        infoView.setVisibility(isServiceRunning ? View.GONE : View.VISIBLE);
 
         Set<String> enabledButtons = mPreferences.getStringSet(context.getString(R.string.tile_buttons_key), null);
         Set<Integer> enabledLineIds = new HashSet<>();
+
+        int activeColor = Colors.getActive(context);
+        int inactiveColor = Colors.getInactive(context);
 
         for (ActionButton button : ActionButton.values()) {
             ImageView view = findViewById(button.viewId());
@@ -176,7 +147,11 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
                 enabledLineIds.add(button.lineId());
             }
 
-            setActiveColor(context, view, button.isActive(activeMode, guard, isServiceRunning));
+            int color = button.isActive(activeMode, guard, isServiceRunning)
+                    ? activeColor
+                    : inactiveColor;
+
+            view.setColorFilter(color);
         }
 
         boolean swapButtonDirection = mPreferences.getBoolean(context.getString(R.string.tile_swap_buttons_direction_key), false);
@@ -207,64 +182,10 @@ public class QuickActionsDialog extends Dialog implements View.OnClickListener {
         line.setLayoutDirection(swap ? LinearLayout.LAYOUT_DIRECTION_RTL : LinearLayout.LAYOUT_DIRECTION_LTR);
     }
 
-    private void setActiveColor(Context context, ImageView view, boolean active) {
-        int color = active
-                ? Colors.getActive(context)
-                : Colors.getInactive(context);
-
-        view.setColorFilter(color);
-    }
-
     public boolean shouldCloseOnClick() {
-        final Context context = getApplicationContext();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        final Context context = getContext();
 
-        return preferences.getBoolean(context.getString(R.string.close_dialog_on_click_key), true);
-    }
-
-    public Context getApplicationContext() {
-        return getContext().getApplicationContext();
-    }
-
-    /* https://developer.android.com/reference/android/app/Service#:~:text=With%20that%20done%2C%20one%20can%20now%20write%20client%20code%20that%20directly%20accesses%20the%20running%20service%2C%20such%20as%3A */
-    public class Connection implements ServiceConnection {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            RotationService.LocalBinder binder = (RotationService.LocalBinder) service;
-            mService = binder.getService();
-
-            QuickActionsDialog.this.onServiceConnected();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mService = null;
-        }
-
-    }
-
-    public class Listener extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent == null) {
-                return;
-            }
-
-            String action = intent.getAction();
-            if (!RotationService.ACTION_NOTIFY_UPDATED.equals(action)) {
-                return;
-            }
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-            boolean guard = preferences.getBoolean(context.getString(R.string.guard_key), false);
-            RotationMode activeMode = RotationMode.fromPreferences(context);
-            boolean isServiceRunning = RotationService.isRunning(context);
-
-            updateViews(guard, activeMode, isServiceRunning);
-        }
+        return mPreferences.getBoolean(context.getString(R.string.close_dialog_on_click_key), true);
     }
 
 }

@@ -1,40 +1,34 @@
 package dev.caceresenzo.rotationcontrol.tile;
 
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.os.IBinder;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.util.Log;
 import android.view.WindowManager;
 
-import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
-
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.RotationServiceStateProvider;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 
-public class RotationTileService extends TileService implements ServiceConnection {
+public class RotationTileService extends TileService implements RotationServiceStateProvider.Callback {
 
     public static final String TAG = RotationTileService.class.getSimpleName();
 
-    private Listener mListener;
+    private RotationServiceStateProvider mServiceStateProvider;
 
-    private RotationService mService;
-    private boolean mShouldUnbindService;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mServiceStateProvider = new RotationServiceStateProvider(this, this);
+    }
 
     @Override
     public void onStartListening() {
@@ -42,28 +36,11 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
         Log.i(TAG, "onStartListening");
 
-        if (mListener == null) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(RotationService.ACTION_NOTIFY_CREATED);
-            filter.addAction(RotationService.ACTION_NOTIFY_UPDATED);
-            filter.addAction(RotationService.ACTION_NOTIFY_DESTROYED);
-
-            Listener listener = new Listener();
-            ContextCompat.registerReceiver(this, listener, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
-
-            mListener = listener;
-        }
-
-        if (mService == null) {
-            Intent intent = new Intent(this, RotationService.class);
-            mShouldUnbindService = bindService(intent, this, 0);
-        }
-
-        if (RotationService.isRunning(this)) {
-            updateTile(true);
-        } else if (RotationSharedPreferences.from(getApplicationContext()).shouldStartControl()) {
+        if (!RotationService.isRunning(this) && RotationSharedPreferences.from(getApplicationContext()).shouldStartControl()) {
             RotationService.start(this);
         }
+
+        mServiceStateProvider.bind();
     }
 
     @Override
@@ -72,33 +49,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
         Log.i(TAG, "onStopListening");
 
-        if (mListener != null) {
-            unregisterReceiver(mListener);
-            mListener = null;
-        }
-
-        unbindServiceIfPossible();
-    }
-
-    private void unbindServiceIfPossible() {
-        if (mShouldUnbindService) {
-            unbindService(this);
-            mService = null;
-            mShouldUnbindService = false;
-        }
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-        RotationService.LocalBinder binder = (RotationService.LocalBinder) service;
-        mService = binder.getService();
-
-        updateTileUsingService();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName className) {
-        mService = null;
+        mServiceStateProvider.unbind();
     }
 
     @Override
@@ -179,23 +130,9 @@ public class RotationTileService extends TileService implements ServiceConnectio
         tile.updateTile();
     }
 
-    public void updateTile(boolean running) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        RotationMode activeMode = RotationMode.fromPreferences(this);
-        boolean guard = preferences.getBoolean(getString(R.string.guard_key), true);
-        boolean presets = false;
-
-        updateTile(running, activeMode, guard, presets);
-    }
-
-    public void updateTileUsingService() {
-        boolean isRunning = mService.isRunning();
-        RotationMode activeMode = mService.getActiveMode();
-        boolean guard = mService.isGuardEnabledOrForced();
-        boolean presets = mService.isUsingPresets();
-
-        updateTile(isRunning, activeMode, guard, presets);
+    @Override
+    public void onRotationData(RotationServiceStateProvider.State state) {
+        updateTile(state.isRunning(), state.getActiveMode(), state.isGuardOrForced(), state.isPresets());
     }
 
     public void updateTile(boolean running, RotationMode activeMode, boolean guard, boolean presets) {
@@ -228,45 +165,6 @@ public class RotationTileService extends TileService implements ServiceConnectio
         Log.d(TAG, String.format("updated tile - running=%s activeMode=%s guard=%s presets=%s", running, activeMode, guard, presets));
     }
 
-    public class Listener extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent == null) {
-                return;
-            }
-
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-
-            Log.d(TAG, String.format("received intent - action=%s", action));
-
-            switch (action) {
-                case RotationService.ACTION_NOTIFY_CREATED: {
-                    updateTile(true);
-                    break;
-                }
-
-                case RotationService.ACTION_NOTIFY_UPDATED: {
-                    if (mService != null) {
-                        updateTileUsingService();
-                    }
-
-                    break;
-                }
-
-                case RotationService.ACTION_NOTIFY_DESTROYED: {
-                    updateTile(false);
-                    unbindServiceIfPossible();
-
-                    break;
-                }
-            }
-        }
-    }
-
     public Icon getIconWith(RotationMode mode, boolean guard, boolean presets) {
         if (!guard && !presets) {
             return Icon.createWithResource(this, mode.drawableId());
@@ -277,7 +175,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
         if (guard) {
             Bitmap bitmap = getBitmapFromDrawable(getDrawable(R.drawable.guard));
-            Bitmap scaledBitmap = scaledBitmap(bitmap, 0.4f);
+            Bitmap scaledBitmap = scaleBitmap(bitmap, 0.4f);
 
             int left = mainBitmap.getWidth() - scaledBitmap.getWidth();
             int top = mainBitmap.getHeight() - scaledBitmap.getHeight();
@@ -298,7 +196,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
         if (presets) {
             Bitmap bitmap = getBitmapFromDrawable(getDrawable(R.drawable.icon_smart_toy));
-            Bitmap scaledBitmap = scaledBitmap(bitmap, 0.4f);
+            Bitmap scaledBitmap = scaleBitmap(bitmap, 0.4f);
 
             int left = 0;
             int top = 0;
@@ -320,7 +218,7 @@ public class RotationTileService extends TileService implements ServiceConnectio
         return Icon.createWithBitmap(mainBitmap);
     }
 
-    private static Bitmap scaledBitmap(Bitmap original, float scale) {
+    private static Bitmap scaleBitmap(Bitmap original, float scale) {
         int width = (int) (original.getWidth() * scale);
         int height = (int) (original.getHeight() * scale);
 

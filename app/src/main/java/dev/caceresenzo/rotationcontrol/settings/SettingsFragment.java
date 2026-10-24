@@ -29,8 +29,8 @@ import java.util.Objects;
 
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.oss.OssLicensesActivity;
-import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.rotation.RotationServiceStateProvider;
 import dev.caceresenzo.rotationcontrol.rotation.subsystem.SuggestionsSystem;
 import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragmentCompat;
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
@@ -38,8 +38,9 @@ import dev.caceresenzo.rotationcontrol.tile.RotationTileService;
 import dev.caceresenzo.rotationcontrol.util.Links;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 
-public class SettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
+public class SettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, RotationServiceStateProvider.Callback {
 
+    private RotationServiceStateProvider mServiceStateProvider;
     private ActivityResultLauncher<String> mNotificationPermissionActivityResultLauncher;
 
     @Override
@@ -51,6 +52,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         }
 
+        mServiceStateProvider = new RotationServiceStateProvider(getContext(), this);
         mNotificationPermissionActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 (accepted) -> {
@@ -81,10 +83,35 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        mServiceStateProvider.bind();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
+        mServiceStateProvider.bind();
         updateRecommendationsVisibility();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mServiceStateProvider.unbind();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+        if (sharedPreferences != null) {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        }
     }
 
     private void updateRecommendationsVisibility() {
@@ -126,16 +153,6 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
 
             preference.setEnabled(false);
             preference.setSummary(R.string.settings_suggestions_description_not_available);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        if (sharedPreferences != null) {
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         }
     }
 
@@ -267,14 +284,18 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
         if (getString(R.string.guard_key).equals(key) || getString(R.string.mode_key).equals(key)) {
             RotationService.notifyConfigurationChanged(context);
         }
-
-        refresh(sharedPreferences);
     }
 
-    private void refresh(SharedPreferences sharedPreferences) {
+    @Override
+    public void onRotationData(RotationServiceStateProvider.State state) {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+
         {
             String key = getString(R.string.start_control_key);
-            boolean value = sharedPreferences.getBoolean(key, false);
+            boolean value = state.isRunning();
 
             SwitchPreferenceCompat preference = findPreference(key);
             preference.setChecked(value);
@@ -282,7 +303,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
 
         {
             String key = getString(R.string.guard_key);
-            boolean value = sharedPreferences.getBoolean(key, false);
+            boolean value = state.isGuard();
 
             SwitchPreferenceCompat preference = findPreference(key);
             preference.setChecked(value);
@@ -290,7 +311,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
 
         {
             String key = getString(R.string.mode_key);
-            String value = sharedPreferences.getString(key, RotationMode.AUTO.name());
+            String value = state.getActiveMode().toString();
 
             ListPreference preference = findPreference(key);
             preference.setValue(value);

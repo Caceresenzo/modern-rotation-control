@@ -86,8 +86,6 @@ public class RotationService extends Service {
     private final IBinder binder = new LocalBinder();
 
     private boolean started;
-    @Getter
-    private boolean running;
     private @Getter boolean guard = true;
     private @Getter RotationMode activeMode = RotationMode.AUTO;
     private @Getter RotationMode previousActiveMode = null;
@@ -164,7 +162,7 @@ public class RotationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        promoteToForeground();
+        boolean wasStarted = promoteToForeground();
 
         String action = (intent != null && intent.getAction() != null)
                 ? intent.getAction()
@@ -269,7 +267,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED: {
-                if (running) {
+                if (!wasStarted) {
                     stopSelf();
                 }
 
@@ -281,15 +279,14 @@ public class RotationService extends Service {
             }
         }
 
-        running = true;
         afterStartCommand();
 
         return START_STICKY;
     }
 
-    private void promoteToForeground() {
+    private boolean promoteToForeground() {
         if (started) {
-            return;
+            return false;
         }
 
         Notification placeholder = newNotificationBuilder(Notifications.SERVICE_CHANNEL_ID)
@@ -306,6 +303,7 @@ public class RotationService extends Service {
         }
 
         started = true;
+        return true;
     }
 
     private void afterStartCommand() {
@@ -363,15 +361,18 @@ public class RotationService extends Service {
             layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
         }
 
+        int activeColor = Colors.getActive(mThemedContext);
+        int inactiveColor = Colors.getInactive(mThemedContext);
+
         Set<String> enabledButtons = preferences.getStringSet(getString(R.string.notification_buttons_key), null);
         for (ActionButton button : ActionButton.values()) {
             if (enabledButtons != null && !enabledButtons.contains(button.name())) {
                 layout.setViewVisibility(button.viewId(), View.GONE);
             }
 
-            int color = button.isActive(activeMode, guard, running)
-                    ? Colors.getActive(mThemedContext)
-                    : Colors.getInactive(mThemedContext);
+            int color = button.isActive(activeMode, guard, true)
+                    ? activeColor
+                    : inactiveColor;
 
             layout.setInt(button.viewId(), TINT_METHOD, color);
         }
@@ -447,7 +448,7 @@ public class RotationService extends Service {
             return true;
         }
 
-        sendPermissionSettingsAndStop(R.string.permission_notification_text_write_settings, Notifications.PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID);
+        sendPermissionSettingsNotificationAndStop(R.string.permission_notification_text_write_settings, Notifications.PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID);
         return false;
     }
 
@@ -455,15 +456,14 @@ public class RotationService extends Service {
         if (Permissions.canDrawOverlays(this)) {
             NotificationManager notificationManager = Notifications.getNotificationManager(this);
             notificationManager.cancel(Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
-
             return true;
         }
 
-        sendPermissionSettingsAndStop(R.string.permission_notification_text_draw_overlays, Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
+        sendPermissionSettingsNotificationAndStop(R.string.permission_notification_text_draw_overlays, Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
         return false;
     }
 
-    private void sendPermissionSettingsAndStop(@StringRes int contentText, int notificationId) {
+    private void sendPermissionSettingsNotificationAndStop(@StringRes int contentText, int notificationId) {
         Notification notification = newNotificationBuilder(Notifications.WARNING_CHANNEL_ID)
                 .setAutoCancel(true)
                 .setContentTitle(getString(R.string.permission_notification_title))
