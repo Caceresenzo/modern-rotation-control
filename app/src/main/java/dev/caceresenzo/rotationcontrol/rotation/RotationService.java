@@ -309,7 +309,10 @@ public class RotationService extends Service {
 
     private void afterStartCommand() {
         Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
-        applyMode();
+
+        if (!applyMode()) {
+            return;
+        }
 
         NotificationManager notificationManager = Notifications.getNotificationManager(this);
         if (isNotificationShown()) {
@@ -473,16 +476,16 @@ public class RotationService extends Service {
         stopSelf();
     }
 
-    private void applyMode() {
+    private boolean applyMode() {
         if (!canWriteSettingsOrStop()) {
-            return;
+            return false;
         }
 
         ContentResolver contentResolver = getContentResolver();
 
         if (isGuardEnabledOrForced()) {
             if (!canDrawOverlaysOrStop()) {
-                return;
+                return false;
             }
 
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
@@ -515,6 +518,8 @@ public class RotationService extends Service {
                 Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, activeMode.rotationValue());
             }
         }
+
+        return true;
     }
 
     private WindowManager createUiWindowManager() {
