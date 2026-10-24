@@ -55,15 +55,15 @@ public class RotationTileService extends TileService implements ServiceConnectio
         }
 
         if (mService == null) {
-            int flags = RotationSharedPreferences.from(getApplicationContext()).shouldStartControl()
-                    ? Context.BIND_AUTO_CREATE
-                    : 0;
-
             Intent intent = new Intent(this, RotationService.class);
-            mShouldUnbindService = bindService(intent, this, flags);
+            mShouldUnbindService = bindService(intent, this, 0);
         }
 
-        updateTile(RotationService.isRunning(this));
+        if (RotationService.isRunning(this)) {
+            updateTile(true);
+        } else if (RotationSharedPreferences.from(getApplicationContext()).shouldStartControl()) {
+            RotationService.start(this);
+        }
     }
 
     @Override
@@ -77,6 +77,10 @@ public class RotationTileService extends TileService implements ServiceConnectio
             mListener = null;
         }
 
+        unbindServiceIfPossible();
+    }
+
+    private void unbindServiceIfPossible() {
         if (mShouldUnbindService) {
             unbindService(this);
             mService = null;
@@ -255,6 +259,8 @@ public class RotationTileService extends TileService implements ServiceConnectio
 
                 case RotationService.ACTION_NOTIFY_DESTROYED: {
                     updateTile(false);
+                    unbindServiceIfPossible();
+
                     break;
                 }
             }

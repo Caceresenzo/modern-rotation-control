@@ -23,7 +23,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -125,7 +124,7 @@ public class RotationService extends Service {
 
         loadFromPreferences(true);
 
-        sendBroadcast(new Intent(ACTION_NOTIFY_CREATED));
+        notifyListeners(ACTION_NOTIFY_CREATED);
     }
 
     @Override
@@ -145,7 +144,7 @@ public class RotationService extends Service {
         mAutoLockSystem.onDestroy();
         mSuggestionsSystem.onDestroy();
 
-        sendBroadcast(new Intent(ACTION_NOTIFY_DESTROYED));
+        notifyListeners(ACTION_NOTIFY_DESTROYED);
 
         PreferenceManager.getDefaultSharedPreferences(this)
                 .edit()
@@ -281,8 +280,6 @@ public class RotationService extends Service {
 
             case ACTION_STOP_IF_STARTED_OR_START_IF_STOPPED: {
                 if (running) {
-                    // TODO Service is not killed right because of the TileService
-                    Toast.makeText(this, R.string.stopping_service_soon, Toast.LENGTH_LONG).show();
                     stopSelf();
                 }
 
@@ -310,7 +307,7 @@ public class RotationService extends Service {
             notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createNotification(true));
         }
 
-        sendBroadcast(new Intent(ACTION_NOTIFY_UPDATED));
+        notifyListeners(ACTION_NOTIFY_UPDATED);
 
         RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
         preferences.setStartControl(true);
@@ -321,6 +318,13 @@ public class RotationService extends Service {
         }
 
         notificationManager.cancel(Notifications.TAP_TO_START_NOTIFICATION_ID);
+    }
+
+    private void notifyListeners(String action) {
+        Intent intent = new Intent(action);
+        intent.setPackage(getPackageName());
+
+        sendBroadcast(intent);
     }
 
     private NotificationCompat.Builder newNotificationBuilder(String channelId) {
