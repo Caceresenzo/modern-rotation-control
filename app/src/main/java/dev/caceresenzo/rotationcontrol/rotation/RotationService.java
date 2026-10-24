@@ -144,6 +144,7 @@ public class RotationService extends Service {
         }
 
         mExternalEventSystem.onDestroy();
+        mRefreshSystem.onDestroy();
         mAutoLockSystem.onDestroy();
         mSuggestionsSystem.onDestroy();
 
