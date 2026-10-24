@@ -483,6 +483,10 @@ public class RotationService extends Service {
     }
 
     private void applyMode() {
+        if (!canWriteSettingsOrStop()) {
+            return;
+        }
+
         ContentResolver contentResolver = getContentResolver();
 
         if (isGuardEnabledOrForced()) {
@@ -508,10 +512,6 @@ public class RotationService extends Service {
 
             Settings.System.putInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
         } else {
-            if (!canWriteSettingsOrStop()) {
-                return;
-            }
-
             if (mView != null) {
                 getWindowManager().removeView(mView);
                 mView = null;
