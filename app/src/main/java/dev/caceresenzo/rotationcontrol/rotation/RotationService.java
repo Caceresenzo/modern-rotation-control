@@ -13,6 +13,7 @@ import android.content.pm.ServiceInfo;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -79,6 +80,8 @@ public class RotationService extends Service {
     public static final String ACTION_NOTIFY_CREATED = BuildConfig.APPLICATION_ID + ".SERVICE_CREATED";
     public static final String ACTION_NOTIFY_DESTROYED = BuildConfig.APPLICATION_ID + ".SERVICE_DESTROYED";
     public static final String ACTION_NOTIFY_UPDATED = BuildConfig.APPLICATION_ID + ".SERVICE_UPDATED";
+
+    private static final Bundle EMPTY_BUNDLE = new Bundle(0);
 
     private final IBinder binder = new LocalBinder();
 
@@ -160,29 +163,17 @@ public class RotationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) {
-            Log.i(TAG, String.format("onStartCommand - intent=null flags=%d startId=%d", flags, startId));
-            return START_NOT_STICKY;
-        }
+        promoteToForeground();
 
-        String action = intent.getAction();
-        Log.i(TAG, String.format("onStartCommand - action=%s extras=%s flags=%d startId=%d", action, intent.getExtras(), flags, startId));
+        String action = (intent != null && intent.getAction() != null)
+                ? intent.getAction()
+                : ACTION_START;
 
-        if (action == null) {
-            return START_NOT_STICKY;
-        }
+        Bundle extras = (intent != null && intent.getExtras() != null)
+                ? intent.getExtras()
+                : EMPTY_BUNDLE;
 
-        if (!started) {
-            Notification notification = createNotification(isNotificationShown());
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                startForeground(Notifications.SERVICE_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-            } else {
-                startForeground(Notifications.SERVICE_NOTIFICATION_ID, notification);
-            }
-
-            started = true;
-        }
+        Log.i(TAG, String.format("onStartCommand - action=%s extras=%s flags=%d startId=%d", action, extras, flags, startId));
 
         switch (action) {
             case ACTION_START: {
@@ -202,7 +193,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_PRESETS_UPDATE: {
-                RotationMode newMode = RotationMode.valueOf(intent.getStringExtra(INTENT_NEW_MODE));
+                RotationMode newMode = RotationMode.valueOf(extras.getString(INTENT_NEW_MODE));
 
                 previousActiveMode = activeMode;
                 activeMode = newMode;
@@ -251,7 +242,7 @@ public class RotationService extends Service {
             }
 
             case ACTION_CHANGE_MODE: {
-                RotationMode newMode = RotationMode.valueOf(intent.getStringExtra(INTENT_NEW_MODE));
+                RotationMode newMode = RotationMode.valueOf(extras.getString(INTENT_NEW_MODE));
                 Log.i(TAG, String.format("new mode=%s", newMode));
 
                 activeMode = newMode;
@@ -271,8 +262,6 @@ public class RotationService extends Service {
                 previousActiveMode = activeMode;
                 activeMode = getCurrentDisplayRotation().next().rotationMode();
 
-                applyMode();
-
                 mRefreshSystem.schedule();
 
                 break;
@@ -288,7 +277,6 @@ public class RotationService extends Service {
 
             default: {
                 Log.i(TAG, String.format("unknown action - action=%s", action));
-                return START_NOT_STICKY;
             }
         }
 
@@ -298,13 +286,34 @@ public class RotationService extends Service {
         return START_STICKY;
     }
 
+    private void promoteToForeground() {
+        if (started) {
+            return;
+        }
+
+        Notification placeholder = newNotificationBuilder(Notifications.SERVICE_CHANNEL_ID)
+                .setSubText(getString(R.string.notification_discard_me_title))
+                .setContentText(getString(R.string.notification_discard_me_subtitle))
+                .setOngoing(true)
+                .setSilent(true)
+                .build();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(Notifications.SERVICE_NOTIFICATION_ID, placeholder, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            startForeground(Notifications.SERVICE_NOTIFICATION_ID, placeholder);
+        }
+
+        started = true;
+    }
+
     private void afterStartCommand() {
         Log.i(TAG, String.format("afterStartCommand - guard=%s mode=%s", guard, activeMode));
         applyMode();
 
         NotificationManager notificationManager = Notifications.getNotificationManager(this);
         if (isNotificationShown()) {
-            notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createNotification(true));
+            notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createControlNotification());
         }
 
         notifyListeners(ACTION_NOTIFY_UPDATED);
@@ -332,43 +341,42 @@ public class RotationService extends Service {
                 .setSmallIcon(R.drawable.mode_auto);
     }
 
-    private Notification createNotification(boolean showNotification) {
-        String channelId = showNotification
-                ? Notifications.CONTROLS_CHANNEL_ID
-                : Notifications.SERVICE_CHANNEL_ID;
+    private Notification createControlNotification() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        NotificationCompat.Builder notificationBuilder = newNotificationBuilder(channelId)
+        NotificationCompat.Builder notificationBuilder = newNotificationBuilder(Notifications.CONTROLS_CHANNEL_ID)
                 .setOngoing(true)
                 .setSilent(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET);
 
-        if (showNotification) {
-            RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
-            layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
-            layout.setOnClickPendingIntent(R.id.refresh, newRefreshModePendingIntent());
-            layout.setOnClickPendingIntent(R.id.power, newStartIfStoppedOrStopIfStartedPendingIntent());
+        RemoteViews layout = new RemoteViews(getPackageName(), R.layout.notification);
+        layout.setOnClickPendingIntent(R.id.guard, newGuardPendingIntent());
+        layout.setOnClickPendingIntent(R.id.refresh, newRefreshModePendingIntent());
+        layout.setOnClickPendingIntent(R.id.power, newStartIfStoppedOrStopIfStartedPendingIntent());
 
-            for (RotationMode mode : RotationMode.values()) {
-                // Log.i(TAG, String.format("attach intent - mode=%s viewId=%d", mode, mode.viewId()));
-                layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
-            }
-
-            notificationBuilder
-                    .setCustomContentView(layout)
-                    .setCustomBigContentView(layout)
-                    .setDeleteIntent(newRefreshNotificationPendingIntent());
-
-            updateViews(layout);
-        } else {
-            notificationBuilder
-                    .setSubText(getString(R.string.notification_discard_me_title))
-                    .setContentText(getString(R.string.notification_discard_me_subtitle));
+        for (RotationMode mode : RotationMode.values()) {
+            layout.setOnClickPendingIntent(mode.viewId(), newModePendingIntent(mode));
         }
 
-        Log.i(TAG, String.format("prepared notification - showNotification=%s", showNotification));
+        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.notification_buttons_key), null);
+        for (ActionButton button : ActionButton.values()) {
+            if (enabledButtons != null && !enabledButtons.contains(button.name())) {
+                layout.setViewVisibility(button.viewId(), View.GONE);
+            }
 
-        return notificationBuilder.build();
+            int color = button.isActive(activeMode, guard, running)
+                    ? Colors.getActive(mThemedContext)
+                    : Colors.getInactive(mThemedContext);
+
+            layout.setInt(button.viewId(), TINT_METHOD, color);
+        }
+
+        return notificationBuilder
+                .setCustomContentView(layout)
+                .setCustomBigContentView(layout)
+                .setDeleteIntent(newRefreshNotificationPendingIntent())
+                .build();
     }
 
     private boolean isNotificationShown() {
@@ -417,27 +425,6 @@ public class RotationService extends Service {
 
     public boolean isCurrentlyRefreshing() {
         return mRefreshSystem.isCurrentlyRefreshing();
-    }
-
-    private void updateViews(RemoteViews layout) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        Set<String> enabledButtons = preferences.getStringSet(getString(R.string.notification_buttons_key), null);
-        for (ActionButton button : ActionButton.values()) {
-            if (enabledButtons != null && !enabledButtons.contains(button.name())) {
-                layout.setViewVisibility(button.viewId(), View.GONE);
-            }
-
-            setActiveColor(layout, button.viewId(), button.isActive(activeMode, guard, running));
-        }
-    }
-
-    private void setActiveColor(RemoteViews layout, int viewId, boolean active) {
-        int color = active
-                ? Colors.getActive(mThemedContext)
-                : Colors.getInactive(mThemedContext);
-
-        layout.setInt(viewId, TINT_METHOD, color);
     }
 
     public void restorePreviousMode() {
