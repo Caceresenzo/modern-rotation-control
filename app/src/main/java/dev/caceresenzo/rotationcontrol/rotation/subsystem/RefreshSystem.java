@@ -1,5 +1,7 @@
 package dev.caceresenzo.rotationcontrol.rotation.subsystem;
 
+import android.content.SharedPreferences;
+
 import androidx.preference.PreferenceManager;
 
 import dev.caceresenzo.rotationcontrol.R;
@@ -18,10 +20,18 @@ public class RefreshSystem extends System {
         }
     };
 
+    private long mDelay;
+
     private @Getter boolean currentlyRefreshing;
 
     public RefreshSystem(RotationService service) {
         super(service);
+    }
+
+    @Override
+    public void onConfiguration(SharedPreferences preferences, boolean isFirstTime) {
+        String rawDelay = PreferenceManager.getDefaultSharedPreferences(mService).getString(getString(R.string.refresh_mode_delay_key), "600");
+        mDelay = Long.parseLong(rawDelay);
     }
 
     public void onDestroy() {
@@ -31,10 +41,7 @@ public class RefreshSystem extends System {
     public void schedule() {
         currentlyRefreshing = true;
 
-        String rawDelay = PreferenceManager.getDefaultSharedPreferences(mService).getString(getString(R.string.refresh_mode_delay_key), "600");
-        long delay = Long.parseLong(rawDelay);
-
-        getHandler().postDelayed(mBroadcastToggleGuardIntent, delay);
+        getHandler().postDelayed(mBroadcastToggleGuardIntent, mDelay);
     }
 
     public void cancel() {
