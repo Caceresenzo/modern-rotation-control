@@ -25,6 +25,14 @@ public enum SuggestedRotationMode {
         return rotationMode.rotationValue();
     }
 
+    public boolean isPortrait() {
+        return rotationMode.isPortrait();
+    }
+
+    public boolean isLandscape() {
+        return rotationMode.isLandscape();
+    }
+
     public static SuggestedRotationMode fromNullableAsAuto(DisplayRotation displayRotation) {
         if (displayRotation == null) {
             return AUTO;

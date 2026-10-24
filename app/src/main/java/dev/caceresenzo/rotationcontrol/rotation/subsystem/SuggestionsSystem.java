@@ -37,6 +37,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private static final int BIGGER_PADDING = 48;
 
     private boolean mEnabled;
+    private boolean mDisableWhenUseless;
     private Set<SuggestedRotationMode> mSuggestForModes = EnumSet.noneOf(SuggestedRotationMode.class);
     private int mExpiration;
     private boolean mCoSuggestAuto;
@@ -96,6 +97,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     @Override
     public void onConfiguration(SharedPreferences preferences, boolean isFirstTime) {
         mEnabled = preferences.getBoolean(getString(R.string.suggestions_enabled_key), true);
+        mDisableWhenUseless = preferences.getBoolean(getString(R.string.suggestion_disable_when_useless_key), true);
         mExpiration = preferences.getInt(getString(R.string.suggestion_expiration_key), 3000);
         mLeftHanded = preferences.getBoolean(getString(R.string.suggestion_swap_button_side_key), false);
 
@@ -172,6 +174,11 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
             return;
         }
 
+        if (mDisableWhenUseless && isUselessSuggestion(suggestedMode)) {
+            hideSuggestion();
+            return;
+        }
+
         if (mSuggestionView == null) {
             mSuggestionView = (LinearLayout) LayoutInflater
                     .from(mService.getThemedContext())
@@ -218,6 +225,30 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
         mSuggestionToken = new Object();
         getHandler().postDelayed(mHideSuggestion, mSuggestionToken, mExpiration);
+    }
+
+    public boolean isUselessSuggestion(SuggestedRotationMode suggestedMode) {
+        RotationMode activeMode = mService.getActiveMode();
+
+        switch (activeMode) {
+
+            case AUTO: {
+                return true;
+            }
+
+            case PORTRAIT_SENSOR: {
+                return suggestedMode.isPortrait();
+            }
+
+            case LANDSCAPE_SENSOR: {
+                return suggestedMode.isLandscape();
+            }
+
+            default: {
+                return false;
+            }
+
+        }
     }
 
     private void applyButtonChanges(ImageButton button) {

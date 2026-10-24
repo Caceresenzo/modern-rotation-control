@@ -8,6 +8,14 @@
         app:summary="@string/suggestions_enabled_key_description"
         app:title="@string/suggestions_enabled_key_title" />
 
+    <SwitchPreferenceCompat
+        app:defaultValue="true"
+        app:dependency="@string/suggestions_enabled_key"
+        app:iconSpaceReserved="false"
+        app:key="@string/suggestion_disable_when_useless_key"
+        app:summary="@string/suggestion_disable_when_useless_description"
+        app:title="@string/suggestion_disable_when_useless_title" />
+
     <dev.caceresenzo.rotationcontrol.settings.preference.MultiSelectListPreferenceWithDescription
         app:defaultValue="@array/suggestions_values"
         app:dependency="@string/suggestions_enabled_key"

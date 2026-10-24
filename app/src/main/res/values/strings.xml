@@ -121,6 +121,10 @@
     <string name="suggestions_enabled_key_title">Enable rotation Suggestions</string>
     <string name="suggestions_enabled_key_description">Show a small icon to quickly apply a new rotation.</string>
 
+    <string name="suggestion_disable_when_useless_key">suggestion_disable_when_useless</string>
+    <string name="suggestion_disable_when_useless_title">Disable when useless</string>
+    <string name="suggestion_disable_when_useless_description">Do not show a suggestion when the current mode conflicts with it. Always on Auto or any mode on its Sensor equivalent.</string>
+
     <string name="suggest_for_modes_key">suggest_for_modes</string>
     <string name="suggest_for_modes_title">Suggest for Modes</string>
     <string name="suggest_for_modes_description">Only specify some suggestions.</string>
