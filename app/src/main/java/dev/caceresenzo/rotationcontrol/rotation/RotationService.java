@@ -323,13 +323,17 @@ public class RotationService extends Service {
         notificationManager.cancel(Notifications.TAP_TO_START_NOTIFICATION_ID);
     }
 
+    private NotificationCompat.Builder newNotificationBuilder(String channelId) {
+        return new NotificationCompat.Builder(getApplicationContext(), channelId)
+                .setSmallIcon(R.drawable.mode_auto);
+    }
+
     private Notification createNotification(boolean showNotification) {
         String channelId = showNotification
                 ? Notifications.CONTROLS_CHANNEL_ID
                 : Notifications.SERVICE_CHANNEL_ID;
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
-                .setSmallIcon(R.drawable.mode_auto)
+        NotificationCompat.Builder notificationBuilder = newNotificationBuilder(channelId)
                 .setOngoing(true)
                 .setSilent(true)
                 .setShowWhen(false)
@@ -351,19 +355,11 @@ public class RotationService extends Service {
                     .setCustomBigContentView(layout)
                     .setDeleteIntent(newRefreshNotificationPendingIntent());
 
-            notificationBuilder
-                    .setSubText(null);
-
             updateViews(layout);
         } else {
             notificationBuilder
                     .setSubText(getString(R.string.notification_discard_me_title))
                     .setContentText(getString(R.string.notification_discard_me_subtitle));
-
-            notificationBuilder
-                    .setCustomContentView(null)
-                    .setCustomBigContentView(null)
-                    .setDeleteIntent(null);
         }
 
         Log.i(TAG, String.format("prepared notification - showNotification=%s", showNotification));
@@ -384,7 +380,7 @@ public class RotationService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), Notifications.WARNING_CHANNEL_ID)
+        NotificationCompat.Builder notificationBuilder = newNotificationBuilder(Notifications.WARNING_CHANNEL_ID)
                 .setSilent(true)
                 .setSubText(getString(R.string.notification_accessibility_not_enabled_title))
                 .setContentText(getString(R.string.notification_accessibility_not_enabled_subtitle))
@@ -473,8 +469,7 @@ public class RotationService extends Service {
     }
 
     private void sendPermissionSettingsAndStop(@StringRes int contentText, int notificationId) {
-        Notification notification = new NotificationCompat.Builder(this, Notifications.WARNING_CHANNEL_ID)
-                .setSmallIcon(R.drawable.mode_auto)
+        Notification notification = newNotificationBuilder(Notifications.WARNING_CHANNEL_ID)
                 .setAutoCancel(true)
                 .setContentTitle(getString(R.string.permission_notification_title))
                 .setContentText(getString(contentText))
