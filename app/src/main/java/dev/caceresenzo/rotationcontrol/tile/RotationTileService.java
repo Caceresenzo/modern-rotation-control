@@ -43,14 +43,15 @@ public class RotationTileService extends TileService implements ServiceConnectio
         Log.i(TAG, "onStartListening");
 
         if (mListener == null) {
-            mListener = new Listener();
-
             IntentFilter filter = new IntentFilter();
             filter.addAction(RotationService.ACTION_NOTIFY_CREATED);
             filter.addAction(RotationService.ACTION_NOTIFY_UPDATED);
             filter.addAction(RotationService.ACTION_NOTIFY_DESTROYED);
 
-            ContextCompat.registerReceiver(this, mListener, filter, ContextCompat.RECEIVER_EXPORTED);
+            Listener listener = new Listener();
+            ContextCompat.registerReceiver(this, listener, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+
+            mListener = listener;
         }
 
         if (mService == null) {
