@@ -2,6 +2,7 @@ package dev.caceresenzo.rotationcontrol.accessibility;
 
 import android.accessibilityservice.AccessibilityService;
 import android.app.NotificationManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -37,7 +38,7 @@ public class RotationAccessibilityService extends AccessibilityService {
         }
 
         CharSequence className = event.getClassName();
-        if (SOFT_INPUT_CLASS.contentEquals(className)) {
+        if (TextUtils.equals(SOFT_INPUT_CLASS, className)) {
             onKeyboardAppeared();
             return;
         }
@@ -47,7 +48,7 @@ public class RotationAccessibilityService extends AccessibilityService {
             return;
         }
 
-        if (currentPackageName.equals(APPLICATION_PACKAGE) && QUICK_ACTIONS_DIALOG.contentEquals(event.getClassName())) {
+        if (currentPackageName.equals(APPLICATION_PACKAGE) && TextUtils.equals(QUICK_ACTIONS_DIALOG, className)) {
             return;
         }
 
