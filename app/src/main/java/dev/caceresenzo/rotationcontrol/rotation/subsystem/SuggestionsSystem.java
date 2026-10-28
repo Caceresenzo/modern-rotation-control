@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +44,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private boolean mCoSuggestAuto;
     private boolean mBiggerButton;
     private boolean mLeftHanded;
+
+    private PowerManager mPowerManager;
 
     private LinearLayout mSuggestionView;
     private ImageButton mSuggestedModeButtonView;
@@ -89,6 +92,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     }
 
     public void onCreate() {
+        mPowerManager = mService.getSystemService(PowerManager.class);
+
         if (IS_SUPPORTED) {
             mService.getWindowManager().addProposedRotationListener(mService.getMainExecutor(), mOnProposedRotation);
         }
@@ -170,6 +175,11 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     }
 
     public void showSuggestion(SuggestedRotationMode suggestedMode) {
+        // NOTE: Adding then removing an overlay while the screen is off can make the system destroy the window context, which silently kills the proposed rotation listener
+        if (!mPowerManager.isInteractive()) {
+            return;
+        }
+
         if (!mService.canDrawOverlaysOrStop()) {
             return;
         }
