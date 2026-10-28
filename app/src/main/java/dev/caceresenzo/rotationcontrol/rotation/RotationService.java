@@ -132,9 +132,7 @@ public class RotationService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
 
-        if (themedContext != null) {
-            themedContext = null;
-        }
+        themedContext = null;
 
         if (mView != null) {
             getWindowManager().removeView(mView);
@@ -157,7 +155,6 @@ public class RotationService extends Service {
         notificationManager.cancel(Notifications.SERVICE_NOTIFICATION_ID);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
-        stopSelf();
     }
 
     @Override
