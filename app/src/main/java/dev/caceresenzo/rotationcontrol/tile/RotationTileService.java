@@ -9,6 +9,7 @@ import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.util.Log;
+import android.view.Display;
 import android.view.WindowManager;
 
 import dev.caceresenzo.rotationcontrol.R;
@@ -16,6 +17,7 @@ import dev.caceresenzo.rotationcontrol.rotation.RotationMode;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.rotation.RotationServiceStateProvider;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
+import dev.caceresenzo.rotationcontrol.util.Managers;
 
 public class RotationTileService extends TileService implements RotationServiceStateProvider.Callback {
 
@@ -96,8 +98,9 @@ public class RotationTileService extends TileService implements RotationServiceS
                 RotationMode mode = preferences.getMode();
 
                 if (RotationMode.AUTO.equals(mode)) {
-                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                    int rotation = windowManager.getDefaultDisplay().getRotation();
+                    int rotation = Managers.getDisplayManager(this)
+                            .getDisplay(Display.DEFAULT_DISPLAY)
+                            .getRotation();
 
                     mode = RotationMode.fromRotationValue(rotation);
                 }

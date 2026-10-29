@@ -11,6 +11,7 @@ import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetRotationMode;
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
 import dev.caceresenzo.rotationcontrol.tile.QuickActionsDialog;
+import dev.caceresenzo.rotationcontrol.util.Managers;
 import dev.caceresenzo.rotationcontrol.util.Notifications;
 
 public class RotationAccessibilityService extends AccessibilityService {
@@ -68,7 +69,7 @@ public class RotationAccessibilityService extends AccessibilityService {
     }
 
     private void cancelNotification() {
-        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        NotificationManager notificationManager = Managers.getNotificationManager(this);
         notificationManager.cancel(Notifications.PRESETS_NOTIFICATION_ID);
     }
 

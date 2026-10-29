@@ -60,7 +60,7 @@ public class Queries {
     public static Set<String> getAllInputMethodPackageNames(Context context) {
         Set<String> packageNames = new HashSet<>();
 
-        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = Managers.getInputMethodManager(context);
         if (inputMethodManager != null) {
             List<InputMethodInfo> inputMethods = inputMethodManager.getInputMethodList();
 

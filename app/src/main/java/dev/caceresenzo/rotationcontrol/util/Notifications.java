@@ -43,11 +43,7 @@ public class Notifications {
         notificationChannel.enableLights(false);
         notificationChannel.setLockscreenVisibility(NotificationCompat.VISIBILITY_SECRET);
 
-        getNotificationManager(context).createNotificationChannel(notificationChannel);
-    }
-
-    public static NotificationManager getNotificationManager(Context context) {
-        return context.getApplicationContext().getSystemService(NotificationManager.class);
+        Managers.getNotificationManager(context).createNotificationChannel(notificationChannel);
     }
 
 }

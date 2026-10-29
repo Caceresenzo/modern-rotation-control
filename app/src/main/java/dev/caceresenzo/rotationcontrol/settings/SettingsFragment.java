@@ -36,6 +36,7 @@ import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragm
 import dev.caceresenzo.rotationcontrol.settings.preset.PresetsActivity;
 import dev.caceresenzo.rotationcontrol.tile.RotationTileService;
 import dev.caceresenzo.rotationcontrol.util.Links;
+import dev.caceresenzo.rotationcontrol.util.Managers;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class SettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, RotationServiceStateProvider.Callback {
@@ -228,7 +229,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
 
     @SuppressLint("NewApi")
     private void requestAddTile(Context context) {
-        StatusBarManager statusBarManager = context.getSystemService(StatusBarManager.class);
+        StatusBarManager statusBarManager = Managers.getStatusBarManager(context);
 
         statusBarManager.requestAddTileService(
                 new ComponentName(context, RotationTileService.class),
@@ -249,7 +250,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
     }
 
     private boolean isIgnoringBatteryOptimizations(Context context) {
-        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager powerManager = Managers.getPowerManager(context);
 
         return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
     }

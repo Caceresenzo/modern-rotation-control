@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
-import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +18,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -42,6 +40,7 @@ import dev.caceresenzo.rotationcontrol.settings.ActionButton;
 import dev.caceresenzo.rotationcontrol.settings.MainActivity;
 import dev.caceresenzo.rotationcontrol.settings.RotationSharedPreferences;
 import dev.caceresenzo.rotationcontrol.util.Colors;
+import dev.caceresenzo.rotationcontrol.util.Managers;
 import dev.caceresenzo.rotationcontrol.util.Notifications;
 import dev.caceresenzo.rotationcontrol.util.Permissions;
 import lombok.Getter;
@@ -116,7 +115,7 @@ public class RotationService extends Service {
         Notifications.createChannels(this);
 
         handler = new Handler(Looper.getMainLooper());
-        windowManager = createUiWindowManager();
+        windowManager = Managers.createUiWindowManager(this);
 
         mExternalEventSystem.onCreate();
         mRefreshSystem.onCreate();
@@ -151,7 +150,7 @@ public class RotationService extends Service {
                 .putBoolean(getString(R.string.start_control_key), false)
                 .apply();
 
-        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        NotificationManager notificationManager = Managers.getNotificationManager(this);
         notificationManager.cancel(Notifications.SERVICE_NOTIFICATION_ID);
 
         stopForeground(STOP_FOREGROUND_REMOVE);
@@ -310,7 +309,7 @@ public class RotationService extends Service {
             return;
         }
 
-        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        NotificationManager notificationManager = Managers.getNotificationManager(this);
         if (isNotificationShown()) {
             notificationManager.notify(Notifications.SERVICE_NOTIFICATION_ID, createControlNotification());
         }
@@ -440,7 +439,7 @@ public class RotationService extends Service {
 
     public boolean canWriteSettingsOrStop() {
         if (Permissions.canWriteSettings(this)) {
-            NotificationManager notificationManager = Notifications.getNotificationManager(this);
+            NotificationManager notificationManager = Managers.getNotificationManager(this);
             notificationManager.cancel(Notifications.PERMISSION_SETTINGS_WRITE_NOTIFICATION_ID);
             return true;
         }
@@ -451,7 +450,7 @@ public class RotationService extends Service {
 
     public boolean canDrawOverlaysOrStop() {
         if (Permissions.canDrawOverlays(this)) {
-            NotificationManager notificationManager = Notifications.getNotificationManager(this);
+            NotificationManager notificationManager = Managers.getNotificationManager(this);
             notificationManager.cancel(Notifications.PERMISSION_DRAW_OVERLAYS_NOTIFICATION_ID);
             return true;
         }
@@ -468,7 +467,7 @@ public class RotationService extends Service {
                 .setContentIntent(MainActivity.newPendingIntent(this))
                 .build();
 
-        NotificationManager notificationManager = Notifications.getNotificationManager(this);
+        NotificationManager notificationManager = Managers.getNotificationManager(this);
         notificationManager.notify(notificationId, notification);
 
         stopSelf();
@@ -518,20 +517,6 @@ public class RotationService extends Service {
         }
 
         return true;
-    }
-
-    private WindowManager createUiWindowManager() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return getSystemService(WindowManager.class);
-        }
-
-        Display display = getSystemService(DisplayManager.class)
-                .getDisplay(Display.DEFAULT_DISPLAY);
-
-        Context uiContext = createDisplayContext(display)
-                .createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null);
-
-        return uiContext.getSystemService(WindowManager.class);
     }
 
     private PendingIntent newRefreshNotificationPendingIntent() {
@@ -713,7 +698,7 @@ public class RotationService extends Service {
     }
 
     public static boolean isRunning(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager manager = Managers.getActivityManager(context);
 
         for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (RotationService.class.getName().equals(serviceInfo.service.getClassName())) {

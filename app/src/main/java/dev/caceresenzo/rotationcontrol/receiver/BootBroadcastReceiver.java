@@ -16,6 +16,7 @@ import androidx.preference.PreferenceManager;
 import dev.caceresenzo.rotationcontrol.BuildConfig;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
+import dev.caceresenzo.rotationcontrol.util.Managers;
 import dev.caceresenzo.rotationcontrol.util.Notifications;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
@@ -77,7 +78,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
                 .setContentIntent(RotationService.newStartPendingIntent(context))
                 .build();
 
-        NotificationManager notificationManager = Notifications.getNotificationManager(context);
+        NotificationManager notificationManager = Managers.getNotificationManager(context);
         notificationManager.notify(Notifications.TAP_TO_START_NOTIFICATION_ID, notification);
     }
 
