@@ -45,6 +45,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private boolean mBiggerButton;
     private boolean mLeftHanded;
 
+    private WindowManager mRotationListenerWindowManager;
+
     private LinearLayout mSuggestionView;
     private ImageButton mSuggestedModeButtonView;
     private ImageButton mAutoModeButtonView;
@@ -91,7 +93,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
 
     public void onCreate() {
         if (IS_SUPPORTED) {
-            mService.getWindowManager().addProposedRotationListener(mService.getMainExecutor(), mOnProposedRotation);
+            mRotationListenerWindowManager = Managers.createUiWindowManager(mService);
+            mRotationListenerWindowManager.addProposedRotationListener(mService.getMainExecutor(), mOnProposedRotation);
         }
     }
 
@@ -144,7 +147,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
         mAutoModeButtonView = null;
 
         if (IS_SUPPORTED) {
-            mService.getWindowManager().removeProposedRotationListener(mOnProposedRotation);
+            mRotationListenerWindowManager.removeProposedRotationListener(mOnProposedRotation);
+            mRotationListenerWindowManager = null;
         }
     }
 
