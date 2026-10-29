@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -57,6 +58,7 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     private DisplayRotation mLastConcreteSuggestedMode;
 
     private final Runnable mHideSuggestion = this::hideSuggestion;
+    private final Object mPendingShowToken = new Object();
 
     // NOTE: `ORIENTATION_UNKNOWN` or (-1) is when the device is on a flat surface (more or less)
     private final IntConsumer mOnProposedRotation = (value) -> {
@@ -79,11 +81,14 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
             return;
         }
 
+        Handler handler = getHandler();
+        handler.removeCallbacksAndMessages(mPendingShowToken);
+
         if (suggestedRotationMode.rotationMode() == mService.getActiveMode()) {
             hideSuggestion();
         } else {
             // TODO: Not great, need better algorithm to take into account the current rotation
-            getHandler().postDelayed(() -> showSuggestion(suggestedRotationMode), 100);
+            handler.postDelayed(() -> showSuggestion(suggestedRotationMode), mPendingShowToken, 100);
         }
     };
 
@@ -140,6 +145,8 @@ public class SuggestionsSystem extends System implements View.OnClickListener {
     }
 
     public void onDestroy() {
+        getHandler().removeCallbacksAndMessages(mPendingShowToken);
+
         hideSuggestion();
 
         mSuggestionView = null;
