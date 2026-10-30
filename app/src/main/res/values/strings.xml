@@ -12,7 +12,6 @@
     <string name="tile_with_guard">(with Guard)</string>
     <string name="tile_with_presets">(with Presets)</string>
 
-    <string name="mode_deduce">Deduce from current orientation</string>
     <string name="button_guard">Guard</string>
     <string name="button_guard_description">Force the rotation of the screen.</string>
     <string name="mode_auto">Auto</string>
@@ -164,8 +163,8 @@
     <string name="automations_header">Automations</string>
 
     <string name="auto_lock_key">auto_lock</string>
-    <string name="auto_lock_title">Freeze rotation after some time</string>
-    <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s</string>
+    <string name="auto_lock_title">Activation delay</string>
+    <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s (without change)</string>
     <string name="wait_disabled">Disabled</string>
     <string name="wait_15">after 15 seconds</string>
     <string name="wait_30">after 30 seconds</string>
@@ -174,13 +173,24 @@
     <string name="auto_lock_trigger">Locked rotation mode to %s</string>
 
     <string name="auto_lock_mode_key">auto_lock_mode</string>
-    <string name="auto_lock_mode_title">Only lock for a specific mode</string>
-    <string name="auto_lock_mode_description">Set to the mode: %s</string>
+    <string name="auto_lock_mode_title">Rotation condition</string>
+    <string name="auto_lock_mode_description">Only lock for a specific mode.\nCurrently set to: %s</string>
+
+    <string name="auto_lock_mode_any">Any mode</string>
+    <string name="auto_lock_mode_any_description">Just lock, whatever the current mode.</string>
+    <string name="auto_lock_mode_portrait_description">Lock when the device is in portrait.</string>
+    <string name="auto_lock_mode_portrait_reverse_description">Lock when the device is in portrait, but reversed.</string>
+    <string name="auto_lock_mode_portrait_sensor">Portrait (Any)</string>
+    <string name="auto_lock_mode_portrait_sensor_description">Lock when the device is in portrait or reversed. Changing still reset the timer.</string>
+    <string name="auto_lock_mode_landscape_description">Lock when the device is in landscape.</string>
+    <string name="auto_lock_mode_landscape_reverse_description">Lock when the device is in landscape, but reversed.</string>
+    <string name="auto_lock_mode_landscape_sensor">Landscape (Any)</string>
+    <string name="auto_lock_mode_landscape_sensor_description">Lock when the device is in landscape or reversed. Changing still reset the timer.</string>
 
     <string name="auto_lock_force_key">auto_lock_force</string>
     <string name="auto_lock_force_title">Force apply</string>
-    <string name="auto_lock_force_description_on">Forcibly apply the rotation, ignoring the current rotation.</string>
-    <string name="auto_lock_force_description_off">Wait until the current rotation matches the setting to lock it.</string>
+    <string name="auto_lock_force_description_on">Forcibly apply the rotation, ignoring the condition.</string>
+    <string name="auto_lock_force_description_off">Wait until the current rotation matches the condition to lock it.</string>
 
     <string name="power_connection_key">power_connection</string>
     <string name="power_connection_title">Power Connection</string>

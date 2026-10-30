@@ -180,13 +180,23 @@
     </string-array>
 
     <string-array name="auto_lock_mode_entries">
-        <item>@string/mode_deduce</item>
+        <item>@string/auto_lock_mode_any</item>
         <item>@string/mode_portrait</item>
         <item>@string/mode_portrait_reverse</item>
         <item>@string/mode_portrait_sensor</item>
         <item>@string/mode_landscape</item>
         <item>@string/mode_landscape_reverse</item>
         <item>@string/mode_landscape_sensor</item>
+    </string-array>
+
+    <string-array name="auto_lock_mode_descriptions">
+        <item>@string/auto_lock_mode_any_description</item>
+        <item>@string/auto_lock_mode_portrait_description</item>
+        <item>@string/auto_lock_mode_portrait_reverse_description</item>
+        <item>@string/auto_lock_mode_portrait_sensor_description</item>
+        <item>@string/auto_lock_mode_landscape_description</item>
+        <item>@string/auto_lock_mode_landscape_reverse_description</item>
+        <item>@string/auto_lock_mode_landscape_sensor_description</item>
     </string-array>
 
     <string-array name="auto_lock_mode_values">

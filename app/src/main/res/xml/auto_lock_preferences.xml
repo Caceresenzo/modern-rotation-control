@@ -9,9 +9,10 @@
         app:summary="@string/auto_lock_description"
         app:title="@string/auto_lock_title" />
 
-    <ListPreference
+    <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
         app:defaultValue="AUTO"
         app:entries="@array/auto_lock_mode_entries"
+        app:entryDescriptions="@array/auto_lock_mode_descriptions"
         app:entryValues="@array/auto_lock_mode_values"
         app:iconSpaceReserved="false"
         app:key="@string/auto_lock_mode_key"
@@ -19,7 +20,7 @@
         app:title="@string/auto_lock_mode_title" />
 
     <SwitchPreferenceCompat
-        app:defaultValue="true"
+        app:defaultValue="false"
         app:iconSpaceReserved="false"
         app:key="@string/auto_lock_force_key"
         app:summaryOff="@string/auto_lock_force_description_off"
