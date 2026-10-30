@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -44,19 +45,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     .commit();
         }
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-
-            getSupportFragmentManager().addOnBackStackChangedListener(() -> {
-                int count = getSupportFragmentManager().getBackStackEntryCount();
-                actionBar.setDisplayHomeAsUpEnabled(count > 0);
-
-                if (count == 0) {
-                    setTitle(R.string.app_name);
-                }
-            });
-        }
+        getSupportFragmentManager().addOnBackStackChangedListener(this::updateActionBarTitle);
+        updateActionBarTitle();
 
         if (checkPermissions(true)) {
             RotationSharedPreferences preferences = RotationSharedPreferences.from(this);
@@ -64,6 +54,25 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             if (preferences.shouldStartControl()) {
                 RotationService.start(this);
             }
+        }
+    }
+
+    private void updateActionBarTitle() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        int count = fragmentManager.getBackStackEntryCount();
+        actionBar.setDisplayHomeAsUpEnabled(count > 0);
+
+        if (count == 0) {
+            setTitle(R.string.app_name);
+        } else {
+            FragmentManager.BackStackEntry topEntry = fragmentManager.getBackStackEntryAt(count - 1);
+            setTitle(topEntry.getName());
         }
     }
 
@@ -78,12 +87,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         fragment.setArguments(preference.getExtras());
 
-        getSupportFragmentManager().beginTransaction()
+        getSupportFragmentManager()
+                .beginTransaction()
                 .replace(R.id.settings, fragment)
-                .addToBackStack(null)
+                .addToBackStack(String.valueOf(preference.getTitle()))
                 .commit();
-
-        setTitle(preference.getTitle());
 
         return true;
     }
