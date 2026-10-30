@@ -187,12 +187,12 @@
     <string name="power_connection_description">Change mode when device is plugged in or unplugged.</string>
 
     <string name="power_connected_mode_key">power_connected_mode</string>
-    <string name="power_connected_mode_title">Power Connected Mode</string>
+    <string name="power_connected_mode_title">Mode when Plugging in</string>
     <string name="power_connected_mode_description">Change mode when device is plugged in.\nCurrently set to: %s</string>
     <string name="power_connected_toast">Mode changed because the device is plugged in.</string>
 
     <string name="power_disconnected_mode_key">power_disconnected_mode</string>
-    <string name="power_disconnected_mode_title">Power Disconnected Mode</string>
+    <string name="power_disconnected_mode_title">Mode when Unplugging</string>
     <string name="power_disconnected_mode_description">Change mode when device is unplugged.\nCurrently set to: %s</string>
     <string name="power_disconnected_toast">Mode changed because the device is unplugged.</string>
 
