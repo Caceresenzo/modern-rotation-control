@@ -33,7 +33,7 @@ public class UnlockBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        RotationService.notifyConfigurationChanged(context);
+        RotationService.tryActionInBackground(context, () -> RotationService.notifyConfigurationChanged(context));
     }
 
 }

@@ -27,25 +27,13 @@ public class PowerBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (isValidAction(intent.getAction(), Intent.ACTION_POWER_CONNECTED, DEBUG_ACTION_POWER_CONNECTED)) {
-            onReceive(context, R.string.power_connected_mode_key, R.string.power_connected_toast);
+            changeMode(context, R.string.power_connected_mode_key, R.string.power_connected_toast);
         } else if (isValidAction(intent.getAction(), Intent.ACTION_POWER_DISCONNECTED, DEBUG_ACTION_POWER_DISCONNECTED)) {
-            onReceive(context, R.string.power_disconnected_mode_key, R.string.power_disconnected_toast);
+            changeMode(context, R.string.power_disconnected_mode_key, R.string.power_disconnected_toast);
         }
     }
 
-    public boolean isValidAction(String action, String intentAction, String debugAction) {
-        if (intentAction.equals(action)) {
-            return true;
-        }
-
-        if (BuildConfig.DEBUG && debugAction.equals(action)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public void onReceive(Context context, @StringRes int keyId, @StringRes int toastId) {
+    public void changeMode(Context context, @StringRes int keyId, @StringRes int toastId) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
         String key = context.getString(keyId);
@@ -60,7 +48,19 @@ public class PowerBroadcastReceiver extends BroadcastReceiver {
         Toast.makeText(context, toastId, Toast.LENGTH_SHORT).show();
 
         RotationMode newMode = RotationMode.valueOf(mode);
-        RotationService.notifyChangeMode(context, newMode, true);
+        RotationService.tryActionInBackground(context, () -> RotationService.notifyChangeMode(context, newMode, true));
+    }
+
+    public boolean isValidAction(String action, String intentAction, String debugAction) {
+        if (intentAction.equals(action)) {
+            return true;
+        }
+
+        if (BuildConfig.DEBUG && debugAction.equals(action)) {
+            return true;
+        }
+
+        return false;
     }
 
 }

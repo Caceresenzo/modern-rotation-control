@@ -18,7 +18,7 @@ public class OrientationBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        RotationService.notifyOrientationChanged(context);
+        RotationService.tryActionInBackground(context, () -> RotationService.notifyOrientationChanged(context));
     }
 
 }

@@ -1,6 +1,7 @@
 package dev.caceresenzo.rotationcontrol.rotation;
 
 import android.app.ActivityManager;
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -717,6 +718,33 @@ public class RotationService extends Service {
         }
 
         return false;
+    }
+
+    public static void tryActionInBackground(Context context, Runnable runnable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                runnable.run();
+            } catch (ForegroundServiceStartNotAllowedException exception) {
+                showTapToStartNotification(context);
+            }
+        } else {
+            runnable.run();
+        }
+    }
+
+    public static void showTapToStartNotification(Context context) {
+        Notifications.createChannels(context);
+
+        Notification notification = new NotificationCompat.Builder(context, Notifications.WARNING_CHANNEL_ID)
+                .setSmallIcon(R.drawable.mode_auto)
+                .setAutoCancel(true)
+                .setContentTitle(context.getString(R.string.tap_to_start_notification_title))
+                .setContentText(context.getString(R.string.tap_to_start_notification_text))
+                .setContentIntent(RotationService.newStartPendingIntent(context))
+                .build();
+
+        NotificationManager notificationManager = Managers.getNotificationManager(context);
+        notificationManager.notify(Notifications.TAP_TO_START_NOTIFICATION_ID, notification);
     }
 
     public class LocalBinder extends Binder {

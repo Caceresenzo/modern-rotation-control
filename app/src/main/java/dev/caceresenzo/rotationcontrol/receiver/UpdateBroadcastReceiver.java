@@ -10,6 +10,7 @@ import androidx.preference.PreferenceManager;
 
 import dev.caceresenzo.rotationcontrol.BuildConfig;
 import dev.caceresenzo.rotationcontrol.R;
+import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 
 public class UpdateBroadcastReceiver extends BroadcastReceiver {
 
@@ -26,13 +27,13 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         boolean wasRunningBefore = sharedPreferences.getBoolean(context.getString(R.string.start_control_key), false);
 
-        Log.i(TAG, String.format("Received Update, was running before? %s", wasRunningBefore));
+        Log.i(TAG, String.format("received update - wasRunningBefore=%s", wasRunningBefore));
 
         if (!wasRunningBefore) {
             return;
         }
 
-        BootBroadcastReceiver.tryToStartOrShowNotification(context);
+        RotationService.tryActionInBackground(context, () -> RotationService.start(context));
     }
 
     public boolean isValidAction(String action) {
