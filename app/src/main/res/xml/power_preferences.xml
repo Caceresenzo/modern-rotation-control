@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
+        app:defaultValue="DISABLED"
+        app:entries="@array/power_mode_entries"
+        app:entryDescriptions="@array/power_mode_descriptions"
+        app:entryIcons="@array/power_mode_icons"
+        app:entryValues="@array/power_mode_values"
+        app:iconSpaceReserved="false"
+        app:key="@string/power_connected_mode_key"
+        app:summary="@string/power_connected_mode_description"
+        app:title="@string/power_connected_mode_title" />
+
+    <dev.caceresenzo.rotationcontrol.settings.preference.ListPreferenceWithDescription
+        app:defaultValue="DISABLED"
+        app:entries="@array/power_mode_entries"
+        app:entryDescriptions="@array/power_mode_descriptions"
+        app:entryIcons="@array/power_mode_icons"
+        app:entryValues="@array/power_mode_values"
+        app:iconSpaceReserved="false"
+        app:key="@string/power_disconnected_mode_key"
+        app:summary="@string/power_disconnected_mode_description"
+        app:title="@string/power_disconnected_mode_title" />
+
+</PreferenceScreen>

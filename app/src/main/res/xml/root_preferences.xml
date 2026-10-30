@@ -73,6 +73,18 @@
             app:title="@string/settings_suggestions_title" />
 
         <Preference
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.OtherSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:summary="@string/settings_other_description"
+            app:title="@string/settings_other_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/automations_header">
+
+        <Preference
             app:fragment="dev.caceresenzo.rotationcontrol.settings.AutoLockSettingsFragment"
             app:iconSpaceReserved="false"
             app:summary="@string/settings_auto_lock_header_description"
@@ -85,11 +97,11 @@
             app:title="@string/configure_presets_title" />
 
         <Preference
-            app:fragment="dev.caceresenzo.rotationcontrol.settings.OtherSettingsFragment"
+            app:fragment="dev.caceresenzo.rotationcontrol.settings.PowerSettingsFragment"
             app:iconSpaceReserved="false"
-            app:summary="@string/settings_other_description"
-            app:title="@string/settings_other_title" />
-
+            app:key="@string/power_connection_key"
+            app:summary="@string/power_connection_description"
+            app:title="@string/power_connection_title" />
     </PreferenceCategory>
 
     <PreferenceCategory

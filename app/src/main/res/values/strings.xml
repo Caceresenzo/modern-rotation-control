@@ -161,6 +161,8 @@
     <string name="delay_normal">Normal (0.6s)</string>
     <string name="delay_slow">Slow (1s)</string>
 
+    <string name="automations_header">Automations</string>
+
     <string name="auto_lock_key">auto_lock</string>
     <string name="auto_lock_title">Freeze rotation after some time</string>
     <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s</string>
@@ -179,6 +181,23 @@
     <string name="auto_lock_force_title">Force apply</string>
     <string name="auto_lock_force_description_on">Forcibly apply the rotation, ignoring the current rotation.</string>
     <string name="auto_lock_force_description_off">Wait until the current rotation matches the setting to lock it.</string>
+
+    <string name="power_connection_key">power_connection</string>
+    <string name="power_connection_title">Power Connection</string>
+    <string name="power_connection_description">Change mode when device is plugged in or unplugged.</string>
+
+    <string name="power_connected_mode_key">power_connected_mode</string>
+    <string name="power_connected_mode_title">Power Connected Mode</string>
+    <string name="power_connected_mode_description">Change mode when device is plugged in.\nCurrently set to: %s</string>
+    <string name="power_connected_toast">Mode changed because the device is plugged in.</string>
+
+    <string name="power_disconnected_mode_key">power_disconnected_mode</string>
+    <string name="power_disconnected_mode_title">Power Disconnected Mode</string>
+    <string name="power_disconnected_mode_description">Change mode when device is unplugged.\nCurrently set to: %s</string>
+    <string name="power_disconnected_toast">Mode changed because the device is unplugged.</string>
+
+    <string name="power_mode_disabled">Disabled</string>
+    <string name="power_mode_disabled_description">Don\'t do anything.</string>
 
     <string name="controls_notification_channel_name">Controls</string>
     <string name="service_notification_channel_name">Background Service</string>

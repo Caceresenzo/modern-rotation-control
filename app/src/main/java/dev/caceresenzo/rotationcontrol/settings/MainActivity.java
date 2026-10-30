@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
@@ -37,12 +36,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
-        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, true);
-        PreferenceManager.setDefaultValues(this, R.xml.tile_preferences, true);
-        PreferenceManager.setDefaultValues(this, R.xml.notification_preferences, true);
-        PreferenceManager.setDefaultValues(this, R.xml.auto_lock_preferences, true);
-        PreferenceManager.setDefaultValues(this, R.xml.other_preferences, true);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()

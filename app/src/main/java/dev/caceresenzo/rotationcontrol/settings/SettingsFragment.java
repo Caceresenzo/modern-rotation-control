@@ -72,9 +72,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat implements 
 
         findPreference(getString(R.string.start_control_key)).setOnPreferenceChangeListener(this);
 
-        findPreference(getString(R.string.configure_presets_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.install_tile_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.battery_optimization_key)).setOnPreferenceClickListener(this);
+
+        findPreference(getString(R.string.configure_presets_key)).setOnPreferenceClickListener(this);
 
         findPreference(getString(R.string.view_on_github_key)).setOnPreferenceClickListener(this);
         findPreference(getString(R.string.open_source_licenses_key)).setOnPreferenceClickListener(this);

@@ -198,4 +198,52 @@
         <item>LANDSCAPE_REVERSE</item>
         <item>LANDSCAPE_SENSOR</item>
     </string-array>
+
+    <string-array name="power_mode_entries">
+        <item>@string/power_mode_disabled</item>
+        <item>@string/button_guard</item>
+        <item>@string/mode_auto</item>
+        <item>@string/mode_portrait</item>
+        <item>@string/mode_portrait_reverse</item>
+        <item>@string/mode_portrait_sensor</item>
+        <item>@string/mode_landscape</item>
+        <item>@string/mode_landscape_reverse</item>
+        <item>@string/mode_landscape_sensor</item>
+    </string-array>
+
+    <string-array name="power_mode_descriptions">
+        <item>@string/power_mode_disabled_description</item>
+        <item>@string/button_guard_description</item>
+        <item>@string/mode_auto_description</item>
+        <item>@string/mode_portrait_description</item>
+        <item>@string/mode_portrait_reverse_description</item>
+        <item>@string/mode_portrait_sensor_description</item>
+        <item>@string/mode_landscape_description</item>
+        <item>@string/mode_landscape_reverse_description</item>
+        <item>@string/mode_landscape_sensor_description</item>
+    </string-array>
+
+    <string-array name="power_mode_icons">
+        <item></item>
+        <item>@drawable/guard</item>
+        <item>@drawable/mode_auto</item>
+        <item>@drawable/mode_portrait</item>
+        <item>@drawable/mode_portrait_reverse</item>
+        <item>@drawable/mode_portrait_sensor</item>
+        <item>@drawable/mode_landscape</item>
+        <item>@drawable/mode_landscape_reverse</item>
+        <item>@drawable/mode_landscape_sensor</item>
+    </string-array>
+
+    <string-array name="power_mode_values">
+        <item>DISABLED</item>
+        <item>GUARD</item>
+        <item>AUTO</item>
+        <item>PORTRAIT</item>
+        <item>PORTRAIT_REVERSE</item>
+        <item>PORTRAIT_SENSOR</item>
+        <item>LANDSCAPE</item>
+        <item>LANDSCAPE_REVERSE</item>
+        <item>LANDSCAPE_SENSOR</item>
+    </string-array>
 </resources>

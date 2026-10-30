@@ -3,8 +3,6 @@ package dev.caceresenzo.rotationcontrol.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -15,7 +13,6 @@ import java.util.Set;
 import dev.caceresenzo.rotationcontrol.R;
 import dev.caceresenzo.rotationcontrol.rotation.RotationService;
 import dev.caceresenzo.rotationcontrol.settings.preference.CustomPreferenceFragmentCompat;
-import dev.caceresenzo.rotationcontrol.util.Permissions;
 
 public class SuggestionsSettingsFragment extends CustomPreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 

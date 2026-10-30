@@ -680,6 +680,16 @@ public class RotationService extends Service {
         context.startForegroundService(intent);
     }
 
+    public static void notifyChangeMode(Context context, RotationMode newMode, boolean forceStart) {
+        if (!forceStart && !isRunning(context)) {
+            return;
+        }
+
+        Intent intent = newChangeModeIntent(context, newMode);
+
+        context.startForegroundService(intent);
+    }
+
     public static void notifyKeyboardAppeared(Context context) {
         if (!isRunning(context)) {
             return;
