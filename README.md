@@ -19,6 +19,8 @@ An improved clone of [Crape Myrtle's Rotation Control](https://play.google.com/s
   </tbody>
 </table>
 
+<small>The pictures are not up to date. More features have been added since then.</small>
+
 ## Motivation
 
 I originally only wanted to redesign the notification, but the application has since grown many more features.
