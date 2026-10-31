@@ -164,7 +164,7 @@
 
     <string name="auto_lock_key">auto_lock</string>
     <string name="auto_lock_title">Activation delay</string>
-    <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s (without change)</string>
+    <string name="auto_lock_description">Automatically lock the mode that corresponds to the device orientation: %s</string>
     <string name="wait_disabled">Disabled</string>
     <string name="wait_15">after 15 seconds</string>
     <string name="wait_30">after 30 seconds</string>
