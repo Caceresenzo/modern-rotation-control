@@ -68,6 +68,13 @@ This is especially useful for applications that only support a specific orientat
 > [!NOTE]
 > This feature requires an Accessibility Service.
 
+### Power Connection Trigger
+
+Automatically change the rotation when you connect or disconnect your device to or from the wall.
+
+> [!NOTE]
+> This feature requires the Rotation service to already be running.
+
 ## Contributing
 
 Feel free to [open an issue](https://github.com/Caceresenzo/modern-rotation-control/issues) if you'd like to request a feature.
